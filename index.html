@@ -1,30 +1,356 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth bg-[#0a0a0a]">
+<html lang="en" class="scroll-smooth bg-[#1a1a2e]">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Worship Team | FUBC</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <title>FUBC Band | Official Site</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+
     <script>
-        tailwind.config = { theme: { extend: { fontFamily: { sans: ['Outfit', 'sans-serif'] }, colors: { surface: '#121212', accent: '#6366f1' }, animation: { 'equalizer': 'equalizer 1s ease-in-out infinite' }, keyframes: { equalizer: { '0%, 100%': { height: '20%' }, '50%': { height: '100%' } } } } } }
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Montserrat', 'sans-serif'] },
+                    colors: {
+                        // Professional "Symphonic" Palette
+                        bgDark: '#1a1a2e',      // Deep Charcoal Blue
+                        bgCard: '#252540',      // Lighter section bg
+                        textLight: '#e0e0e0',   // Off-white text
+                        textMuted: '#a0a0b0',   // Muted text
+                        brass: '#d4af37',       // Elegant Gold/Brass Accent
+                        brassDark: '#aa8c2c',
+                    },
+                    backgroundImage: {
+                        'hero-pattern': "linear-gradient(to bottom, rgba(26, 26, 46, 0.85), rgba(26, 26, 46, 1)), url('https://images.unsplash.com/photo-1511192336263-5db30874a280?q=80&w=2074&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')", // Placeholder band image
+                    }
+                }
+            }
+        }
     </script>
+    <style>
+        [x-cloak] { display: none !important; }
+        .brass-gradient { background: linear-gradient(135deg, #d4af37, #aa8c2c); }
+        /* Clean Scrollbar */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #1a1a2e; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 5px; border: 2px solid #1a1a2e; }
+    </style>
 </head>
-<body class="text-gray-300 antialiased pb-24" x-data="{ lang: 'en', showLibrary: false, searchQuery: '', data: null, async init() { try { this.data = await (await fetch('/data.json')).json(); } catch (e) { console.error('Could not load data'); } }, get filteredSongs() { if (!this.data || this.searchQuery === '') return this.data ? this.data.allSongs : []; const q = this.searchQuery.toLowerCase(); return this.data.allSongs.filter(s => (s.n && s.n.toString().includes(q)) || (s.u && s.u.toLowerCase().includes(q))); } }">
-    <div x-show="!data" class="fixed inset-0 bg-[#0a0a0a] flex items-center justify-center z-[100]"><div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-accent"></div></div>
-    <div x-show="data" x-cloak>
-        <nav class="fixed w-full z-50 bg-[#0a0a0a]/90 backdrop-blur border-b border-white/5"><div class="max-w-6xl mx-auto px-4 h-16 flex justify-between items-center"><div class="font-bold text-xl text-white">FUBC <span class="text-accent font-light">WORSHIP</span></div><button @click="lang = lang === 'en' ? 'ua' : 'en'" class="text-xs font-bold bg-white/10 px-3 py-1 rounded-full text-white"><span :class="{'text-accent': lang==='en'}">EN</span> / <span :class="{'text-accent': lang==='ua'}">UA</span></button></div></nav>
-        <main class="pt-24 max-w-6xl mx-auto px-4 space-y-6">
-            <div class="rounded-xl bg-[#111] p-6 border border-white/5 flex items-center gap-5"><div class="h-12 w-12 rounded-full bg-white/5 flex items-center justify-center border border-white/10"><div x-show="!data.settings.isRehearsalCanceled" class="flex gap-1 items-end h-5"><span class="w-1 bg-emerald-500 rounded-full animate-equalizer"></span><span class="w-1 bg-emerald-500 rounded-full animate-equalizer" style="animation-delay: 0.2s"></span><span class="w-1 bg-emerald-500 rounded-full animate-equalizer" style="animation-delay: 0.4s"></span></div><svg x-show="data.settings.isRehearsalCanceled" class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></div><div><h2 class="text-xl font-bold text-white"><span x-show="!data.settings.isRehearsalCanceled">Rehearsal <span class="text-emerald-400">ON</span></span><span x-show="data.settings.isRehearsalCanceled">Rehearsal <span class="text-red-500">CANCELED</span></span></h2><p class="text-sm text-gray-400"><span x-text="data.settings.nextRehearsalDate"></span> • <span x-text="data.settings.nextRehearsalTime"></span></p></div></div>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-2 space-y-4"><h3 class="text-white font-bold">Setlist</h3><template x-for="song in data.currentSetlist" :key="song.title"><div class="glass-card rounded-xl p-5 relative overflow-hidden group"><div class="flex justify-between items-center relative z-10"><div class="flex items-center gap-4"><div class="h-10 w-10 rounded bg-white/5 flex items-center justify-center text-accent font-bold text-sm" x-text="song.binderNumber"></div><div><h4 class="text-white font-medium" x-text="song.title"></h4><p class="text-gray-500 text-sm" x-text="song.sub"></p></div></div><div class="flex gap-2" x-show="song.link || song.chords"><template x-if="song.link"><a :href="song.link" target="_blank" class="px-3 py-1.5 rounded bg-[#222] border border-white/10 text-xs text-white">Audio</a></template><template x-if="song.chords"><a :href="song.chords" target="_blank" class="px-3 py-1.5 rounded bg-[#222] border border-white/10 text-xs text-white">Chords</a></template></div></div></div></template><button @click="showLibrary = true" class="w-full py-3 rounded-xl border border-dashed border-gray-700 text-gray-500 hover:text-white hover:bg-white/5 transition text-sm">Browse Full Library</button></div>
-                <div class="space-y-6"><div class="glass-card rounded-xl p-6"><h3 class="text-white font-bold mb-4">Upcoming</h3><div class="space-y-4"><template x-for="event in data.events"><div class="flex gap-4"><div class="h-10 w-10 rounded bg-white/5 flex flex-col items-center justify-center border border-white/10"><span class="text-[9px] text-gray-400 uppercase font-bold" x-text="event.date.split(' ')[0]"></span><span class="text-xs text-white font-bold" x-text="event.date.split(' ')[1]"></span></div><div><h4 class="text-gray-200 text-sm font-medium" x-text="lang === 'en' ? event.title_en : event.title_ua"></h4><p class="text-gray-500 text-xs" x-text="event.day + ' • ' + event.time"></p></div></div></template></div></div></div>
-            </div>
-        </main>
-        <div x-show="showLibrary" x-transition.opacity class="fixed inset-0 z-[100] flex items-center justify-center p-4" x-cloak><div @click="showLibrary = false" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div><div class="relative w-full max-w-2xl bg-[#121212] border border-gray-800 rounded-2xl flex flex-col max-h-[85vh]"><div class="p-4 border-b border-gray-800 flex gap-3"><input x-model="searchQuery" type="text" placeholder="Search..." class="bg-transparent text-white w-full focus:outline-none" autofocus></div><div class="overflow-y-auto p-2"><template x-for="song in filteredSongs" :key="song.u"><div class="flex items-center gap-4 p-3 hover:bg-white/5 rounded text-gray-300"><span class="font-mono w-8 text-right text-gray-500" x-text="'#'+song.n"></span><span x-text="song.u"></span></div></template></div></div></div>
+
+<body class="text-textLight antialiased"
+    x-data="{ 
+        lang: 'en', 
+        showLibrary: false, 
+        searchQuery: '',
+        data: null,
+        
+        async init() {
+            try {
+                this.data = await (await fetch('/data.json')).json();
+            } catch (e) { console.error('Could not load data - ensure data.json exists'); }
+        },
+
+        // Date Logic
+        get nextFriday() {
+            const d = new Date();
+            // If today is Friday and past 10pm, show next week's date
+            if (d.getDay() === 5 && d.getHours() >= 22) { d.setDate(d.getDate() + 1); }
+            const daysUntilFriday = (5 - d.getDay() + 7) % 7;
+            // If it's currently Friday before 10pm, keep today's date. Otherwise add days.
+            if (daysUntilFriday > 0 || (daysUntilFriday === 0 && d.getHours() >= 22)) {
+                 d.setDate(d.getDate() + (daysUntilFriday === 0 ? 7 : daysUntilFriday));
+            }
+            return d.toLocaleDateString(this.lang === 'en' ? 'en-US' : 'uk-UA', { month: 'long', day: 'numeric' });
+        },
+
+        get filteredSongs() {
+            if (!this.data || this.searchQuery === '') return this.data ? this.data.allSongs : [];
+            const q = this.searchQuery.toLowerCase();
+            return this.data.allSongs.filter(s => (s.n && s.n.toString().includes(q)) || (s.u && s.u.toLowerCase().includes(q)));
+        }
+    }"
+>
+    <div x-show="!data" class="fixed inset-0 bg-bgDark flex items-center justify-center z-[100]" x-transition.opacity>
+        <div class="flex flex-col items-center gap-4">
+             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-12 h-12 text-brass animate-pulse">
+                <path d="M19.5 0c.83 0 1.5.67 1.5 1.5v21c0 .83-.67 1.5-1.5 1.5S18 23.33 18 22.5V1.5c0-.83.67-1.5 1.5-1.5zM4.5 0C3.67 0 3 .67 3 1.5v21c0 .83.67 1.5 1.5 1.5S6 23.33 6 22.5V1.5C6 .67 5.33 0 4.5 0zm7.5 6c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5s-1.5-.67-1.5-1.5v-9c0-.83.67-1.5 1.5-1.5z"/>
+              </svg>
+             <span class="text-brass uppercase tracking-widest text-sm font-semibold">Loading Engine</span>
+        </div>
     </div>
+
+    <div x-show="data" x-cloak class="min-h-screen flex flex-col">
+        
+        <nav class="sticky top-0 z-50 bg-bgDark/95 backdrop-blur-md border-b border-white/10 shadow-lg">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+                <div class="flex justify-between h-20 items-center">
+                    
+                    <div class="flex items-center gap-3 group">
+                        <div class="relative h-10 w-10 flex items-center justify-center rounded-full bg-gradient-to-br from-brass to-brassDark shadow-lg group-hover:scale-105 transition-transform">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-bgDark">
+                                <path fill-rule="evenodd" d="M19.952 1.651a.75.75 0 0 1 .298.599V21.75a.75.75 0 0 1-1.5 0V2.25a.75.75 0 0 1 .298-.599ZM5.25 2.25a.75.75 0 0 1 1.5 0v19.5a.75.75 0 0 1-1.5 0V2.25Zm6.75 6a.75.75 0 0 1 1.5 0v7.5a.75.75 0 0 1-1.5 0V8.25ZM1.5 2.25a.75.75 0 0 1 1.5 0v19.5a.75.75 0 0 1-1.5 0V2.25Zm16.5 0a.75.75 0 0 1 1.5 0v19.5a.75.75 0 0 1-1.5 0V2.25ZM9 8.25a.75.75 0 0 1 1.5 0v7.5a.75.75 0 0 1-1.5 0V8.25ZM12.75 8.25a.75.75 0 0 1 1.5 0v7.5a.75.75 0 0 1-1.5 0V8.25Z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="font-bold text-2xl tracking-tight text-white leading-none">
+                            FUBC <span class="text-brass block text-sm font-medium tracking-widest">BAND</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-8">
+                        <div class="hidden md:flex items-center gap-6 text-sm font-semibold tracking-wide text-textMuted">
+                            <a href="#setlist" class="hover:text-brass transition-colors">Setlist</a>
+                            <a href="#schedule" class="hover:text-brass transition-colors">Schedule</a>
+                            <a href="#media" class="hover:text-brass transition-colors">Media</a>
+                        </div>
+                        <button @click="lang = lang === 'en' ? 'ua' : 'en'" class="flex items-center gap-2 bg-bgCard px-3 py-1.5 rounded-md border border-white/10 hover:border-brass transition-colors text-xs font-bold">
+                            <span :class="lang === 'en' ? 'text-brass' : 'text-textMuted'">EN</span>
+                            <span class="text-white/20">|</span>
+                            <span :class="lang === 'ua' ? 'text-brass' : 'text-textMuted'">UA</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="relative bg-hero-pattern bg-cover bg-center py-24 sm:py-32 border-b border-white/5">
+            <div class="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8 relative z-10">
+                <h1 class="text-4xl sm:text-6xl font-extrabold text-white tracking-tight mb-6">
+                    <span x-show="lang === 'en'">Instrumental Worship</span>
+                    <span x-show="lang === 'ua'" x-cloak>Інструментальне Прославлення</span>
+                </h1>
+                <p class="text-lg sm:text-xl text-textMuted mb-10 max-w-2xl mx-auto">
+                    <span x-show="lang === 'en'">First Ukrainian Baptist Church Band. Serving through music.</span>
+                    <span x-show="lang === 'ua'" x-cloak>Оркестр Першої Української Баптистської Церкви. Служіння через музику.</span>
+                </p>
+                <div class="flex justify-center gap-4">
+                    <a href="#setlist" class="px-8 py-4 rounded-md bg-brass hover:bg-brassDark text-bgDark font-bold transition-all shadow-lg hover:shadow-brass/20">
+                        <span x-show="lang === 'en'">View Current Setlist</span><span x-show="lang === 'ua'" x-cloak>Поточний Репертуар</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-bgCard border-b border-white/5 py-3 px-4 sm:px-6 lg:px-8">
+             <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+                 <div class="flex items-center gap-4">
+                    <div class="flex h-3 w-3 relative">
+                        <span x-show="!data.settings.isRehearsalCanceled" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3" :class="data.settings.isRehearsalCanceled ? 'bg-red-500' : 'bg-emerald-500'"></span>
+                    </div>
+                    <div class="text-sm font-medium">
+                        <span class="text-textMuted uppercase tracking-wider text-xs block sm:inline sm:mr-2">Operational Status:</span>
+                        <span x-show="!data.settings.isRehearsalCanceled" class="text-white"><span x-show="lang === 'en'">Normal Schedule</span><span x-show="lang === 'ua'" x-cloak>За Розкладом</span></span>
+                        <span x-show="data.settings.isRehearsalCanceled" class="text-red-400 font-bold"><span x-show="lang === 'en'">Rehearsal Canceled/Alert</span><span x-show="lang === 'ua'" x-cloak>УВАГА: Скасування</span></span>
+                    </div>
+                 </div>
+                 <div class="text-sm text-textMuted flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-brass"><path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z" clip-rule="evenodd" /></svg>
+                    <span x-show="lang === 'en'">Next Rehearsal:</span><span x-show="lang === 'ua'" x-cloak>Наступна Репетиція:</span>
+                    <span x-text="nextFriday" class="text-white font-semibold"></span>
+                 </div>
+             </div>
+        </div>
+
+
+        <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-24">
+
+            <section id="setlist" class="scroll-mt-24">
+                <div class="flex items-end justify-between mb-8 pb-4 border-b border-white/10">
+                    <div>
+                        <h2 class="text-3xl font-bold text-white tracking-tight mb-2">
+                            <span x-show="lang === 'en'">Performance Setlist</span>
+                            <span x-show="lang === 'ua'" x-cloak>Програма Виступу</span>
+                        </h2>
+                        <p class="text-brass font-medium">
+                            <span x-show="lang === 'en'">Upcoming Service Material</span>
+                            <span x-show="lang === 'ua'" x-cloak>Матеріал найближчого служіння</span>
+                        </p>
+                    </div>
+                    <button @click="showLibrary = true" class="hidden sm:flex items-center gap-2 px-4 py-2 bg-bgCard hover:bg-white/5 border border-white/10 rounded-md text-sm font-semibold transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-brass"><path fill-rule="evenodd" d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z" clip-rule="evenodd" /></svg>
+                        <span x-show="lang === 'en'">Master Library</span><span x-show="lang === 'ua'" x-cloak>Архів Пісень</span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <template x-for="song in data.currentSetlist" :key="song.title">
+                        <div class="bg-bgCard rounded-lg border border-white/5 p-6 hover:border-brass/30 transition-all group">
+                            <div class="flex justify-between items-start mb-6">
+                                <div>
+                                    <h3 class="text-xl font-bold text-white group-hover:text-brass transition-colors" x-text="song.title"></h3>
+                                    <p class="text-textMuted text-sm mt-1" x-text="song.sub"></p>
+                                </div>
+                                <span class="px-3 py-1 rounded-full bg-bgDark border border-white/10 text-xs font-bold text-brass" x-text="song.binderNumber && song.binderNumber !== 'New' ? '#' + song.binderNumber : 'New'"></span>
+                            </div>
+                            
+                            <div class="flex gap-3" x-show="song.link || song.chords">
+                                <template x-if="song.link">
+                                    <a :href="song.link" target="_blank" class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-md bg-[#1a1a2e] hover:bg-brass hover:text-bgDark border border-white/10 hover:border-transparent text-sm font-bold transition-all text-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.508c-1.141 0-2.318.664-2.66 1.905A9.76 9.76 0 0 0 1.5 12c0 2.489.88 4.759 2.348 6.595.342 1.24 1.519 1.905 2.66 1.905h1.932l4.5 4.5c.945.945 2.561.276 2.561-1.06V4.06ZM18.584 5.106a.75.75 0 0 1 1.06 0c3.808 3.807 3.808 9.98 0 13.788a.75.75 0 1 1-1.06-1.06 2.75 2.75 0 0 0 0 11.668.75.75 0 0 1 1.06-1.06Z"/></svg>
+                                        Listen
+                                    </a>
+                                </template>
+                                <template x-if="song.chords">
+                                    <a :href="song.chords" target="_blank" class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-md bg-[#1a1a2e] hover:bg-white hover:text-bgDark border border-white/10 hover:border-transparent text-sm font-bold transition-all text-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M5.625 1.5c-1.036 0-1.875.84-1.875 1.875v17.25c0 1.035.84 1.875 1.875 1.875h12.75c1.035 0 1.875-.84 1.875-1.875V1.5c0-1.036-.84-1.875-1.875-1.875H5.625ZM7.5 15a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5h-7.5A.75.75 0 0 1 7.5 15Zm.75 2.25a.75.75 0 0 0 0 1.5h7.5a.75.75 0 0 0 0-1.5h-7.5Z" clip-rule="evenodd" /></svg>
+                                        Notes
+                                    </a>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                <button @click="showLibrary = true" class="sm:hidden w-full mt-6 flex items-center justify-center gap-2 px-4 py-3 bg-bgCard hover:bg-white/5 border border-white/10 rounded-md text-sm font-semibold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-brass"><path fill-rule="evenodd" d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z" clip-rule="evenodd" /></svg>
+                    <span x-show="lang === 'en'">Search Master Library</span><span x-show="lang === 'ua'" x-cloak>Пошук в Архіві</span>
+                </button>
+            </section>
+
+
+            <section id="schedule" class="scroll-mt-24 grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <div class="lg:col-span-2">
+                    <h2 class="text-3xl font-bold text-white tracking-tight mb-8 pb-4 border-b border-white/10">
+                        <span x-show="lang === 'en'">Upcoming Schedule</span>
+                        <span x-show="lang === 'ua'" x-cloak>Розклад Подій</span>
+                    </h2>
+                    <div class="space-y-4">
+                        
+                        <div class="bg-bgCard p-6 rounded-lg border-l-4 border-brass flex items-center gap-6">
+                             <div class="h-14 w-14 rounded-md bg-bgDark border border-white/5 flex flex-col items-center justify-center text-center">
+                                <span class="text-xs text-brass font-bold uppercase tracking-wider" x-text="nextFriday.split(' ')[0]"></span>
+                                <span class="text-xl text-white font-extrabold leading-none" x-text="nextFriday.split(' ')[1]"></span>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-white">
+                                    <span x-show="lang === 'en'">Weekly Band Rehearsal</span><span x-show="lang === 'ua'" x-cloak>Щотижнева Репетиція</span>
+                                </h3>
+                                <p class="text-textMuted text-sm mt-1">
+                                    <span x-show="lang === 'en'">Friday</span><span x-show="lang === 'ua'" x-cloak>П'ятниця</span> • 9:00 PM - 11:00 PM
+                                </p>
+                                <span x-show="data.settings.isRehearsalCanceled" class="inline-block mt-2 px-2 py-0.5 bg-red-500/20 text-red-400 text-xs font-bold rounded uppercase">Canceled</span>
+                            </div>
+                        </div>
+
+                        <template x-for="event in data.events">
+                            <div class="bg-bgCard p-6 rounded-lg border border-white/5 flex items-center gap-6">
+                                <div class="h-14 w-14 rounded-md bg-bgDark border border-white/5 flex flex-col items-center justify-center text-center">
+                                    <span class="text-xs text-textMuted font-bold uppercase tracking-wider" x-text="event.date.split(' ')[0]"></span>
+                                    <span class="text-xl text-white font-extrabold leading-none" x-text="event.date.split(' ')[1]"></span>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-white" x-text="lang === 'en' ? event.title_en : event.title_ua"></h3>
+                                    <p class="text-textMuted text-sm mt-1" x-text="event.day + ' • ' + event.time"></p>
+                                </div>
+                            </div>
+                        </template>
+
+                    </div>
+                </div>
+
+                <div>
+                    <div class="bg-gradient-to-br from-brass to-brassDark p-1 rounded-lg">
+                        <div class="bg-bgDark rounded-lg p-6">
+                            <h3 class="text-xl font-bold text-white mb-2">
+                                <span x-show="lang === 'en'">Report Absence</span><span x-show="lang === 'ua'" x-cloak>Повідомити про відсутність</span>
+                            </h3>
+                            <p class="text-textMuted text-sm mb-6">Please notify leadership if you cannot attend.</p>
+                            
+                            <form name="attendance" method="POST" data-netlify="true" class="space-y-4">
+                                <input type="hidden" name="form-name" value="attendance" />
+                                <div>
+                                    <label class="sr-only">Name</label>
+                                    <input type="text" name="name" required placeholder="Your Name / Ім'я" class="w-full bg-bgCard border border-white/10 focus:border-brass rounded-md px-4 py-3 text-sm text-white placeholder-textMuted focus:outline-none transition-colors">
+                                </div>
+                                <div>
+                                    <label class="sr-only">Date Missing</label>
+                                    <input type="date" name="date" required class="w-full bg-bgCard border border-white/10 focus:border-brass rounded-md px-4 py-3 text-sm text-white placeholder-textMuted focus:outline-none transition-colors [color-scheme:dark]">
+                                </div>
+                                <button type="submit" class="w-full bg-brass hover:bg-brassDark text-bgDark font-bold text-sm py-3 rounded-md transition-colors shadow-lg">
+                                    <span x-show="lang === 'en'">Submit Notification</span><span x-show="lang === 'ua'" x-cloak>Надіслати</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+             <section id="media" class="scroll-mt-24">
+                <div class="flex items-end justify-between mb-8 pb-4 border-b border-white/10">
+                    <div>
+                        <h2 class="text-3xl font-bold text-white tracking-tight mb-2">
+                            <span x-show="lang === 'en'">Media Gallery</span>
+                            <span x-show="lang === 'ua'" x-cloak>Медіа Галерея</span>
+                        </h2>
+                        <p class="text-brass font-medium">Past Performances</p>
+                    </div>
+                    <a href="https://www.youtube.com/@FirstUkrainianBaptistChurch" target="_blank" class="hidden sm:flex items-center gap-2 text-sm font-bold text-textMuted hover:text-white transition-colors">
+                        YouTube Channel &rarr;
+                    </a>
+                </div>
+
+                 <div class="relative w-full aspect-video bg-bgCard rounded-xl overflow-hidden shadow-2xl border border-white/10">
+                    <iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/videoseries?list=PLqmdWSP7QrZ5hK9MdbSxGiC9NlsI3vL7f" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+            </section>
+
+        </main>
+
+        <footer class="bg-bgDark border-t border-white/5 py-8 text-center">
+             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                 <div class="font-bold text-lg tracking-tight text-white leading-none">
+                    FUBC <span class="text-brass text-sm tracking-widest">BAND</span>
+                </div>
+                 <p class="text-textMuted text-sm">
+                    &copy; 2026 First Ukrainian Baptist Church. All rights reserved.
+                </p>
+             </div>
+        </footer>
+
+        <div x-show="showLibrary" x-transition.opacity class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6" x-cloak>
+            <div @click="showLibrary = false" class="absolute inset-0 bg-bgDark/90 backdrop-blur-sm"></div>
+            
+            <div class="relative w-full max-w-3xl bg-bgCard border border-white/10 rounded-xl shadow-2xl flex flex-col max-h-[80vh] overflow-hidden">
+                
+                <div class="p-6 border-b border-white/10 bg-bgDark flex items-center justify-between">
+                    <h3 class="text-xl font-bold text-white">
+                        <span x-show="lang === 'en'">Master Song Library</span><span x-show="lang === 'ua'" x-cloak>Повний Архів Пісень</span>
+                    </h3>
+                    <button @click="showLibrary = false" class="p-2 bg-white/5 hover:bg-white/10 rounded-full text-textMuted hover:text-white transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+                
+                <div class="p-4 bg-bgCard border-b border-white/10 relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="absolute left-7 top-1/2 -translate-y-1/2 w-5 h-5 text-textMuted"><path fill-rule="evenodd" d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z" clip-rule="evenodd" /></svg>
+                    <input x-model="searchQuery" type="text" :placeholder="lang === 'en' ? 'Search by number or title...' : 'Пошук за номером або назвою...'" class="w-full bg-bgDark border border-white/10 focus:border-brass rounded-md pl-12 pr-4 py-3 text-white placeholder-textMuted focus:outline-none transition-colors">
+                </div>
+
+                <div class="overflow-y-auto p-2 flex-grow bg-bgDark">
+                    <template x-for="song in filteredSongs" :key="song.u + song.n">
+                        <div class="flex items-center gap-4 p-4 hover:bg-white/5 rounded-md transition-colors border-b border-white/5 last:border-0 group">
+                            <span class="font-mono text-sm font-bold text-brass w-12 text-right" x-text="song.n && song.n !== 'New' ? '#' + song.n : ''"></span>
+                            <span class="text-white font-medium group-hover:text-brass transition-colors" x-text="song.u"></span>
+                            <span x-show="!song.n || song.n === 'New'" class="ml-auto text-xs uppercase font-bold text-textMuted bg-white/5 px-2 py-1 rounded">New</span>
+                        </div>
+                    </template>
+                    <div x-show="filteredSongs.length === 0" class="p-8 text-center text-textMuted italic">
+                        No songs found matching "<span x-text="searchQuery"></span>"
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    
     <script>if (window.netlifyIdentity) { window.netlifyIdentity.on("init", user => { if (!user) { window.netlifyIdentity.on("login", () => { document.location.href = "/admin/"; }); } }); }</script>
 </body>
 </html>
