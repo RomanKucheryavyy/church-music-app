@@ -26,7 +26,7 @@
                         brassLight: '#d97706',  
                     },
                     animation: {
-                        marquee: 'marquee 50s linear infinite', // Very slow, gentle ticker
+                        marquee: 'marquee 50s linear infinite',
                     },
                     keyframes: {
                         marquee: {
@@ -55,7 +55,7 @@
         verse: null,
 
         // --- DATA FALLBACKS ---
-        settings: { isRehearsalCanceled: false },
+        settings: { isRehearsalCanceled: false, conductorNote: '' },
         events: [], 
         currentSetlist: [],
         allSongs: [],
@@ -173,7 +173,6 @@
 
     <div class="relative w-full h-64 sm:h-80 lg:h-96 bg-slate-900 overflow-hidden">
         <img src="https://images.unsplash.com/photo-1573871669414-010dbf73ca84?q=80&w=2071&auto=format&fit=crop" alt="Brass Instruments" class="absolute inset-0 w-full h-full object-cover opacity-40">
-        
         <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
             <h1 class="text-3xl sm:text-5xl font-bold text-white tracking-tight mb-2 drop-shadow-lg">
                 <span x-show="lang === 'en'">Praising God Through Music</span>
@@ -187,6 +186,23 @@
     </div>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
+
+        <div x-show="settings.conductorNote" x-cloak class="bg-amber-50 border-l-4 border-brass p-4 rounded-r shadow-sm">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-brass" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-bold text-amber-800 uppercase tracking-wide mb-1">
+                        <span x-show="lang === 'en'">Note from Leadership</span>
+                        <span x-show="lang === 'ua'" x-cloak>Повідомлення від Диригента</span>
+                    </h3>
+                    <div class="text-sm text-amber-700 font-medium" x-text="settings.conductorNote"></div>
+                </div>
+            </div>
+        </div>
 
         <section id="setlist" class="scroll-mt-24">
             <div class="flex items-end justify-between mb-8 pb-4 border-b border-slate-200">
@@ -262,8 +278,52 @@
             </div>
         </section>
 
-         <section id="media">
-            <h2 class="text-2xl font-bold text-slate-900 mb-6 border-b border-slate-200 pb-4 flex justify-between items-center">
+        <section id="tools" class="border-t border-slate-200 pt-12">
+            <h2 class="text-2xl font-bold text-slate-900 mb-6">Musician Tools</h2>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6" x-data="{ 
+                playing: false, 
+                audioCtx: null, 
+                oscillator: null,
+                toggleTone() {
+                    if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    if (this.playing) {
+                        this.oscillator.stop();
+                        this.playing = false;
+                    } else {
+                        this.oscillator = this.audioCtx.createOscillator();
+                        this.oscillator.type = 'sine';
+                        this.oscillator.frequency.setValueAtTime(466.16, this.audioCtx.currentTime); // Concert Bb
+                        this.oscillator.connect(this.audioCtx.destination);
+                        this.oscillator.start();
+                        this.playing = true;
+                    }
+                }
+            }">
+                
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900">Concert Bb</h3>
+                        <p class="text-slate-500 text-sm">Tuning Reference</p>
+                    </div>
+                    <button @click="toggleTone()" class="h-12 w-12 rounded-full flex items-center justify-center transition-all border border-slate-200"
+                        :class="playing ? 'bg-red-500 text-white shadow-inner border-transparent' : 'bg-slate-50 text-brass hover:bg-brass hover:text-white'">
+                        <svg x-show="!playing" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.009 9.009 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" /></svg>
+                        <svg x-show="playing" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 animate-pulse"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" /></svg>
+                    </button>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-center">
+                    <h3 class="text-lg font-bold text-slate-900 mb-2">Need a Metronome?</h3>
+                    <a href="https://www.google.com/search?q=metronome" target="_blank" class="text-sm font-bold text-brass hover:underline flex items-center gap-2">
+                        Open Google Metronome &rarr;
+                    </a>
+                </div>
+            </div>
+        </section>
+
+         <section id="media" class="border-t border-slate-200 pt-12">
+            <h2 class="text-2xl font-bold text-slate-900 mb-6 flex justify-between items-center">
                 <span>Media Gallery</span>
                 <a href="https://youtube.com/playlist?list=PLqmdWSP7QrZ5hK9MdbSxGiC9NlsI3vL7f&si=70N759E8fiG6dxQu" target="_blank" class="flex items-center gap-2 bg-[#FF0000] text-white px-4 py-2 rounded-full text-sm font-bold shadow hover:bg-red-700 transition-colors">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
