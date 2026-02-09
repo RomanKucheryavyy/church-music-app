@@ -15,27 +15,28 @@ collections:
             name: "settings"
             widget: "object"
             fields:
-              - {label: "Cancel Rehearsal?", name: "isRehearsalCanceled", widget: "boolean", default: false}
-              - {label: "Next Rehearsal Date", name: "nextRehearsalDate", widget: "string"}
-              - {label: "Next Rehearsal Time", name: "nextRehearsalTime", widget: "string"}
-          - label: "Upcoming Events"
+              - {label: "Cancel Friday Rehearsal?", name: "isRehearsalCanceled", widget: "boolean", default: false}
+          
+          - label: "Extra Events (Sundays/Specials)"
             name: "events"
             widget: "list"
             fields:
-              - {label: "Date", name: "date", widget: "string"}
+              - {label: "Date (e.g. Feb 22)", name: "date", widget: "string"}
               - {label: "Day", name: "day", widget: "string"}
               - {label: "Title (English)", name: "title_en", widget: "string"}
               - {label: "Title (Ukrainian)", name: "title_ua", widget: "string"}
               - {label: "Time", name: "time", widget: "string"}
-          - label: "This Week's Setlist"
+
+          - label: "Setlist"
             name: "currentSetlist"
             widget: "list"
             fields:
               - {label: "Song Title", name: "title", widget: "string"}
-              - {label: "Subtitle", name: "sub", widget: "string"}
-              - {label: "Binder #", name: "binderNumber", widget: "string"}
+              - {label: "Subtitle", name: "sub", widget: "string", required: false}
+              - {label: "Binder #", name: "binderNumber", widget: "string", required: false}
               - {label: "Link", name: "link", widget: "string", required: false}
               - {label: "Chords", name: "chords", widget: "string", required: false}
+
           - label: "Master Library"
             name: "allSongs"
             widget: "list"
