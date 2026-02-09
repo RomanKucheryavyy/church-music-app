@@ -1,46 +1,75 @@
 backend:
   name: git-gateway
   branch: main
+
 media_folder: "uploads"
 public_folder: "/uploads"
+
+# This line fixes many common "slug" errors in Netlify CMS
+slug:
+  encoding: "ascii"
+  clean_accents: true
+  sanitize_replacement: "-"
+
 collections:
   - name: "data"
     label: "Site Data"
     files:
       - name: "general"
-        label: "General Settings"
+        label: "Dashboard & Content"
         file: "data.json"
+        description: "Manage your band website content here."
         fields:
-          - label: "Settings"
+          # --- SECTION 1: GLOBAL SETTINGS ---
+          - label: "⚙️ General Settings"
             name: "settings"
             widget: "object"
+            collapsed: false
             fields:
-              - {label: "Cancel Friday Rehearsal?", name: "isRehearsalCanceled", widget: "boolean", default: false}
-              - {label: "Conductor's Note (Optional)", name: "conductorNote", widget: "string", required: false}
-          
-          - label: "Extra Events (Sundays/Specials)"
+              - label: "Conductor's Note"
+                name: "conductorNote"
+                widget: "text"
+                required: false
+                hint: "Write a message here to pin it to the top of the site. Leave blank to hide it."
+              
+              - label: "Cancel This Friday's Rehearsal?"
+                name: "isRehearsalCanceled"
+                widget: "boolean"
+                default: false
+                hint: "Toggle this ON to show a 'Canceled' badge on the schedule."
+
+          # --- SECTION 2: SPECIAL EVENTS ---
+          - label: "📅 Extra Events (Sundays / Specials)"
             name: "events"
             widget: "list"
+            collapsed: true
+            summary: "{{title_en}} - {{date}}"
             fields:
               - {label: "Date (e.g. Feb 22)", name: "date", widget: "string"}
-              - {label: "Day", name: "day", widget: "string"}
+              - {label: "Day of Week", name: "day", widget: "string"}
               - {label: "Title (English)", name: "title_en", widget: "string"}
               - {label: "Title (Ukrainian)", name: "title_ua", widget: "string"}
               - {label: "Time", name: "time", widget: "string"}
 
-          - label: "Setlist"
+          # --- SECTION 3: CURRENT SETLIST ---
+          - label: "🎵 Current Setlist"
             name: "currentSetlist"
             widget: "list"
+            collapsed: false
+            summary: "{{binderNumber}} - {{title}}"
             fields:
               - {label: "Song Title", name: "title", widget: "string"}
-              - {label: "Subtitle", name: "sub", widget: "string", required: false}
-              - {label: "Binder #", name: "binderNumber", widget: "string", required: false}
-              - {label: "Link", name: "link", widget: "string", required: false}
-              - {label: "Chords", name: "chords", widget: "string", required: false}
+              - {label: "Subtitle / Author", name: "sub", widget: "string", required: false}
+              - {label: "Binder Number", name: "binderNumber", widget: "string", required: false, hint: "Type 'New' or a number. If you type a number here, it's just for display."}
+              - {label: "Audio Link (YouTube/MP3)", name: "link", widget: "string", required: false}
+              - {label: "Sheet Music Link (PDF)", name: "chords", widget: "string", required: false}
 
-          - label: "Master Library"
+          # --- SECTION 4: MASTER LIBRARY ---
+          - label: "📚 Master Song Library"
             name: "allSongs"
             widget: "list"
+            collapsed: true
+            summary: "#{{n}} - {{u}}"
             fields:
               - {label: "Binder #", name: "n", widget: "string"}
-              - {label: "Title", name: "u", widget: "string"}
+              - {label: "Song Title", name: "u", widget: "string"}
