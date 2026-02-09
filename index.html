@@ -111,10 +111,6 @@
         },
 
         // --- SORTING LOGIC ---
-        // 1. Link + Chords (Score 3)
-        // 2. Link Only (Score 2)
-        // 3. Chords Only (Score 1)
-        // 4. Neither (Score 0)
         get sortedSetlist() {
             return [...this.currentSetlist].sort((a, b) => {
                 const scoreA = (a.link ? 2 : 0) + (a.chords ? 1 : 0);
@@ -167,9 +163,10 @@
 
     <nav class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-20 items-center">
-                <div class="flex items-center gap-3">
-                    <div class="text-brass">
+            <div class="flex flex-col sm:flex-row justify-between items-center h-auto sm:h-24 py-4 sm:py-0 gap-4 sm:gap-0">
+                
+                <a href="#" class="flex items-center gap-3 hover:opacity-80 transition-opacity group">
+                    <div class="text-brass group-hover:text-brassLight transition-colors">
                         <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M8 14L30 14C33 14 36 11 36 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
                             <path d="M30 14C33 14 36 17 36 20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
@@ -179,38 +176,61 @@
                         </svg>
                     </div>
                     <div class="font-heading font-bold text-2xl tracking-tight text-slate-900 leading-none">
-                        FUBC <span class="text-brass block text-sm font-semibold tracking-[0.25em] -mt-1">BAND</span>
+                        FUBC <span class="text-brass block text-sm font-semibold tracking-[0.25em] -mt-1 group-hover:text-brassLight transition-colors">BAND</span>
                     </div>
-                </div>
+                </a>
 
-                <div class="flex items-center gap-6">
-                    <button @click="lang = lang === 'en' ? 'ua' : 'en'" class="text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest border border-slate-200 px-4 py-1.5 rounded-full hover:border-brass/50">
+                <div class="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4 sm:gap-10 pb-2 sm:pb-0">
+                    
+                    <button @click="lang = lang === 'en' ? 'ua' : 'en'" class="text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest border border-slate-200 px-4 py-1.5 rounded-full hover:border-brass/50 bg-white">
                         <span :class="lang === 'en' ? 'text-brass font-extrabold' : ''">EN</span> <span class="text-slate-300 px-1">/</span> <span :class="lang === 'ua' ? 'text-brass font-extrabold' : ''">UA</span>
                     </button>
+
+                    <div class="flex items-center gap-6 sm:gap-8">
+                        <a href="#setlist" class="relative group py-2">
+                            <span class="font-bold text-xs sm:text-sm uppercase tracking-widest text-slate-500 group-hover:text-brass transition-colors">Info</span>
+                            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-full"></span>
+                        </a>
+                        <a href="#tools" class="relative group py-2">
+                            <span class="font-bold text-xs sm:text-sm uppercase tracking-widest text-slate-500 group-hover:text-brass transition-colors">Tools</span>
+                            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-full"></span>
+                        </a>
+                        <a href="#media" class="relative group py-2">
+                            <span class="font-bold text-xs sm:text-sm uppercase tracking-widest text-slate-500 group-hover:text-brass transition-colors">Media</span>
+                            <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-full"></span>
+                        </a>
+                    </div>
+
                 </div>
             </div>
         </div>
     </nav>
 
-    <div class="relative w-full h-72 sm:h-96 bg-slate-900 overflow-hidden">
+    <div class="relative w-full h-[500px] sm:h-[600px] bg-slate-900 overflow-hidden">
         <img src="https://images.unsplash.com/photo-1573871669414-010dbf73ca84?q=80&w=2071&auto=format&fit=crop" alt="Brass Instruments" class="absolute inset-0 w-full h-full object-cover opacity-40">
-        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent"></div>
-        <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4 pt-10">
-            <h1 class="font-heading text-2xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight mb-4 drop-shadow-lg max-w-4xl mx-auto leading-snug">
-                <span x-show="lang === 'en'">“Praise him with trumpet sound; praise him with lute and harp!”<br><span class="text-base sm:text-2xl font-medium mt-3 block text-brassLight">– Psalm 150:3</span></span>
-                <span x-show="lang === 'ua'" x-cloak>“Хваліть Його звуком трубним, хваліть Його на арфі та гуслах!”<br><span class="text-base sm:text-2xl font-medium mt-3 block text-brassLight">– Псалми 150:3</span></span>
+        <div class="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-slate-900/30 to-slate-900"></div>
+
+        <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4 pt-10 z-10">
+            <h1 class="font-heading text-2xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight mb-6 drop-shadow-2xl max-w-4xl mx-auto leading-snug">
+                <span x-show="lang === 'en'">“Praise him with trumpet sound; praise him with lute and harp!”<br><span class="text-base sm:text-2xl font-medium mt-4 block text-brassLight tracking-wider">– Psalm 150:3</span></span>
+                <span x-show="lang === 'ua'" x-cloak>“Хваліть Його звуком трубним, хваліть Його на арфі та гуслах!”<br><span class="text-base sm:text-2xl font-medium mt-4 block text-brassLight tracking-wider">– Псалми 150:3</span></span>
             </h1>
-            
-            <p class="text-slate-300 text-sm sm:text-lg max-w-2xl font-light tracking-wide mt-4">
+            <p class="text-slate-300 text-sm sm:text-lg max-w-2xl font-light tracking-wide uppercase">
                 <span x-show="lang === 'en'">First Ukrainian Baptist Church Band Ministry</span>
                 <span x-show="lang === 'ua'" x-cloak>Оркестр Першої Української Баптистської Церкви</span>
             </p>
         </div>
+
+        <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-[0] z-20">
+            <svg class="relative block w-full h-[60px] sm:h-[100px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M985.66,92.83C906.67,72,823.78,31,743.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z" class="fill-[#f8fafc]"></path>
+            </svg>
+        </div>
     </div>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 md:-mt-20 relative z-10 pb-24 space-y-12">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 relative z-10 pb-24 space-y-12">
 
-        <div x-show="settings.conductorNote" x-cloak class="bg-white border-l-4 border-brass p-6 rounded-lg shadow-lg">
+        <div x-show="settings.conductorNote" x-cloak class="bg-white border-l-4 border-brass p-6 rounded-lg shadow-lg relative z-20">
             <div class="flex items-start">
                 <div class="flex-shrink-0 pt-1"><svg class="h-6 w-6 text-brass" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M5.85 3.5a.75.75 0 0 0-1.117-1 9.719 9.719 0 0 0-2.348 4.876.75.75 0 0 0 1.479.248A8.219 8.219 0 0 1 5.85 3.5ZM19.267 2.5a.75.75 0 1 0-1.118 1 8.22 8.22 0 0 1 2.06 4.124.75.75 0 0 0 1.48-.248A9.72 9.72 0 0 0 19.266 2.5Z" /><path fill-rule="evenodd" d="M12 2.25A6.75 6.75 0 0 0 5.25 9v.75a8.217 8.217 0 0 1-2.119 5.52.75.75 0 0 0 .298 1.206c1.544.57 3.16.99 4.831 1.243a3.75 3.75 0 1 0 7.48 0 24.583 24.583 0 0 0 4.83-1.244.75.75 0 0 0 .298-1.205 8.217 8.217 0 0 1-2.118-5.52V9A6.75 6.75 0 0 0 12 2.25ZM9.75 18c0-.034 0-.067.002-.1a25.05 25.05 0 0 0 4.496 0l.002.1a2.25 2.25 0 1 1-4.5 0Z" clip-rule="evenodd" /></svg></div>
                 <div class="ml-4">
@@ -220,12 +240,11 @@
             </div>
         </div>
 
-        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <section id="setlist" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden scroll-mt-32">
             <div class="px-6 py-8 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
                 <div><h2 class="font-heading text-2xl font-bold text-slate-900"><span x-show="lang === 'en'">Performance Setlist</span><span x-show="lang === 'ua'" x-cloak>Програма Виступу</span></h2><p class="text-textMuted text-sm mt-1 font-medium"><span x-show="lang === 'en'">Upcoming Service Material</span><span x-show="lang === 'ua'" x-cloak>Матеріал найближчого служіння</span></p></div>
                 <button @click="showLibrary = true" class="text-sm font-semibold text-brass hover:text-brassLight transition-colors flex items-center gap-2 group"><span x-show="lang === 'en'">View Full Library</span><span x-show="lang === 'ua'" x-cloak>Відкрити Архів</span><span class="group-hover:translate-x-1 transition-transform">&rarr;</span></button>
             </div>
-            
             <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50/50">
                 <template x-for="song in sortedSetlist" :key="song.title">
                     <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
@@ -242,10 +261,10 @@
                 <div class="px-6 py-6 border-b border-slate-100"><h2 class="font-heading text-xl font-bold text-slate-900"><span x-show="lang === 'en'">Schedule</span><span x-show="lang === 'ua'" x-cloak>Розклад</span></h2></div>
                 <div class="p-6 space-y-4">
                     <div class="flex items-center gap-5 p-4 rounded-xl border border-slate-100 bg-slate-50">
-                        <div class="h-14 w-14 rounded-lg bg-white flex flex-col items-center justify-center text-center border border-slate-200 shadow-sm"><span class="text-[10px] text-brass font-bold uppercase tracking-wider" x-text="nextFriday.split(' ')[0]"></span><span class="text-lg text-slate-900 font-extrabold leading-none" x-text="nextFriday.split(' ')[1]"></span></div>
+                        <div class="h-14 w-16 min-w-[4rem] rounded-lg bg-white flex flex-col items-center justify-center text-center border border-slate-200 shadow-sm"><span class="text-[9px] text-brass font-bold uppercase tracking-tight" x-text="nextFriday.split(' ')[0]"></span><span class="text-lg text-slate-900 font-extrabold leading-none" x-text="nextFriday.split(' ')[1]"></span></div>
                         <div><h3 class="font-bold text-slate-900"><span x-show="lang === 'en'">Weekly Rehearsal</span><span x-show="lang === 'ua'" x-cloak>Щотижнева Репетиція</span></h3><p class="text-slate-500 text-sm">Friday • 9:00 PM</p><span x-show="settings.isRehearsalCanceled" class="inline-block mt-1 px-2 py-0.5 bg-red-100 text-red-600 text-[10px] font-bold uppercase rounded">Canceled</span></div>
                     </div>
-                    <template x-for="event in events"><div class="flex items-center gap-5 p-4 rounded-xl border border-slate-100 bg-white"><div class="h-14 w-14 rounded-lg bg-slate-50 flex flex-col items-center justify-center text-center border border-slate-200"><span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider" x-text="event.date.split(' ')[0]"></span><span class="text-lg text-slate-700 font-extrabold leading-none" x-text="event.date.split(' ')[1]"></span></div><div><h3 class="font-bold text-slate-900" x-text="lang === 'en' ? event.title_en : event.title_ua"></h3><p class="text-slate-500 text-sm" x-text="event.day + ' • ' + event.time"></p></div></div></template>
+                    <template x-for="event in events"><div class="flex items-center gap-5 p-4 rounded-xl border border-slate-100 bg-white"><div class="h-14 w-16 min-w-[4rem] rounded-lg bg-slate-50 flex flex-col items-center justify-center text-center border border-slate-200"><span class="text-[9px] text-slate-400 font-bold uppercase tracking-tight" x-text="event.date.split(' ')[0]"></span><span class="text-lg text-slate-700 font-extrabold leading-none" x-text="event.date.split(' ')[1]"></span></div><div><h3 class="font-bold text-slate-900" x-text="lang === 'en' ? event.title_en : event.title_ua"></h3><p class="text-slate-500 text-sm" x-text="event.day + ' • ' + event.time"></p></div></div></template>
                 </div>
             </section>
 
@@ -260,7 +279,7 @@
             </section>
         </div>
 
-        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <section id="tools" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden scroll-mt-32">
             <div class="px-6 py-6 border-b border-slate-100"><h2 class="font-heading text-xl font-bold text-slate-900 flex items-center gap-2"><svg class="w-5 h-5 text-brass" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span x-show="lang === 'en'">Musician Toolkit</span><span x-show="lang === 'ua'" x-cloak>Інструменти</span></h2></div>
             <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div x-data="{ bpm: 100, isPlaying: false, timer: null, audioCtx: null, playClick() { if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); const osc = this.audioCtx.createOscillator(); const gain = this.audioCtx.createGain(); osc.connect(gain); gain.connect(this.audioCtx.destination); osc.frequency.value = 1000; gain.gain.value = 1; osc.start(); gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.1); osc.stop(this.audioCtx.currentTime + 0.1); }, toggle() { if (this.isPlaying) { clearInterval(this.timer); this.isPlaying = false; } else { this.isPlaying = true; this.playClick(); this.timer = setInterval(() => this.playClick(), (60 / this.bpm) * 1000); } }, updateSpeed() { if (this.isPlaying) { clearInterval(this.timer); this.timer = setInterval(() => this.playClick(), (60 / this.bpm) * 1000); } } }">
@@ -279,7 +298,7 @@
             </div>
         </section>
 
-        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <section id="media" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden scroll-mt-32">
             <div class="px-6 py-6 border-b border-slate-100 flex justify-between items-center"><h2 class="font-heading text-xl font-bold text-slate-900"><span x-show="lang === 'en'">Media Gallery</span><span x-show="lang === 'ua'" x-cloak>Медіа Галерея</span></h2><a href="https://youtube.com/playlist?list=PLqmdWSP7QrZ5hK9MdbSxGiC9NlsI3vL7f&si=70N759E8fiG6dxQu" target="_blank" class="flex items-center gap-2 bg-[#FF0000] text-white px-4 py-2 rounded-full text-xs font-bold shadow hover:bg-red-700 transition-colors"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg><span x-show="lang === 'en'">Playlist</span><span x-show="lang === 'ua'" x-cloak>Плейлист</span></a></div>
             <div class="p-2 bg-slate-50"><div class="relative w-full aspect-video rounded-xl overflow-hidden shadow-inner border border-slate-200"><iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/videoseries?si=JI14AJhU9wiD4Svw&amp;list=PLqmdWSP7QrZ5hK9MdbSxGiC9NlsI3vL7f" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div></div>
         </section>
