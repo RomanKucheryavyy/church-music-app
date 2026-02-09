@@ -20,12 +20,11 @@
                 extend: {
                     fontFamily: { sans: ['Montserrat', 'sans-serif'] },
                     colors: {
-                        // Light / Professional Palette
-                        pageBg: '#f8fafc',      // Very light slate
-                        cardBg: '#ffffff',      // Pure white
-                        textMain: '#1e293b',    // Slate 800
-                        textMuted: '#64748b',   // Slate 500
-                        brass: '#b45309',       // Darker Gold/Bronze for visibility on white
+                        pageBg: '#f8fafc',
+                        cardBg: '#ffffff',
+                        textMain: '#1e293b',
+                        textMuted: '#64748b',
+                        brass: '#b45309',
                         brassLight: '#d97706',  
                     },
                     animation: {
@@ -54,6 +53,7 @@
         lang: 'en', 
         showLibrary: false, 
         searchQuery: '',
+        submitStatus: 'idle', // idle, submitting, success
         
         // --- DATA FALLBACKS ---
         settings: { isRehearsalCanceled: false },
@@ -82,6 +82,23 @@
                     this.allSongs = json.allSongs || this.allSongs;
                 }
             } catch (e) { console.log('Using built-in data'); }
+        },
+
+        // --- FORM SUBMISSION LOGIC (Fixes 404) ---
+        submitForm() {
+            this.submitStatus = 'submitting';
+            const formData = new FormData(this.$refs.form);
+            fetch('/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams(formData).toString()
+            })
+            .then(() => {
+                this.submitStatus = 'success';
+                this.$refs.form.reset();
+                setTimeout(() => this.submitStatus = 'idle', 5000); // Reset after 5s
+            })
+            .catch((error) => alert('Error submitting form.'));
         },
 
         get nextFriday() {
@@ -116,27 +133,15 @@
     }"
 >
 
-    <div class="bg-slate-900 text-white py-2 overflow-hidden relative z-50">
+    <div class="bg-slate-900 text-white py-2 overflow-hidden relative z-50 shadow-md">
         <div class="whitespace-nowrap animate-marquee flex gap-12 font-medium tracking-wide text-sm">
-            <span>
-                <span class="text-brassLight font-bold uppercase">Next Rehearsal:</span> 
-                <span x-text="nextFriday"></span> @ 9:00 PM
-            </span>
-             <span>•</span>
-            <span>
-                <span class="text-brassLight font-bold uppercase">Sunday Service:</span> 
-                Feb 22 @ 9:00 AM
-            </span>
+            <span><span class="text-brassLight font-bold uppercase">Next Rehearsal:</span> <span x-text="nextFriday"></span> @ 9:00 PM</span>
             <span>•</span>
-            <span>
-                <span class="text-brassLight font-bold uppercase">Next Rehearsal:</span> 
-                <span x-text="nextFriday"></span> @ 9:00 PM
-            </span>
-             <span>•</span>
-             <span>
-                <span class="text-brassLight font-bold uppercase">Sunday Service:</span> 
-                Feb 22 @ 9:00 AM
-            </span>
+            <span><span class="text-brassLight font-bold uppercase">Sunday Service:</span> Feb 22 @ 9:00 AM</span>
+            <span>•</span>
+            <span><span class="text-brassLight font-bold uppercase">Next Rehearsal:</span> <span x-text="nextFriday"></span> @ 9:00 PM</span>
+            <span>•</span>
+            <span><span class="text-brassLight font-bold uppercase">Sunday Service:</span> Feb 22 @ 9:00 AM</span>
         </div>
     </div>
 
@@ -144,16 +149,11 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-20 items-center">
                 <div class="flex items-center gap-3">
-                    <div class="h-10 w-10 flex items-center justify-center rounded-full bg-slate-900 text-brassLight">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
-                            <path fill-rule="evenodd" d="M19.952 1.651a.75.75 0 0 1 .298.599V21.75a.75.75 0 0 1-1.5 0V2.25a.75.75 0 0 1 .298-.599ZM5.25 2.25a.75.75 0 0 1 1.5 0v19.5a.75.75 0 0 1-1.5 0V2.25Zm6.75 6a.75.75 0 0 1 1.5 0v7.5a.75.75 0 0 1-1.5 0V8.25ZM1.5 2.25a.75.75 0 0 1 1.5 0v19.5a.75.75 0 0 1-1.5 0V2.25Zm16.5 0a.75.75 0 0 1 1.5 0v19.5a.75.75 0 0 1-1.5 0V2.25ZM9 8.25a.75.75 0 0 1 1.5 0v7.5a.75.75 0 0 1-1.5 0V8.25ZM12.75 8.25a.75.75 0 0 1 1.5 0v7.5a.75.75 0 0 1-1.5 0V8.25Z" clip-rule="evenodd" />
-                        </svg>
+                    <div class="h-10 w-10 flex items-center justify-center rounded-full bg-slate-900 text-brassLight shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path fill-rule="evenodd" d="M19.952 1.651a.75.75 0 0 1 .298.599V21.75a.75.75 0 0 1-1.5 0V2.25a.75.75 0 0 1 .298-.599ZM5.25 2.25a.75.75 0 0 1 1.5 0v19.5a.75.75 0 0 1-1.5 0V2.25Zm6.75 6a.75.75 0 0 1 1.5 0v7.5a.75.75 0 0 1-1.5 0V8.25ZM1.5 2.25a.75.75 0 0 1 1.5 0v19.5a.75.75 0 0 1-1.5 0V2.25Zm16.5 0a.75.75 0 0 1 1.5 0v19.5a.75.75 0 0 1-1.5 0V2.25ZM9 8.25a.75.75 0 0 1 1.5 0v7.5a.75.75 0 0 1-1.5 0V8.25ZM12.75 8.25a.75.75 0 0 1 1.5 0v7.5a.75.75 0 0 1-1.5 0V8.25Z" clip-rule="evenodd" /></svg>
                     </div>
-                    <div class="font-bold text-2xl tracking-tight text-slate-900 leading-none">
-                        FUBC <span class="text-brass block text-sm font-semibold tracking-widest">BAND</span>
-                    </div>
+                    <div class="font-bold text-2xl tracking-tight text-slate-900 leading-none">FUBC <span class="text-brass block text-sm font-semibold tracking-widest">BAND</span></div>
                 </div>
-                
                 <div class="flex items-center gap-6">
                     <button @click="lang = lang === 'en' ? 'ua' : 'en'" class="text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest">
                         <span :class="lang === 'en' ? 'text-brass underline' : ''">EN</span> / <span :class="lang === 'ua' ? 'text-brass underline' : ''">UA</span>
@@ -168,10 +168,7 @@
         <section id="setlist" class="scroll-mt-24">
             <div class="flex items-end justify-between mb-8 pb-4 border-b border-slate-200">
                 <div>
-                    <h2 class="text-3xl font-bold text-slate-900 tracking-tight mb-1">
-                        <span x-show="lang === 'en'">Performance Setlist</span>
-                        <span x-show="lang === 'ua'" x-cloak>Програма Виступу</span>
-                    </h2>
+                    <h2 class="text-3xl font-bold text-slate-900 tracking-tight mb-1"><span x-show="lang === 'en'">Performance Setlist</span><span x-show="lang === 'ua'" x-cloak>Програма Виступу</span></h2>
                     <p class="text-brass font-medium">February 22nd Service</p>
                 </div>
                 <button @click="showLibrary = true" class="hidden sm:flex items-center gap-2 px-5 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-full text-sm font-bold text-slate-700 shadow-sm transition-all">
@@ -185,66 +182,32 @@
                     <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow group relative overflow-hidden">
                         <div class="absolute top-0 left-0 w-1 h-full bg-brass opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <div class="flex justify-between items-start mb-6">
-                            <div>
-                                <h3 class="text-lg font-bold text-slate-900" x-text="song.title"></h3>
-                                <p class="text-slate-500 text-sm mt-0.5" x-text="song.sub"></p>
-                            </div>
+                            <div><h3 class="text-lg font-bold text-slate-900" x-text="song.title"></h3><p class="text-slate-500 text-sm mt-0.5" x-text="song.sub"></p></div>
                             <span class="px-3 py-1 rounded-md bg-slate-100 text-xs font-bold text-slate-600" x-text="song.binderNumber && song.binderNumber !== 'New' ? '#' + song.binderNumber : 'New'"></span>
                         </div>
-                        
                         <div class="flex gap-3" x-show="song.link || song.chords">
-                            <template x-if="song.link">
-                                <a :href="song.link" target="_blank" class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold transition-all shadow-md hover:shadow-lg">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.508c-1.141 0-2.318.664-2.66 1.905A9.76 9.76 0 0 0 1.5 12c0 2.489.88 4.759 2.348 6.595.342 1.24 1.519 1.905 2.66 1.905h1.932l4.5 4.5c.945.945 2.561.276 2.561-1.06V4.06ZM18.584 5.106a.75.75 0 0 1 1.06 0c3.808 3.807 3.808 9.98 0 13.788a.75.75 0 1 1-1.06-1.06 2.75 2.75 0 0 0 0 11.668.75.75 0 0 1 1.06-1.06Z"/></svg>
-                                    Listen
-                                </a>
-                            </template>
-                            <template x-if="song.chords">
-                                <a :href="song.chords" target="_blank" class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-slate-900 text-sm font-bold transition-all">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-slate-400"><path fill-rule="evenodd" d="M5.625 1.5c-1.036 0-1.875.84-1.875 1.875v17.25c0 1.035.84 1.875 1.875 1.875h12.75c1.035 0 1.875-.84 1.875-1.875V1.5c0-1.036-.84-1.875-1.875-1.875H5.625ZM7.5 15a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5h-7.5A.75.75 0 0 1 7.5 15Zm.75 2.25a.75.75 0 0 0 0 1.5h7.5a.75.75 0 0 0 0-1.5h-7.5Z" clip-rule="evenodd" /></svg>
-                                    Notes
-                                </a>
-                            </template>
+                            <template x-if="song.link"><a :href="song.link" target="_blank" class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold transition-all shadow-md hover:shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.508c-1.141 0-2.318.664-2.66 1.905A9.76 9.76 0 0 0 1.5 12c0 2.489.88 4.759 2.348 6.595.342 1.24 1.519 1.905 2.66 1.905h1.932l4.5 4.5c.945.945 2.561.276 2.561-1.06V4.06ZM18.584 5.106a.75.75 0 0 1 1.06 0c3.808 3.807 3.808 9.98 0 13.788a.75.75 0 1 1-1.06-1.06 2.75 2.75 0 0 0 0 11.668.75.75 0 0 1 1.06-1.06Z"/></svg>Listen</a></template>
+                            <template x-if="song.chords"><a :href="song.chords" target="_blank" class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-slate-900 text-sm font-bold transition-all"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-slate-400"><path fill-rule="evenodd" d="M5.625 1.5c-1.036 0-1.875.84-1.875 1.875v17.25c0 1.035.84 1.875 1.875 1.875h12.75c1.035 0 1.875-.84 1.875-1.875V1.5c0-1.036-.84-1.875-1.875-1.875H5.625ZM7.5 15a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5h-7.5A.75.75 0 0 1 7.5 15Zm.75 2.25a.75.75 0 0 0 0 1.5h7.5a.75.75 0 0 0 0-1.5h-7.5Z" clip-rule="evenodd" /></svg>Notes</a></template>
                         </div>
                     </div>
                 </template>
             </div>
-            
-            <button @click="showLibrary = true" class="sm:hidden w-full mt-6 py-3 bg-white border border-slate-200 rounded-lg text-sm font-bold text-slate-700 shadow-sm">
-                Open Full Library
-            </button>
+            <button @click="showLibrary = true" class="sm:hidden w-full mt-6 py-3 bg-white border border-slate-200 rounded-lg text-sm font-bold text-slate-700 shadow-sm">Open Full Library</button>
         </section>
 
         <section id="schedule" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2">
-                <h2 class="text-2xl font-bold text-slate-900 mb-6">
-                    <span x-show="lang === 'en'">Upcoming Schedule</span>
-                    <span x-show="lang === 'ua'" x-cloak>Розклад Подій</span>
-                </h2>
+                <h2 class="text-2xl font-bold text-slate-900 mb-6"><span x-show="lang === 'en'">Upcoming Schedule</span><span x-show="lang === 'ua'" x-cloak>Розклад Подій</span></h2>
                 <div class="space-y-4">
                     <div class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm flex items-center gap-6 relative overflow-hidden">
                         <div class="absolute left-0 top-0 bottom-0 w-1 bg-brass"></div>
-                         <div class="h-16 w-16 rounded-lg bg-slate-50 flex flex-col items-center justify-center text-center border border-slate-100">
-                            <span class="text-xs text-brass font-bold uppercase tracking-wider" x-text="nextFriday.split(' ')[0]"></span>
-                            <span class="text-xl text-slate-900 font-extrabold leading-none" x-text="nextFriday.split(' ')[1]"></span>
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-bold text-slate-900">Weekly Rehearsal</h3>
-                            <p class="text-slate-500 text-sm">Friday • 9:00 PM</p>
-                            <span x-show="settings.isRehearsalCanceled" class="text-red-600 text-xs font-bold uppercase mt-1 block">Canceled</span>
-                        </div>
+                         <div class="h-16 w-16 rounded-lg bg-slate-50 flex flex-col items-center justify-center text-center border border-slate-100"><span class="text-xs text-brass font-bold uppercase tracking-wider" x-text="nextFriday.split(' ')[0]"></span><span class="text-xl text-slate-900 font-extrabold leading-none" x-text="nextFriday.split(' ')[1]"></span></div>
+                        <div><h3 class="text-lg font-bold text-slate-900">Weekly Rehearsal</h3><p class="text-slate-500 text-sm">Friday • 9:00 PM</p><span x-show="settings.isRehearsalCanceled" class="text-red-600 text-xs font-bold uppercase mt-1 block">Canceled</span></div>
                     </div>
-
                     <template x-for="event in events">
                         <div class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm flex items-center gap-6">
-                            <div class="h-16 w-16 rounded-lg bg-slate-50 flex flex-col items-center justify-center text-center border border-slate-100">
-                                <span class="text-xs text-slate-400 font-bold uppercase tracking-wider" x-text="event.date.split(' ')[0]"></span>
-                                <span class="text-xl text-slate-900 font-extrabold leading-none" x-text="event.date.split(' ')[1]"></span>
-                            </div>
-                            <div>
-                                <h3 class="text-lg font-bold text-slate-900" x-text="lang === 'en' ? event.title_en : event.title_ua"></h3>
-                                <p class="text-slate-500 text-sm" x-text="event.day + ' • ' + event.time"></p>
-                            </div>
+                            <div class="h-16 w-16 rounded-lg bg-slate-50 flex flex-col items-center justify-center text-center border border-slate-100"><span class="text-xs text-slate-400 font-bold uppercase tracking-wider" x-text="event.date.split(' ')[0]"></span><span class="text-xl text-slate-900 font-extrabold leading-none" x-text="event.date.split(' ')[1]"></span></div>
+                            <div><h3 class="text-lg font-bold text-slate-900" x-text="lang === 'en' ? event.title_en : event.title_ua"></h3><p class="text-slate-500 text-sm" x-text="event.day + ' • ' + event.time"></p></div>
                         </div>
                     </template>
                 </div>
@@ -252,20 +215,32 @@
 
             <div>
                 <div class="bg-slate-900 text-white rounded-xl p-6 shadow-xl relative overflow-hidden">
+                    <div x-show="submitStatus === 'success'" class="absolute inset-0 z-20 bg-emerald-600 flex flex-col items-center justify-center text-center p-6" x-transition>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-16 h-16 mb-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <h3 class="text-2xl font-bold">Sent!</h3>
+                        <p class="text-white/80 mt-2 text-sm">Thanks for letting us know.</p>
+                    </div>
+
                     <div class="relative z-10">
                         <h3 class="text-xl font-bold text-white mb-2">Report Absence</h3>
                         <p class="text-slate-400 text-sm mb-6">Select the event you will miss.</p>
                         
-                        <form name="attendance" method="POST" data-netlify="true" class="space-y-4">
+                        <form x-ref="form" @submit.prevent="submitForm" name="attendance" method="POST" data-netlify="true" class="space-y-4">
                             <input type="hidden" name="form-name" value="attendance" />
+                            
                             <input type="text" name="name" required placeholder="Your Name" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brass transition-colors">
+                            
                             <select name="date" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-brass appearance-none">
                                 <option value="" disabled selected>Select Date</option>
                                 <template x-for="opt in availableDates">
                                     <option :value="opt.val" x-text="opt.label"></option>
                                 </template>
                             </select>
-                            <button type="submit" class="w-full bg-brass hover:bg-brassLight text-white font-bold text-sm py-3 rounded-lg transition-colors shadow-lg">Submit</button>
+                            
+                            <button type="submit" class="w-full bg-brass hover:bg-brassLight text-white font-bold text-sm py-3 rounded-lg transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed" :disabled="submitStatus === 'submitting'">
+                                <span x-show="submitStatus === 'idle'">Submit</span>
+                                <span x-show="submitStatus === 'submitting'">Sending...</span>
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -281,7 +256,6 @@
                 <iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/videoseries?list=PLqmdWSP7QrZ5hK9MdbSxGiC9NlsI3vL7f" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
         </section>
-
     </main>
 
     <footer class="bg-white border-t border-slate-200 py-12 text-center mt-12">
@@ -294,9 +268,7 @@
         <div class="relative w-full max-w-3xl bg-white rounded-xl shadow-2xl flex flex-col max-h-[80vh] overflow-hidden">
             <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
                 <h3 class="text-lg font-bold text-slate-900">Song Library</h3>
-                <button @click="showLibrary = false" class="p-2 bg-white hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-900 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                </button>
+                <button @click="showLibrary = false" class="p-2 bg-white hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-900 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
             </div>
             <div class="p-4 border-b border-slate-100">
                 <input x-model="searchQuery" type="text" placeholder="Search songs..." class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:border-brass transition-colors">
@@ -309,6 +281,7 @@
                         <span x-show="!song.n || song.n === 'New'" class="ml-auto text-xs font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded">New</span>
                     </div>
                 </template>
+                <div x-show="filteredSongs.length === 0" class="p-8 text-center text-slate-400 italic">No songs found.</div>
             </div>
         </div>
     </div>
