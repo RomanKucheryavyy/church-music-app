@@ -1,0 +1,44 @@
+backend:
+  name: git-gateway
+  branch: main
+media_folder: "uploads"
+public_folder: "/uploads"
+collections:
+  - name: "data"
+    label: "Site Data"
+    files:
+      - name: "general"
+        label: "General Settings"
+        file: "data.json"
+        fields:
+          - label: "Settings"
+            name: "settings"
+            widget: "object"
+            fields:
+              - {label: "Cancel Rehearsal?", name: "isRehearsalCanceled", widget: "boolean", default: false}
+              - {label: "Next Rehearsal Date", name: "nextRehearsalDate", widget: "string"}
+              - {label: "Next Rehearsal Time", name: "nextRehearsalTime", widget: "string"}
+          - label: "Upcoming Events"
+            name: "events"
+            widget: "list"
+            fields:
+              - {label: "Date", name: "date", widget: "string"}
+              - {label: "Day", name: "day", widget: "string"}
+              - {label: "Title (English)", name: "title_en", widget: "string"}
+              - {label: "Title (Ukrainian)", name: "title_ua", widget: "string"}
+              - {label: "Time", name: "time", widget: "string"}
+          - label: "This Week's Setlist"
+            name: "currentSetlist"
+            widget: "list"
+            fields:
+              - {label: "Song Title", name: "title", widget: "string"}
+              - {label: "Subtitle", name: "sub", widget: "string"}
+              - {label: "Binder #", name: "binderNumber", widget: "string"}
+              - {label: "Link", name: "link", widget: "string", required: false}
+              - {label: "Chords", name: "chords", widget: "string", required: false}
+          - label: "Master Library"
+            name: "allSongs"
+            widget: "list"
+            fields:
+              - {label: "Binder #", name: "n", widget: "string"}
+              - {label: "Title", name: "u", widget: "string"}

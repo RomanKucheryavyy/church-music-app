@@ -1,0 +1,11 @@
+{
+  "settings": { "isRehearsalCanceled": false, "nextRehearsalDate": "Feb 20", "nextRehearsalTime": "9:00 PM" },
+  "events": [
+    { "date": "Feb 20", "day": "Friday", "title_en": "Band Rehearsal", "title_ua": "Репетиція гурту", "time": "9:00 PM" },
+    { "date": "Feb 22", "day": "Sunday", "title_en": "Sunday Service", "title_ua": "Недільне богослужіння", "time": "9:00 AM & 11:45 AM" }
+  ],
+  "currentSetlist": [
+    { "title": "Я Иду Земньіми Битвами", "sub": "I Walk Through Earthly Battles", "binderNumber": "New", "link": "", "chords": "" }
+  ],
+  "allSongs": [ { "n": "1", "u": "Мы у берега земного" }, { "n": "109", "u": "Ныне Его я дитя" } ]
+}
