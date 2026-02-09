@@ -16,6 +16,7 @@ collections:
             widget: "object"
             fields:
               - {label: "Cancel Friday Rehearsal?", name: "isRehearsalCanceled", widget: "boolean", default: false}
+              - {label: "Conductor's Note (Optional)", name: "conductorNote", widget: "string", required: false}
           
           - label: "Extra Events (Sundays/Specials)"
             name: "events"
