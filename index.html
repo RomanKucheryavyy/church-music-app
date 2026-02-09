@@ -26,8 +26,7 @@
                         brassLight: '#d97706',  
                     },
                     animation: {
-                        // Slowed down to 45s for readability
-                        marquee: 'marquee 45s linear infinite',
+                        marquee: 'marquee 45s linear infinite', // Slowed down
                     },
                     keyframes: {
                         marquee: {
@@ -57,11 +56,11 @@
 
         // --- DATA FALLBACKS ---
         settings: { isRehearsalCanceled: false },
-        events: [], // Only for EXTRA events (Friday is automatic)
+        events: [], 
         currentSetlist: [],
         allSongs: [],
 
-        // Bible Verses
+        // Bible Verses (Music & Worship)
         verses: [
             { en: 'Make a joyful noise unto the Lord, all the earth: make a loud noise, and rejoice, and sing praise. - Psalm 98:4', ua: 'Викликніть Господу, уся земле, і співайте, і грайте! - Псалми 98:4' },
             { en: 'I will sing to the LORD as long as I live; I will sing praise to my God while I have being. - Psalm 104:33', ua: 'Я буду співати Господеві за життя свого, буду співати Богові моєму, поки я є. - Псалми 104:33' },
@@ -73,7 +72,7 @@
             // Pick Random Verse
             this.verse = this.verses[Math.floor(Math.random() * this.verses.length)];
 
-            // Load Data
+            // Load External Data
             try {
                 const response = await fetch('/data.json');
                 if (response.ok) {
@@ -86,11 +85,10 @@
             } catch (e) { console.log('Using built-in data'); }
         },
 
-        // --- FIXED FORM SUBMISSION ---
+        // --- FORM SUBMISSION ---
         submitForm() {
             this.submitStatus = 'submitting';
             const formData = new FormData(this.$refs.form);
-            
             fetch('/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -101,7 +99,7 @@
                 this.$refs.form.reset();
                 setTimeout(() => this.submitStatus = 'idle', 5000);
             })
-            .catch((error) => {
+            .catch(() => {
                 alert('Connection error. Please try again.');
                 this.submitStatus = 'idle';
             });
@@ -142,11 +140,8 @@
     <div class="bg-slate-900 text-white py-2 overflow-hidden relative z-50 shadow-md">
         <div class="whitespace-nowrap animate-marquee flex gap-16 font-medium tracking-wide text-sm items-center">
             <span><span class="text-brassLight font-bold uppercase">Next Rehearsal:</span> <span x-text="nextFriday"></span> @ 9:00 PM</span>
-            
             <span class="text-slate-400 italic font-serif text-lg" x-text="lang === 'en' ? verse.en : verse.ua"></span>
-            
             <span><span class="text-brassLight font-bold uppercase">Next Service:</span> Feb 22 @ 9:00 AM</span>
-            
             <span><span class="text-brassLight font-bold uppercase">Next Rehearsal:</span> <span x-text="nextFriday"></span> @ 9:00 PM</span>
             <span class="text-slate-400 italic font-serif text-lg" x-text="lang === 'en' ? verse.en : verse.ua"></span>
         </div>
@@ -183,7 +178,6 @@
                     <span x-show="lang === 'en'">Full Library</span><span x-show="lang === 'ua'" x-cloak>Архів</span>
                 </button>
             </div>
-
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <template x-for="song in currentSetlist" :key="song.title">
                     <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow group relative overflow-hidden">
@@ -199,7 +193,6 @@
                     </div>
                 </template>
             </div>
-            <button @click="showLibrary = true" class="sm:hidden w-full mt-6 py-3 bg-white border border-slate-200 rounded-lg text-sm font-bold text-slate-700 shadow-sm">Open Full Library</button>
         </section>
 
         <section id="schedule" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -232,7 +225,6 @@
                         
                         <form x-ref="form" @submit.prevent="submitForm" name="attendance" method="POST" data-netlify="true" class="space-y-4">
                             <input type="hidden" name="form-name" value="attendance" />
-                            
                             <input type="text" name="name" required placeholder="Your Name" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brass transition-colors">
                             <select name="date" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-brass appearance-none">
                                 <option value="" disabled selected>Select Date</option>
@@ -249,13 +241,13 @@
             </div>
         </section>
 
-        <section id="media">
+         <section id="media">
             <h2 class="text-2xl font-bold text-slate-900 mb-6 border-b border-slate-200 pb-4 flex justify-between items-center">
                 <span>Media Gallery</span>
                 <a href="https://www.youtube.com/@FirstUkrainianBaptistChurch" target="_blank" class="text-sm font-semibold text-brass hover:underline">YouTube &rarr;</a>
             </h2>
              <div class="relative w-full aspect-video bg-slate-100 rounded-xl overflow-hidden shadow-lg border border-slate-200">
-                <iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/videoseries?list=PLqmdWSP7QrZ5hK9MdbSxGiC9NlsI3vL7f" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/videoseries?si=JI14AJhU9wiD4Svw&amp;list=PLqmdWSP7QrZ5hK9MdbSxGiC9NlsI3vL7f" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
             </div>
         </section>
     </main>
