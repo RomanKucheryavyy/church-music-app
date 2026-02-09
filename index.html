@@ -27,17 +27,18 @@
                     },
                     animation: {
                         marquee: 'marquee 45s linear infinite',
-                        float: 'float 20s linear infinite',
+                        float: 'float 25s linear infinite',
                     },
                     keyframes: {
                         marquee: {
                             '0%': { transform: 'translateX(100%)' },
                             '100%': { transform: 'translateX(-100%)' },
                         },
+                        // MUCH DARKER ANIMATION (Increased opacity to 0.8)
                         float: {
                             '0%': { transform: 'translateY(110vh) rotate(0deg)', opacity: '0' },
-                            '10%': { opacity: '0.1' }, // Low opacity for subtlety
-                            '90%': { opacity: '0.1' },
+                            '10%': { opacity: '0.8' }, 
+                            '90%': { opacity: '0.8' },
                             '100%': { transform: 'translateY(-10vh) rotate(360deg)', opacity: '0' }
                         }
                     }
@@ -53,13 +54,16 @@
         
         /* Floating Notes Styles */
         .music-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
-        .note { position: absolute; color: #1e293b; opacity: 0; }
+        /* Changed color to darker slate for high visibility */
+        .note { position: absolute; color: #475569; opacity: 0; }
         
         .n1 { left: 5%; animation-duration: 25s; animation-delay: 0s; font-size: 4rem; }
         .n2 { left: 20%; animation-duration: 18s; animation-delay: 5s; font-size: 2rem; }
         .n3 { left: 85%; animation-duration: 30s; animation-delay: 2s; font-size: 5rem; }
         .n4 { left: 50%; animation-duration: 22s; animation-delay: 10s; font-size: 3rem; }
         .n5 { left: 70%; animation-duration: 28s; animation-delay: 15s; font-size: 2.5rem; }
+        .n6 { left: 10%; animation-duration: 35s; animation-delay: 7s; font-size: 3rem; }
+        .n7 { left: 90%; animation-duration: 20s; animation-delay: 1s; font-size: 2.5rem; }
     </style>
 </head>
 
@@ -157,6 +161,8 @@
         <div class="note n3 animate-float">𝄢</div>
         <div class="note n4 animate-float">♫</div>
         <div class="note n5 animate-float">♩</div>
+        <div class="note n6 animate-float">♬</div>
+        <div class="note n7 animate-float">♭</div>
     </div>
 
     <div class="bg-slate-900 text-white py-2 overflow-hidden relative z-50 shadow-md border-b border-brass/30">
@@ -176,10 +182,11 @@
                 <div class="flex items-center gap-3">
                     <div class="text-brass">
                         <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M10 28C10 28 12 20 20 18C28 16 34 10 34 5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-                            <path d="M14 28C14 28 15 22 20 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                            <circle cx="12" cy="28" r="4" stroke="currentColor" stroke-width="2"/>
-                            <path d="M34 5L30 8M34 5L38 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M8 14L30 14C33 14 36 11 36 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                            <path d="M30 14C33 14 36 17 36 20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                            <path d="M4 14H8V20H4V14Z" fill="currentColor"/>
+                            <path d="M14 14V10M20 14V10M26 14V10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                            <path d="M14 20V24M20 20V24M26 20V24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
                         </svg>
                     </div>
                     <div class="font-bold text-2xl tracking-tight text-slate-900 leading-none">
