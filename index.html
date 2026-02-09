@@ -26,20 +26,12 @@
                         brassLight: '#d97706',  
                     },
                     animation: {
-                        marquee: 'marquee 45s linear infinite',
-                        float: 'float 25s linear infinite',
+                        marquee: 'marquee 50s linear infinite', // Very slow, gentle ticker
                     },
                     keyframes: {
                         marquee: {
                             '0%': { transform: 'translateX(100%)' },
                             '100%': { transform: 'translateX(-100%)' },
-                        },
-                        // MUCH DARKER ANIMATION (Increased opacity to 0.8)
-                        float: {
-                            '0%': { transform: 'translateY(110vh) rotate(0deg)', opacity: '0' },
-                            '10%': { opacity: '0.8' }, 
-                            '90%': { opacity: '0.8' },
-                            '100%': { transform: 'translateY(-10vh) rotate(360deg)', opacity: '0' }
                         }
                     }
                 }
@@ -51,23 +43,10 @@
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        
-        /* Floating Notes Styles */
-        .music-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
-        /* Changed color to darker slate for high visibility */
-        .note { position: absolute; color: #475569; opacity: 0; }
-        
-        .n1 { left: 5%; animation-duration: 25s; animation-delay: 0s; font-size: 4rem; }
-        .n2 { left: 20%; animation-duration: 18s; animation-delay: 5s; font-size: 2rem; }
-        .n3 { left: 85%; animation-duration: 30s; animation-delay: 2s; font-size: 5rem; }
-        .n4 { left: 50%; animation-duration: 22s; animation-delay: 10s; font-size: 3rem; }
-        .n5 { left: 70%; animation-duration: 28s; animation-delay: 15s; font-size: 2.5rem; }
-        .n6 { left: 10%; animation-duration: 35s; animation-delay: 7s; font-size: 3rem; }
-        .n7 { left: 90%; animation-duration: 20s; animation-delay: 1s; font-size: 2.5rem; }
     </style>
 </head>
 
-<body class="text-textMain antialiased bg-pageBg relative"
+<body class="text-textMain antialiased bg-pageBg"
     x-data="{ 
         lang: 'en', 
         showLibrary: false, 
@@ -155,17 +134,7 @@
     }"
 >
 
-    <div class="music-bg">
-        <div class="note n1 animate-float">𝄞</div>
-        <div class="note n2 animate-float">𝄽</div>
-        <div class="note n3 animate-float">𝄢</div>
-        <div class="note n4 animate-float">♫</div>
-        <div class="note n5 animate-float">♩</div>
-        <div class="note n6 animate-float">♬</div>
-        <div class="note n7 animate-float">♭</div>
-    </div>
-
-    <div class="bg-slate-900 text-white py-2 overflow-hidden relative z-50 shadow-md border-b border-brass/30">
+    <div class="bg-slate-900 text-white py-2 overflow-hidden relative z-50 border-b border-brass/30">
         <div class="whitespace-nowrap animate-marquee flex gap-16 font-medium tracking-wide text-sm items-center">
             <span><span class="text-brassLight font-bold uppercase">Next Rehearsal:</span> <span x-text="nextFriday"></span> @ 9:00 PM</span>
             <span class="text-slate-400 italic font-serif text-lg" x-text="lang === 'en' ? verse.en : verse.ua"></span>
@@ -175,10 +144,9 @@
         </div>
     </div>
 
-    <nav class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+    <nav class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-20 items-center">
-                
                 <div class="flex items-center gap-3">
                     <div class="text-brass">
                         <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -203,7 +171,22 @@
         </div>
     </nav>
 
-    <main class="relative z-10 flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
+    <div class="relative w-full h-64 sm:h-80 lg:h-96 bg-slate-900 overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1573871669414-010dbf73ca84?q=80&w=2071&auto=format&fit=crop" alt="Brass Instruments" class="absolute inset-0 w-full h-full object-cover opacity-40">
+        
+        <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
+            <h1 class="text-3xl sm:text-5xl font-bold text-white tracking-tight mb-2 drop-shadow-lg">
+                <span x-show="lang === 'en'">Praising God Through Music</span>
+                <span x-show="lang === 'ua'" x-cloak>Хваліть Його Звуком Трубним</span>
+            </h1>
+            <p class="text-slate-300 text-sm sm:text-lg max-w-2xl font-light">
+                <span x-show="lang === 'en'">First Ukrainian Baptist Church Band Ministry</span>
+                <span x-show="lang === 'ua'" x-cloak>Оркестр Першої Української Баптистської Церкви</span>
+            </p>
+        </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
 
         <section id="setlist" class="scroll-mt-24">
             <div class="flex items-end justify-between mb-8 pb-4 border-b border-slate-200">
@@ -218,7 +201,7 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <template x-for="song in currentSetlist" :key="song.title">
-                    <div class="bg-white/90 backdrop-blur-sm rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-all group relative overflow-hidden hover:-translate-y-1">
+                    <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-all group relative overflow-hidden hover:-translate-y-1">
                         <div class="absolute top-0 left-0 w-1 h-full bg-brass opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <div class="flex justify-between items-start mb-6">
                             <div><h3 class="text-lg font-bold text-slate-900" x-text="song.title"></h3><p class="text-slate-500 text-sm mt-0.5" x-text="song.sub"></p></div>
@@ -237,13 +220,13 @@
             <div class="lg:col-span-2">
                 <h2 class="text-2xl font-bold text-slate-900 mb-6"><span x-show="lang === 'en'">Upcoming Schedule</span><span x-show="lang === 'ua'" x-cloak>Розклад Подій</span></h2>
                 <div class="space-y-4">
-                    <div class="bg-white/90 backdrop-blur-sm p-5 rounded-xl border border-slate-100 shadow-sm flex items-center gap-6 relative overflow-hidden group">
+                    <div class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm flex items-center gap-6 relative overflow-hidden group">
                         <div class="absolute left-0 top-0 bottom-0 w-1 bg-brass"></div>
                          <div class="h-16 w-16 rounded-lg bg-slate-50 flex flex-col items-center justify-center text-center border border-slate-100 group-hover:border-brass/30 transition-colors"><span class="text-xs text-brass font-bold uppercase tracking-wider" x-text="nextFriday.split(' ')[0]"></span><span class="text-xl text-slate-900 font-extrabold leading-none" x-text="nextFriday.split(' ')[1]"></span></div>
                         <div><h3 class="text-lg font-bold text-slate-900">Weekly Rehearsal</h3><p class="text-slate-500 text-sm">Friday • 9:00 PM</p><span x-show="settings.isRehearsalCanceled" class="text-red-600 text-xs font-bold uppercase mt-1 block">Canceled</span></div>
                     </div>
                     <template x-for="event in events">
-                        <div class="bg-white/90 backdrop-blur-sm p-5 rounded-xl border border-slate-100 shadow-sm flex items-center gap-6">
+                        <div class="bg-white p-5 rounded-xl border border-slate-100 shadow-sm flex items-center gap-6">
                             <div class="h-16 w-16 rounded-lg bg-slate-50 flex flex-col items-center justify-center text-center border border-slate-100"><span class="text-xs text-slate-400 font-bold uppercase tracking-wider" x-text="event.date.split(' ')[0]"></span><span class="text-xl text-slate-900 font-extrabold leading-none" x-text="event.date.split(' ')[1]"></span></div>
                             <div><h3 class="text-lg font-bold text-slate-900" x-text="lang === 'en' ? event.title_en : event.title_ua"></h3><p class="text-slate-500 text-sm" x-text="event.day + ' • ' + event.time"></p></div>
                         </div>
@@ -282,7 +265,6 @@
          <section id="media">
             <h2 class="text-2xl font-bold text-slate-900 mb-6 border-b border-slate-200 pb-4 flex justify-between items-center">
                 <span>Media Gallery</span>
-                
                 <a href="https://youtube.com/playlist?list=PLqmdWSP7QrZ5hK9MdbSxGiC9NlsI3vL7f&si=70N759E8fiG6dxQu" target="_blank" class="flex items-center gap-2 bg-[#FF0000] text-white px-4 py-2 rounded-full text-sm font-bold shadow hover:bg-red-700 transition-colors">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
                     Visit Playlist
@@ -294,7 +276,7 @@
         </section>
     </main>
 
-    <footer class="relative z-10 bg-white border-t border-slate-200 py-12 text-center mt-12">
+    <footer class="bg-white border-t border-slate-200 py-12 text-center mt-12">
         <div class="max-w-7xl mx-auto px-4 space-y-4">
             <div class="font-bold text-slate-900 tracking-tight text-xl">FUBC <span class="text-brass">BAND</span></div>
             
