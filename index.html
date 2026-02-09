@@ -31,7 +31,6 @@
                         surface: '#ffffff',
                     },
                     animation: {
-                        // SPEEDED UP: Changed from 60s to 30s
                         marquee: 'marquee 30s linear infinite',
                     },
                     keyframes: {
@@ -111,6 +110,19 @@
             });
         },
 
+        // --- SORTING LOGIC ---
+        // 1. Link + Chords (Score 3)
+        // 2. Link Only (Score 2)
+        // 3. Chords Only (Score 1)
+        // 4. Neither (Score 0)
+        get sortedSetlist() {
+            return [...this.currentSetlist].sort((a, b) => {
+                const scoreA = (a.link ? 2 : 0) + (a.chords ? 1 : 0);
+                const scoreB = (b.link ? 2 : 0) + (b.chords ? 1 : 0);
+                return scoreB - scoreA;
+            });
+        },
+
         get nextFriday() {
             const d = new Date();
             if (d.getDay() === 5 && d.getHours() >= 22) { d.setDate(d.getDate() + 1); }
@@ -184,18 +196,19 @@
         <img src="https://images.unsplash.com/photo-1573871669414-010dbf73ca84?q=80&w=2071&auto=format&fit=crop" alt="Brass Instruments" class="absolute inset-0 w-full h-full object-cover opacity-40">
         <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent"></div>
         <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4 pt-10">
-            <h1 class="font-heading text-3xl sm:text-5xl font-bold text-white tracking-tight mb-4 drop-shadow-lg">
-                <span x-show="lang === 'en'">Praising God Through Music</span>
-                <span x-show="lang === 'ua'" x-cloak>Хваліть Його Звуком Трубним</span>
+            <h1 class="font-heading text-2xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight mb-4 drop-shadow-lg max-w-4xl mx-auto leading-snug">
+                <span x-show="lang === 'en'">“Praise him with trumpet sound; praise him with lute and harp!”<br><span class="text-base sm:text-2xl font-medium mt-3 block text-brassLight">– Psalm 150:3</span></span>
+                <span x-show="lang === 'ua'" x-cloak>“Хваліть Його звуком трубним, хваліть Його на арфі та гуслах!”<br><span class="text-base sm:text-2xl font-medium mt-3 block text-brassLight">– Псалми 150:3</span></span>
             </h1>
-            <p class="text-slate-300 text-sm sm:text-lg max-w-2xl font-light tracking-wide">
+            
+            <p class="text-slate-300 text-sm sm:text-lg max-w-2xl font-light tracking-wide mt-4">
                 <span x-show="lang === 'en'">First Ukrainian Baptist Church Band Ministry</span>
                 <span x-show="lang === 'ua'" x-cloak>Оркестр Першої Української Баптистської Церкви</span>
             </p>
         </div>
     </div>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-10 pb-24 space-y-12">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 md:-mt-20 relative z-10 pb-24 space-y-12">
 
         <div x-show="settings.conductorNote" x-cloak class="bg-white border-l-4 border-brass p-6 rounded-lg shadow-lg">
             <div class="flex items-start">
@@ -212,8 +225,9 @@
                 <div><h2 class="font-heading text-2xl font-bold text-slate-900"><span x-show="lang === 'en'">Performance Setlist</span><span x-show="lang === 'ua'" x-cloak>Програма Виступу</span></h2><p class="text-textMuted text-sm mt-1 font-medium"><span x-show="lang === 'en'">Upcoming Service Material</span><span x-show="lang === 'ua'" x-cloak>Матеріал найближчого служіння</span></p></div>
                 <button @click="showLibrary = true" class="text-sm font-semibold text-brass hover:text-brassLight transition-colors flex items-center gap-2 group"><span x-show="lang === 'en'">View Full Library</span><span x-show="lang === 'ua'" x-cloak>Відкрити Архів</span><span class="group-hover:translate-x-1 transition-transform">&rarr;</span></button>
             </div>
+            
             <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50/50">
-                <template x-for="song in currentSetlist" :key="song.title">
+                <template x-for="song in sortedSetlist" :key="song.title">
                     <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
                         <div class="absolute left-0 top-0 bottom-0 w-1 bg-brass opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <div class="flex justify-between items-start mb-6"><div><h3 class="font-heading text-lg font-bold text-slate-900 group-hover:text-brass transition-colors" x-text="song.title"></h3><p class="text-slate-500 text-sm mt-1" x-text="song.sub"></p></div><span class="px-3 py-1 rounded-md bg-slate-100 text-xs font-bold text-slate-600 border border-slate-200" x-text="song.binderNumber && song.binderNumber !== 'New' ? '#' + song.binderNumber : 'New'"></span></div>
@@ -279,7 +293,6 @@
                 <span class="hidden sm:inline text-slate-300">|</span>
                 <a href="mailto:fubcband@gmail.com" class="hover:text-brass transition-colors">fubcband@gmail.com</a>
             </div>
-            
             <div class="pt-6 border-t border-slate-100 flex flex-col gap-2">
                 <p class="text-xs text-slate-400">Designed and built by Roman Kucheryavyy</p>
                 <a href="/privacy.html" class="text-xs text-slate-400 hover:text-brass transition-colors underline">Privacy Policy</a>
