@@ -154,10 +154,27 @@
 
     <div class="bg-slate-900 text-white py-2.5 overflow-hidden relative z-50 border-b border-brass/20">
         <div class="whitespace-nowrap animate-marquee flex gap-20 font-medium tracking-wide text-sm items-center">
-            <span><span class="text-brassLight font-bold uppercase tracking-wider">Next Rehearsal:</span> <span x-text="nextFriday"></span> @ 9:00 PM</span>
+            
+            <span>
+                <span class="text-brassLight font-bold uppercase tracking-wider">Next Rehearsal:</span> 
+                <span x-show="!settings.isRehearsalCanceled">
+                    <span x-text="nextFriday"></span> @ 9:00 PM
+                </span>
+                <span x-show="settings.isRehearsalCanceled" class="text-red-400 font-bold ml-1" x-text="lang === 'en' ? 'CANCELED' : 'СКАСОВАНО'"></span>
+            </span>
+
             <span class="text-slate-400 italic font-serif text-lg" x-text="lang === 'en' ? verse.en : verse.ua"></span>
+            
             <span><span class="text-brassLight font-bold uppercase tracking-wider">Next Service:</span> Feb 22 @ 9:00 AM</span>
-            <span><span class="text-brassLight font-bold uppercase tracking-wider">Next Rehearsal:</span> <span x-text="nextFriday"></span> @ 9:00 PM</span>
+            
+            <span>
+                <span class="text-brassLight font-bold uppercase tracking-wider">Next Rehearsal:</span> 
+                <span x-show="!settings.isRehearsalCanceled">
+                    <span x-text="nextFriday"></span> @ 9:00 PM
+                </span>
+                <span x-show="settings.isRehearsalCanceled" class="text-red-400 font-bold ml-1" x-text="lang === 'en' ? 'CANCELED' : 'СКАСОВАНО'"></span>
+            </span>
+
             <span class="text-slate-400 italic font-serif text-lg" x-text="lang === 'en' ? verse.en : verse.ua"></span>
         </div>
     </div>
