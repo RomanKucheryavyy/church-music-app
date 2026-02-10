@@ -31,6 +31,7 @@
                         surface: '#ffffff',
                     },
                     animation: {
+                        // Default defined here, but overridden in HTML for mobile speed
                         marquee: 'marquee 30s linear infinite',
                     },
                     keyframes: {
@@ -153,7 +154,7 @@
 >
 
     <div class="bg-slate-900 text-white py-2.5 overflow-hidden relative z-50 border-b border-brass/20">
-        <div class="whitespace-nowrap animate-marquee flex gap-20 font-medium tracking-wide text-sm items-center">
+        <div class="whitespace-nowrap animate-[marquee_15s_linear_infinite] md:animate-[marquee_30s_linear_infinite] flex gap-20 font-medium tracking-wide text-sm items-center">
             <span>
                 <span class="text-brassLight font-bold uppercase tracking-wider">Next Rehearsal:</span> 
                 <span x-show="!settings.isRehearsalCanceled"><span x-text="nextFriday"></span> @ 9:00 PM</span>
@@ -176,9 +177,9 @@
                 
                 <a href="#" class="flex items-center gap-3 hover:opacity-80 transition-opacity group z-50 relative">
                     
-                    <img src="logo.png" alt="FUBC Band Logo" class="h-12 w-auto object-contain">
+                    <img src="logo.png" alt="FUBC Band Logo" class="h-16 w-auto object-contain mix-blend-multiply">
 
-                    <div class="font-heading font-bold text-xl sm:text-2xl tracking-[0.15em] text-slate-900 leading-none">
+                    <div class="font-heading font-bold text-xl sm:text-2xl tracking-[0.5em] text-slate-900 leading-none">
                         FUBC 
                         <span class="text-brass block text-[10px] sm:text-xs font-semibold tracking-[0.35em] mt-0.5 group-hover:text-brassLight transition-colors">BAND</span>
                     </div>
