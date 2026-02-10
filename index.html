@@ -31,12 +31,13 @@
                         surface: '#ffffff',
                     },
                     animation: {
-                        // Default defined here, but overridden in HTML for mobile speed
-                        marquee: 'marquee 30s linear infinite',
+                        // We will define specific durations in the HTML classes
+                        marquee: 'marquee linear infinite',
                     },
                     keyframes: {
+                        // SEAMLESS LOGIC: Move from 0 to -100%
                         marquee: {
-                            '0%': { transform: 'translateX(100%)' },
+                            '0%': { transform: 'translateX(0%)' },
                             '100%': { transform: 'translateX(-100%)' },
                         }
                     }
@@ -153,22 +154,68 @@
     }"
 >
 
-    <div class="bg-slate-900 text-white py-2.5 overflow-hidden relative z-50 border-b border-brass/20">
-        <div class="whitespace-nowrap animate-[marquee_15s_linear_infinite] md:animate-[marquee_30s_linear_infinite] flex gap-20 font-medium tracking-wide text-sm items-center">
+    <div class="bg-slate-900 text-white py-2.5 overflow-hidden relative z-50 border-b border-brass/20 flex">
+        
+        <div class="whitespace-nowrap animate-[marquee_20s_linear_infinite] md:animate-[marquee_40s_linear_infinite] flex items-center min-w-full shrink-0">
+            <span class="px-10"></span>
+            
             <span>
                 <span class="text-brassLight font-bold uppercase tracking-wider">Next Rehearsal:</span> 
                 <span x-show="!settings.isRehearsalCanceled"><span x-text="nextFriday"></span> @ 9:00 PM</span>
                 <span x-show="settings.isRehearsalCanceled" class="text-red-400 font-bold ml-1" x-text="lang === 'en' ? 'CANCELED' : 'СКАСОВАНО'"></span>
             </span>
+            
+            <span class="px-10"></span>
+            
             <span class="text-slate-400 italic font-serif text-lg" x-text="lang === 'en' ? verse.en : verse.ua"></span>
+            
+            <span class="px-10"></span>
+            
             <span><span class="text-brassLight font-bold uppercase tracking-wider">Next Service:</span> Feb 22 @ 9:00 AM</span>
+            
+            <span class="px-10"></span>
+            
             <span>
                 <span class="text-brassLight font-bold uppercase tracking-wider">Next Rehearsal:</span> 
                 <span x-show="!settings.isRehearsalCanceled"><span x-text="nextFriday"></span> @ 9:00 PM</span>
                 <span x-show="settings.isRehearsalCanceled" class="text-red-400 font-bold ml-1" x-text="lang === 'en' ? 'CANCELED' : 'СКАСОВАНО'"></span>
             </span>
+            
+            <span class="px-10"></span>
+            
             <span class="text-slate-400 italic font-serif text-lg" x-text="lang === 'en' ? verse.en : verse.ua"></span>
         </div>
+
+        <div class="whitespace-nowrap animate-[marquee_20s_linear_infinite] md:animate-[marquee_40s_linear_infinite] flex items-center min-w-full shrink-0">
+            <span class="px-10"></span>
+            
+            <span>
+                <span class="text-brassLight font-bold uppercase tracking-wider">Next Rehearsal:</span> 
+                <span x-show="!settings.isRehearsalCanceled"><span x-text="nextFriday"></span> @ 9:00 PM</span>
+                <span x-show="settings.isRehearsalCanceled" class="text-red-400 font-bold ml-1" x-text="lang === 'en' ? 'CANCELED' : 'СКАСОВАНО'"></span>
+            </span>
+            
+            <span class="px-10"></span>
+            
+            <span class="text-slate-400 italic font-serif text-lg" x-text="lang === 'en' ? verse.en : verse.ua"></span>
+            
+            <span class="px-10"></span>
+            
+            <span><span class="text-brassLight font-bold uppercase tracking-wider">Next Service:</span> Feb 22 @ 9:00 AM</span>
+            
+            <span class="px-10"></span>
+            
+            <span>
+                <span class="text-brassLight font-bold uppercase tracking-wider">Next Rehearsal:</span> 
+                <span x-show="!settings.isRehearsalCanceled"><span x-text="nextFriday"></span> @ 9:00 PM</span>
+                <span x-show="settings.isRehearsalCanceled" class="text-red-400 font-bold ml-1" x-text="lang === 'en' ? 'CANCELED' : 'СКАСОВАНО'"></span>
+            </span>
+            
+            <span class="px-10"></span>
+            
+            <span class="text-slate-400 italic font-serif text-lg" x-text="lang === 'en' ? verse.en : verse.ua"></span>
+        </div>
+
     </div>
 
     <nav class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm transition-colors duration-300" :class="mobileMenuOpen ? 'bg-white border-transparent' : ''">
@@ -177,9 +224,9 @@
                 
                 <a href="#" class="flex items-center gap-3 hover:opacity-80 transition-opacity group z-50 relative">
                     
-                    <img src="logo.png" alt="FUBC Band Logo" class="h-16 w-auto object-contain mix-blend-multiply">
+                    <img src="logo.png" alt="FUBC Band Logo" class="h-16 w-auto object-contain">
 
-                    <div class="font-heading font-bold text-xl sm:text-2xl tracking-[0.5em] text-slate-900 leading-none">
+                    <div class="font-heading font-bold text-xl sm:text-2xl tracking-[0.15em] text-slate-900 leading-none">
                         FUBC 
                         <span class="text-brass block text-[10px] sm:text-xs font-semibold tracking-[0.35em] mt-0.5 group-hover:text-brassLight transition-colors">BAND</span>
                     </div>
