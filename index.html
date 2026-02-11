@@ -16,7 +16,7 @@
 
     <link rel="canonical" href="https://www.fubcband.com">
     <meta property="og:title" content="FUBC Band | Official Site">
-    <meta property="og:description" content="First Ukrainian Baptist Church Band Ministry. Rehearsal schedules, setlists, and resources.">
+    <meta property="og:description" content="First Ukrainian Baptist Church Band Ministry.">
     <meta property="og:url" content="https://www.fubcband.com">
     <meta property="og:type" content="website">
 
@@ -37,11 +37,14 @@
                         surface: '#ffffff',
                     },
                     animation: {
-                        marquee: 'marquee 30s linear infinite',
+                        // Mobile: 15 seconds (Fast)
+                        'marquee-mobile': 'marquee 15s linear infinite',
+                        // Desktop: 45 seconds (Slow/Readable)
+                        'marquee-desktop': 'marquee 45s linear infinite',
                     },
                     keyframes: {
                         marquee: {
-                            '0%': { transform: 'translateX(100%)' },
+                            '0%': { transform: 'translateX(0%)' },
                             '100%': { transform: 'translateX(-100%)' },
                         }
                     }
@@ -158,22 +161,30 @@
     }"
 >
 
-    <div class="bg-slate-900 text-white py-2.5 overflow-hidden relative z-50 border-b border-brass/20">
-        <div class="whitespace-nowrap animate-[marquee_15s_linear_infinite] md:animate-[marquee_30s_linear_infinite] flex gap-20 font-medium tracking-wide text-sm items-center">
-            <span>
+    <div class="bg-slate-900 text-white py-2.5 overflow-hidden relative z-50 border-b border-brass/20 flex">
+        
+        <div class="whitespace-nowrap animate-marquee-mobile md:animate-marquee-desktop flex items-center min-w-full shrink-0">
+            <span class="px-8">
                 <span class="text-brassLight font-bold uppercase tracking-wider">Next Rehearsal:</span> 
                 <span x-show="!settings.isRehearsalCanceled"><span x-text="nextFriday"></span> @ 9:00 PM</span>
                 <span x-show="settings.isRehearsalCanceled" class="text-red-400 font-bold ml-1" x-text="lang === 'en' ? 'CANCELED' : 'СКАСОВАНО'"></span>
             </span>
-            <span class="text-slate-400 italic font-serif text-lg" x-text="lang === 'en' ? verse.en : verse.ua"></span>
-            <span><span class="text-brassLight font-bold uppercase tracking-wider">Next Service:</span> Feb 22 @ 9:00 AM</span>
-            <span>
-                <span class="text-brassLight font-bold uppercase tracking-wider">Next Rehearsal:</span> 
-                <span x-show="!settings.isRehearsalCanceled"><span x-text="nextFriday"></span> @ 9:00 PM</span>
-                <span x-show="settings.isRehearsalCanceled" class="text-red-400 font-bold ml-1" x-text="lang === 'en' ? 'CANCELED' : 'СКАСОВАНО'"></span>
-            </span>
-            <span class="text-slate-400 italic font-serif text-lg" x-text="lang === 'en' ? verse.en : verse.ua"></span>
+            <span class="px-8 text-slate-400 italic font-serif text-lg" x-text="lang === 'en' ? verse.en : verse.ua"></span>
+            <span class="px-8"><span class="text-brassLight font-bold uppercase tracking-wider">Next Service:</span> Feb 22 @ 9:00 AM</span>
+            <span class="px-8"></span> 
         </div>
+
+        <div class="whitespace-nowrap animate-marquee-mobile md:animate-marquee-desktop flex items-center min-w-full shrink-0">
+            <span class="px-8">
+                <span class="text-brassLight font-bold uppercase tracking-wider">Next Rehearsal:</span> 
+                <span x-show="!settings.isRehearsalCanceled"><span x-text="nextFriday"></span> @ 9:00 PM</span>
+                <span x-show="settings.isRehearsalCanceled" class="text-red-400 font-bold ml-1" x-text="lang === 'en' ? 'CANCELED' : 'СКАСОВАНО'"></span>
+            </span>
+            <span class="px-8 text-slate-400 italic font-serif text-lg" x-text="lang === 'en' ? verse.en : verse.ua"></span>
+            <span class="px-8"><span class="text-brassLight font-bold uppercase tracking-wider">Next Service:</span> Feb 22 @ 9:00 AM</span>
+            <span class="px-8"></span> 
+        </div>
+
     </div>
 
     <nav class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm transition-colors duration-300" :class="mobileMenuOpen ? 'bg-white border-transparent' : ''">
@@ -200,7 +211,6 @@
                 </div>
 
                 <div class="md:hidden flex items-center gap-4">
-                    
                     <button @click="lang = lang === 'en' ? 'ua' : 'en'" class="text-[10px] font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest border border-slate-200 px-3 py-1.5 rounded-full bg-white/50">
                         <span :class="lang === 'en' ? 'text-brass font-extrabold' : ''">EN</span><span class="text-slate-300 px-1">/</span><span :class="lang === 'ua' ? 'text-brass font-extrabold' : ''">UA</span>
                     </button>
@@ -341,7 +351,6 @@
                 <a href="mailto:fubcband@gmail.com" class="hover:text-brass transition-colors">fubcband@gmail.com</a>
             </div>
             <div class="pt-6 border-t border-slate-100 flex flex-col gap-2">
-                <p class="text-xs text-slate-400">&copy; 2026 First Ukrainian Baptist Church Band.</p>
                 <p class="text-xs text-slate-400">Designed and built by Roman Kucheryavyy</p>
                 <a href="/privacy.html" class="text-xs text-slate-400 hover:text-brass transition-colors underline">Privacy Policy</a>
             </div>
