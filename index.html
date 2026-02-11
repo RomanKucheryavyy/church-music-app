@@ -12,7 +12,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -22,23 +21,32 @@
     <meta name="theme-color" content="#0f172a">
     <link rel="apple-touch-icon" href="/logo.png">
     <link rel="canonical" href="https://www.fubcband.com">
-    <meta property="og:title" content="FUBC Band | Official Site">
-    <meta property="og:description" content="First Ukrainian Baptist Church Band Ministry.">
-    <meta property="og:url" content="https://www.fubcband.com">
-    <meta property="og:type" content="website">
 
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'], heading: ['Montserrat', 'sans-serif'] },
-                    colors: { pageBg: '#f8fafc', textMain: '#0f172a', textMuted: '#64748b', brass: '#b45309', brassLight: '#d97706', surface: '#ffffff' },
+                    fontFamily: { 
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Montserrat', 'sans-serif']
+                    },
+                    colors: {
+                        pageBg: '#f8fafc',
+                        textMain: '#0f172a',
+                        textMuted: '#64748b',
+                        brass: '#b45309',       
+                        brassLight: '#d97706',
+                        surface: '#ffffff',
+                    },
                     animation: {
                         'marquee-mobile': 'marquee 15s linear infinite',
                         'marquee-desktop': 'marquee 45s linear infinite',
                     },
                     keyframes: {
-                        marquee: { '0%': { transform: 'translateX(0%)' }, '100%': { transform: 'translateX(-100%)' } }
+                        marquee: {
+                            '0%': { transform: 'translateX(0%)' },
+                            '100%': { transform: 'translateX(-100%)' },
+                        }
                     }
                 }
             }
@@ -55,10 +63,19 @@
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #e2e8f0; border-radius: 99px; }
         input[type=range]:focus { outline: none; }
         
+        /* Scroll Animations */
         .reveal-hidden { opacity: 0; transform: translateY(20px); }
         .reveal-visible { opacity: 1; transform: translateY(0); transition: all 0.8s ease-out; }
-        
-        @media print { nav, footer, .bg-slate-900, #tools, section[class*="bg-slate-900"], button { display: none !important; } body { background: white; color: black; } }
+
+        /* Print Styles */
+        @media print {
+            nav, footer, .bg-slate-900, #tools, section[class*="bg-slate-900"], button { display: none !important; }
+            body { background: white; color: black; }
+            #setlist { box-shadow: none; border: none; }
+            #setlist h2 { font-size: 24pt; border-bottom: 2px solid black; padding-bottom: 10px; }
+            .grid { display: block; }
+            .bg-white { background: transparent !important; }
+        }
     </style>
 </head>
 
@@ -70,15 +87,10 @@
         submitStatus: 'idle', 
         verse: null,
         mobileMenuOpen: false,
-        scrollY: 0,
-        scrollProgress: 0,
+        scrollY: 0, // Parallax variable
 
-        settings: { 
-            isRehearsalCanceled: false, 
-            conductorNote: '',
-            nextRehearsalDate: '', 
-            nextRehearsalTime: '9:00 PM' 
-        },
+        // --- DATA FALLBACKS ---
+        settings: { isRehearsalCanceled: false, conductorNote: '' },
         events: [], 
         currentSetlist: [],
         allSongs: [],
@@ -104,8 +116,44 @@
             } catch (e) { console.log('Using built-in data'); }
         },
 
-        get displayRehearsalDate() {
-            if (this.settings.nextRehearsalDate) return this.settings.nextRehearsalDate;
+        submitForm() {
+            this.submitStatus = 'submitting';
+            const formData = new FormData(this.$refs.form);
+            fetch('/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams(formData).toString()
+            })
+            .then(() => {
+                this.submitStatus = 'success';
+                
+                // --- CONFETTI BLAST ---
+                confetti({
+                    particleCount: 150,
+                    spread: 70,
+                    origin: { y: 0.7 },
+                    colors: ['#b45309', '#d97706', '#ffffff']
+                });
+
+                this.$refs.form.reset();
+                setTimeout(() => this.submitStatus = 'idle', 5000);
+            })
+            .catch(() => {
+                alert('Connection error. Please try again.');
+                this.submitStatus = 'idle';
+            });
+        },
+
+        // --- RESTORED SORTING LOGIC ---
+        get sortedSetlist() {
+            return [...this.currentSetlist].sort((a, b) => {
+                const scoreA = (a.link ? 2 : 0) + (a.chords ? 1 : 0);
+                const scoreB = (b.link ? 2 : 0) + (b.chords ? 1 : 0);
+                return scoreB - scoreA; // Descending (High score first)
+            });
+        },
+
+        get nextFriday() {
             const d = new Date();
             if (d.getDay() === 5 && d.getHours() >= 22) { d.setDate(d.getDate() + 1); }
             const daysUntilFriday = (5 - d.getDay() + 7) % 7;
@@ -115,36 +163,40 @@
             return d.toLocaleDateString(this.lang === 'en' ? 'en-US' : 'uk-UA', { month: 'long', day: 'numeric' });
         },
 
-        submitForm() {
-            this.submitStatus = 'submitting';
-            const formData = new FormData(this.$refs.form);
-            fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(formData).toString() })
-            .then(() => {
-                this.submitStatus = 'success';
-                confetti({ particleCount: 150, spread: 70, origin: { y: 0.7 }, colors: ['#b45309', '#d97706', '#ffffff'] });
-                this.$refs.form.reset();
-                setTimeout(() => this.submitStatus = 'idle', 5000);
-            })
-            .catch(() => { alert('Connection error.'); this.submitStatus = 'idle'; });
+        get availableDates() {
+            let dates = [];
+            // Auto-calculated Friday
+            if (!this.settings.isRehearsalCanceled) {
+                dates.push({ 
+                    val: this.nextFriday + ' (Friday Rehearsal)', 
+                    label: this.nextFriday + (this.lang === 'en' ? ' - Friday Rehearsal' : ' - П\'ятнична Репетиція')
+                });
+            }
+            // Add any manually entered events
+            this.events.forEach(e => {
+                dates.push({ val: e.date + ' (' + e.title_en + ')', label: e.date + ' - ' + (this.lang === 'en' ? e.title_en : e.title_ua) });
+            });
+            return dates;
         },
 
-        get sortedSetlist() { return [...this.currentSetlist].sort((a, b) => ((a.link?2:0)+(a.chords?1:0)) - ((b.link?2:0)+(b.chords?1:0))); },
-        get filteredSongs() { if (this.searchQuery === '') return this.allSongs; const q = this.searchQuery.toLowerCase(); return this.allSongs.filter(s => (s.n && s.n.toString().includes(q)) || (s.u && s.u.toLowerCase().includes(q))); }
+        get filteredSongs() {
+            if (this.searchQuery === '') return this.allSongs;
+            const q = this.searchQuery.toLowerCase();
+            return this.allSongs.filter(s => (s.n && s.n.toString().includes(q)) || (s.u && s.u.toLowerCase().includes(q)));
+        }
     }"
-    @scroll.window="scrollY = window.pageYOffset; scrollProgress = (window.pageYOffset / (document.body.scrollHeight - window.innerHeight)) * 100"
+    @scroll.window="scrollY = window.pageYOffset"
 >
-
-    <div class="fixed top-0 left-0 h-1 bg-brass z-[60]" :style="'width: ' + scrollProgress + '%'"></div>
 
     <div class="bg-slate-900 text-white py-2.5 overflow-hidden relative z-50 border-b border-brass/20 flex">
         <div class="whitespace-nowrap animate-marquee-mobile md:animate-marquee-desktop flex items-center min-w-full shrink-0">
-            <span class="px-8"><span class="text-brassLight font-bold uppercase tracking-wider">Next Rehearsal:</span> <span x-show="!settings.isRehearsalCanceled"><span x-text="displayRehearsalDate"></span> @ <span x-text="settings.nextRehearsalTime"></span></span><span x-show="settings.isRehearsalCanceled" class="text-red-400 font-bold ml-1" x-text="lang === 'en' ? 'CANCELED' : 'СКАСОВАНО'"></span></span>
+            <span class="px-8"><span class="text-brassLight font-bold uppercase tracking-wider">Next Rehearsal:</span> <span x-show="!settings.isRehearsalCanceled"><span x-text="nextFriday"></span> @ 9:00 PM</span><span x-show="settings.isRehearsalCanceled" class="text-red-400 font-bold ml-1" x-text="lang === 'en' ? 'CANCELED' : 'СКАСОВАНО'"></span></span>
             <span class="px-8 text-slate-400 italic font-serif text-lg" x-text="lang === 'en' ? verse.en : verse.ua"></span>
             <span class="px-8"><span class="text-brassLight font-bold uppercase tracking-wider">Next Service:</span> Feb 22 @ 9:00 AM</span>
             <span class="px-8"></span> 
         </div>
         <div class="whitespace-nowrap animate-marquee-mobile md:animate-marquee-desktop flex items-center min-w-full shrink-0">
-            <span class="px-8"><span class="text-brassLight font-bold uppercase tracking-wider">Next Rehearsal:</span> <span x-show="!settings.isRehearsalCanceled"><span x-text="displayRehearsalDate"></span> @ <span x-text="settings.nextRehearsalTime"></span></span><span x-show="settings.isRehearsalCanceled" class="text-red-400 font-bold ml-1" x-text="lang === 'en' ? 'CANCELED' : 'СКАСОВАНО'"></span></span>
+            <span class="px-8"><span class="text-brassLight font-bold uppercase tracking-wider">Next Rehearsal:</span> <span x-show="!settings.isRehearsalCanceled"><span x-text="nextFriday"></span> @ 9:00 PM</span><span x-show="settings.isRehearsalCanceled" class="text-red-400 font-bold ml-1" x-text="lang === 'en' ? 'CANCELED' : 'СКАСОВАНО'"></span></span>
             <span class="px-8 text-slate-400 italic font-serif text-lg" x-text="lang === 'en' ? verse.en : verse.ua"></span>
             <span class="px-8"><span class="text-brassLight font-bold uppercase tracking-wider">Next Service:</span> Feb 22 @ 9:00 AM</span>
             <span class="px-8"></span> 
@@ -154,10 +206,12 @@
     <nav class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm transition-colors duration-300" :class="mobileMenuOpen ? 'bg-white border-transparent' : ''">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-20">
+                
                 <a href="#" class="flex items-center gap-3 hover:opacity-80 transition-opacity group z-50 relative">
                     <img src="logo.png" alt="FUBC Band Logo" class="h-16 w-auto object-contain">
                     <div class="font-heading font-bold text-xl sm:text-2xl tracking-[0.15em] text-slate-900 leading-none">FUBC <span class="text-brass block text-[10px] sm:text-xs font-semibold tracking-[0.35em] mt-0.5 group-hover:text-brassLight transition-colors">BAND</span></div>
                 </a>
+
                 <div class="hidden md:flex items-center gap-10">
                     <button @click="lang = lang === 'en' ? 'ua' : 'en'" class="text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest border border-slate-200 px-4 py-1.5 rounded-full hover:border-brass/50 bg-white"><span :class="lang === 'en' ? 'text-brass font-extrabold' : ''">EN</span> <span class="text-slate-300 px-1">/</span> <span :class="lang === 'ua' ? 'text-brass font-extrabold' : ''">UA</span></button>
                     <div class="flex items-center gap-8">
@@ -166,12 +220,10 @@
                         <a href="#media" class="relative group py-2"><span class="font-bold text-xs uppercase tracking-widest text-slate-500 group-hover:text-brass transition-colors" x-text="lang === 'en' ? 'Media' : 'Медіа'"></span><span class="absolute bottom-0 left-0 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-full"></span></a>
                     </div>
                 </div>
+
                 <div class="md:hidden flex items-center gap-4">
                     <button @click="lang = lang === 'en' ? 'ua' : 'en'" class="text-[10px] font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest border border-slate-200 px-3 py-1.5 rounded-full bg-white/50"><span :class="lang === 'en' ? 'text-brass font-extrabold' : ''">EN</span><span class="text-slate-300 px-1">/</span><span :class="lang === 'ua' ? 'text-brass font-extrabold' : ''">UA</span></button>
-                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="p-2 text-slate-800 hover:text-brass transition-colors focus:outline-none" aria-label="Toggle Menu">
-                        <svg x-show="!mobileMenuOpen" class="w-7 h-7 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-                        <svg x-show="mobileMenuOpen" class="w-7 h-7 transform transition-transform duration-300 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" x-cloak><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </button>
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="p-2 text-slate-800 hover:text-brass transition-colors focus:outline-none" aria-label="Toggle Menu"><svg x-show="!mobileMenuOpen" class="w-7 h-7 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg><svg x-show="mobileMenuOpen" class="w-7 h-7 transform transition-transform duration-300 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" x-cloak><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
                 </div>
             </div>
         </div>
@@ -216,7 +268,6 @@
                 <button @click="showLibrary = true" class="text-sm font-semibold text-brass hover:text-brassLight transition-colors flex items-center gap-2 group"><span x-show="lang === 'en'">View Full Library</span><span x-show="lang === 'ua'" x-cloak>Відкрити Архів</span><span class="group-hover:translate-x-1 transition-transform">&rarr;</span></button>
             </div>
             <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50/50">
-                <template x-if="currentSetlist.length === 0"><div class="col-span-2 text-center py-10 text-slate-400 text-sm">Loading setlist...</div></template>
                 <template x-for="song in sortedSetlist" :key="song.title">
                     <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
                         <div class="absolute left-0 top-0 bottom-0 w-1 bg-brass opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -232,8 +283,8 @@
                 <div class="px-6 py-6 border-b border-slate-100"><h2 class="font-heading text-xl font-bold text-slate-900"><span x-show="lang === 'en'">Schedule</span><span x-show="lang === 'ua'" x-cloak>Розклад</span></h2></div>
                 <div class="p-6 space-y-4">
                     <div class="flex items-center gap-5 p-4 rounded-xl border border-slate-100 bg-slate-50">
-                        <div class="h-14 w-16 min-w-[4rem] rounded-lg bg-white flex flex-col items-center justify-center text-center border border-slate-200 shadow-sm"><span class="text-[9px] text-brass font-bold uppercase tracking-tight" x-text="displayRehearsalDate.split(' ')[0]"></span><span class="text-lg text-slate-900 font-extrabold leading-none" x-text="displayRehearsalDate.split(' ')[1]"></span></div>
-                        <div><h3 class="font-bold text-slate-900"><span x-show="lang === 'en'">Weekly Rehearsal</span><span x-show="lang === 'ua'" x-cloak>Щотижнева Репетиція</span></h3><p class="text-slate-500 text-sm">Friday • <span x-text="settings.nextRehearsalTime"></span></p><span x-show="settings.isRehearsalCanceled" class="inline-block mt-1 px-2 py-0.5 bg-red-100 text-red-600 text-[10px] font-bold uppercase rounded">Canceled</span></div>
+                        <div class="h-14 w-16 min-w-[4rem] rounded-lg bg-white flex flex-col items-center justify-center text-center border border-slate-200 shadow-sm"><span class="text-[9px] text-brass font-bold uppercase tracking-tight" x-text="nextFriday.split(' ')[0]"></span><span class="text-lg text-slate-900 font-extrabold leading-none" x-text="nextFriday.split(' ')[1]"></span></div>
+                        <div><h3 class="font-bold text-slate-900"><span x-show="lang === 'en'">Weekly Rehearsal</span><span x-show="lang === 'ua'" x-cloak>Щотижнева Репетиція</span></h3><p class="text-slate-500 text-sm">Friday • 9:00 PM</p><span x-show="settings.isRehearsalCanceled" class="inline-block mt-1 px-2 py-0.5 bg-red-100 text-red-600 text-[10px] font-bold uppercase rounded">Canceled</span></div>
                     </div>
                     <template x-for="event in events"><div class="flex items-center gap-5 p-4 rounded-xl border border-slate-100 bg-white"><div class="h-14 w-16 min-w-[4rem] rounded-lg bg-slate-50 flex flex-col items-center justify-center text-center border border-slate-200"><span class="text-[9px] text-slate-400 font-bold uppercase tracking-tight" x-text="event.date.split(' ')[0]"></span><span class="text-lg text-slate-700 font-extrabold leading-none" x-text="event.date.split(' ')[1]"></span></div><div><h3 class="font-bold text-slate-900" x-text="lang === 'en' ? event.title_en : event.title_ua"></h3><p class="text-slate-500 text-sm" x-text="event.day + ' • ' + event.time"></p></div></div></template>
                 </div>
