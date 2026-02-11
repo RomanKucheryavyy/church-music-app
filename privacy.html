@@ -1,91 +1,68 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth bg-[#f8fafc]">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privacy Policy | FUBC Band</title>
-    
+    <title>Privacy Policy - FUBC Band</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { 
-                        sans: ['Inter', 'sans-serif'],
-                        heading: ['Montserrat', 'sans-serif']
-                    },
-                    colors: {
-                        pageBg: '#f8fafc',
-                        textMain: '#0f172a',
-                        textMuted: '#64748b',
-                        brass: '#b45309',       
-                        brassLight: '#d97706',
-                        surface: '#ffffff',
-                    }
+                    fontFamily: { sans: ['Inter', 'sans-serif'], heading: ['Montserrat', 'sans-serif'] },
+                    colors: { brass: '#b45309' }
                 }
             }
         }
     </script>
 </head>
-<body class="text-textMain antialiased bg-pageBg flex flex-col min-h-screen">
+<body class="bg-gray-50 text-gray-900 font-sans antialiased">
 
-    <nav class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-20">
-                <a href="/" class="flex items-center gap-3 hover:opacity-80 transition-opacity group relative">
-                    <img src="logo.png" alt="FUBC Band Logo" class="h-16 w-auto object-contain mix-blend-multiply">
-                    <div class="font-heading font-bold text-xl sm:text-2xl tracking-[0.5em] text-slate-900 leading-none">
-                        FUBC 
-                        <span class="text-brass block text-[10px] sm:text-xs font-semibold tracking-[0.35em] mt-0.5 group-hover:text-brassLight transition-colors">BAND</span>
-                    </div>
-                </a>
-                <a href="/" class="text-sm font-bold text-brass hover:text-brassLight transition-colors uppercase tracking-widest border border-slate-200 px-6 py-2 rounded-full hover:border-brass/50 bg-white">
-                    Back to Home
-                </a>
-            </div>
+    <header class="bg-white border-b border-gray-200">
+        <div class="max-w-4xl mx-auto px-6 h-20 flex justify-between items-center">
+            <a href="/" class="flex items-center gap-3">
+                <img src="logo.png" alt="FUBC Band" class="h-10 w-auto">
+                <div class="font-heading font-bold text-xl tracking-widest text-gray-900">
+                    FUBC <span class="text-brass">BAND</span>
+                </div>
+            </a>
+            <a href="/" class="text-sm font-bold text-gray-500 hover:text-brass transition-colors">
+                &larr; Back to Home
+            </a>
         </div>
-    </nav>
+    </header>
 
-    <main class="flex-grow max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <h1 class="font-heading text-3xl sm:text-4xl font-bold text-slate-900 mb-8">Privacy Policy</h1>
+    <main class="max-w-3xl mx-auto px-6 py-16">
+        <h1 class="font-heading text-3xl font-bold mb-8">Privacy Policy</h1>
         
-        <div class="prose prose-slate max-w-none text-slate-600">
-            <p class="font-medium text-lg text-slate-800">Effective Date: February 2026</p>
-            
-            <h3>1. Introduction</h3>
+        <div class="space-y-6 text-gray-600 leading-relaxed">
+            <p><strong>Effective Date:</strong> February 2026</p>
+
             <p>Welcome to the official website of the First Ukrainian Baptist Church Band (FUBC Band). We respect your privacy and are committed to protecting any personal information you may share with us.</p>
 
-            <h3>2. Information We Collect</h3>
+            <h2 class="text-xl font-bold text-gray-900 mt-8">1. Information We Collect</h2>
             <p>We do not collect personal information from visitors unless it is voluntarily provided. The only data we may process includes:</p>
-            <ul class="list-disc pl-5 space-y-1">
+            <ul class="list-disc pl-5 space-y-2">
                 <li><strong>Attendance Reports:</strong> Names and dates submitted via our "Report Absence" form.</li>
                 <li><strong>Anonymous Analytics:</strong> Basic site traffic data (if applicable) to monitor performance.</li>
             </ul>
 
-            <h3>3. How We Use Your Information</h3>
+            <h2 class="text-xl font-bold text-gray-900 mt-8">2. How We Use Your Information</h2>
             <p>Any information submitted through forms is used strictly for internal band coordination (e.g., tracking rehearsal attendance). We do not sell, trade, or rent user information to others.</p>
 
-            <h3>4. Third-Party Services</h3>
+            <h2 class="text-xl font-bold text-gray-900 mt-8">3. Third-Party Services</h2>
             <p>This site may link to third-party content (e.g., YouTube for media). These sites have their own privacy policies, and we are not responsible for their practices.</p>
 
-            <h3>5. Contact Us</h3>
-            <p>If you have any questions about this policy, please contact us at <a href="mailto:fubcband@gmail.com" class="text-brass hover:underline">fubcband@gmail.com</a>.</p>
+            <h2 class="text-xl font-bold text-gray-900 mt-8">4. Contact Us</h2>
+            <p>If you have any questions about this policy, please contact us at <a href="mailto:fubcband@gmail.com" class="text-brass font-semibold hover:underline">fubcband@gmail.com</a>.</p>
         </div>
     </main>
 
-    <footer class="bg-white border-t border-slate-200 py-12 text-center mt-auto">
-        <div class="max-w-7xl mx-auto px-4 space-y-4">
-            <div class="font-bold text-slate-900 tracking-tight text-xl">FUBC <span class="text-brass">BAND</span></div>
-            <div class="pt-6 border-t border-slate-100 flex flex-col gap-2">
-                <p class="text-xs text-slate-400">&copy; 2026 First Ukrainian Baptist Church Band.</p>
-                <p class="text-xs text-slate-400">Designed and built by Roman Kucheryavyy</p>
-            </div>
-        </div>
+    <footer class="border-t border-gray-200 bg-white py-8 mt-12 text-center">
+        <p class="text-xs text-gray-400">&copy; 2026 First Ukrainian Baptist Church Band.</p>
     </footer>
 
 </body>
