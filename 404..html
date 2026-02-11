@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found | FUBC Band</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Inter:wght@400&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { brass: '#b45309', textMain: '#0f172a' },
+                    fontFamily: { heading: ['Montserrat', 'sans-serif'], sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-full flex items-center justify-center bg-[#f8fafc] text-textMain px-4">
+    <div class="text-center max-w-md">
+        <img src="/logo.png" alt="FUBC Band" class="h-24 w-auto mx-auto mb-6 opacity-80">
+        <h1 class="font-heading text-6xl font-bold text-slate-900 mb-2">404</h1>
+        <h2 class="text-xl font-bold text-brass uppercase tracking-widest mb-4">Page Not Found</h2>
+        <p class="text-slate-500 mb-8 font-sans">The sheet music you are looking for seems to be missing. Let's get you back to the rehearsal.</p>
+        <a href="/" class="inline-block bg-slate-900 hover:bg-brass text-white font-bold py-3 px-8 rounded-full transition-colors shadow-lg">
+            Return Home
+        </a>
+    </div>
+</body>
+</html>
