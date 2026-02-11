@@ -14,6 +14,12 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 
+    <link rel="canonical" href="https://www.fubcband.com">
+    <meta property="og:title" content="FUBC Band | Official Site">
+    <meta property="og:description" content="First Ukrainian Baptist Church Band Ministry. Rehearsal schedules, setlists, and resources.">
+    <meta property="og:url" content="https://www.fubcband.com">
+    <meta property="og:type" content="website">
+
     <script>
         tailwind.config = {
             theme: {
@@ -31,13 +37,11 @@
                         surface: '#ffffff',
                     },
                     animation: {
-                        // We will define specific durations in the HTML classes
-                        marquee: 'marquee linear infinite',
+                        marquee: 'marquee 30s linear infinite',
                     },
                     keyframes: {
-                        // SEAMLESS LOGIC: Move from 0 to -100%
                         marquee: {
-                            '0%': { transform: 'translateX(0%)' },
+                            '0%': { transform: 'translateX(100%)' },
                             '100%': { transform: 'translateX(-100%)' },
                         }
                     }
@@ -154,68 +158,22 @@
     }"
 >
 
-    <div class="bg-slate-900 text-white py-2.5 overflow-hidden relative z-50 border-b border-brass/20 flex">
-        
-        <div class="whitespace-nowrap animate-[marquee_20s_linear_infinite] md:animate-[marquee_40s_linear_infinite] flex items-center min-w-full shrink-0">
-            <span class="px-10"></span>
-            
+    <div class="bg-slate-900 text-white py-2.5 overflow-hidden relative z-50 border-b border-brass/20">
+        <div class="whitespace-nowrap animate-[marquee_15s_linear_infinite] md:animate-[marquee_30s_linear_infinite] flex gap-20 font-medium tracking-wide text-sm items-center">
             <span>
                 <span class="text-brassLight font-bold uppercase tracking-wider">Next Rehearsal:</span> 
                 <span x-show="!settings.isRehearsalCanceled"><span x-text="nextFriday"></span> @ 9:00 PM</span>
                 <span x-show="settings.isRehearsalCanceled" class="text-red-400 font-bold ml-1" x-text="lang === 'en' ? 'CANCELED' : 'СКАСОВАНО'"></span>
             </span>
-            
-            <span class="px-10"></span>
-            
             <span class="text-slate-400 italic font-serif text-lg" x-text="lang === 'en' ? verse.en : verse.ua"></span>
-            
-            <span class="px-10"></span>
-            
             <span><span class="text-brassLight font-bold uppercase tracking-wider">Next Service:</span> Feb 22 @ 9:00 AM</span>
-            
-            <span class="px-10"></span>
-            
             <span>
                 <span class="text-brassLight font-bold uppercase tracking-wider">Next Rehearsal:</span> 
                 <span x-show="!settings.isRehearsalCanceled"><span x-text="nextFriday"></span> @ 9:00 PM</span>
                 <span x-show="settings.isRehearsalCanceled" class="text-red-400 font-bold ml-1" x-text="lang === 'en' ? 'CANCELED' : 'СКАСОВАНО'"></span>
             </span>
-            
-            <span class="px-10"></span>
-            
             <span class="text-slate-400 italic font-serif text-lg" x-text="lang === 'en' ? verse.en : verse.ua"></span>
         </div>
-
-        <div class="whitespace-nowrap animate-[marquee_20s_linear_infinite] md:animate-[marquee_40s_linear_infinite] flex items-center min-w-full shrink-0">
-            <span class="px-10"></span>
-            
-            <span>
-                <span class="text-brassLight font-bold uppercase tracking-wider">Next Rehearsal:</span> 
-                <span x-show="!settings.isRehearsalCanceled"><span x-text="nextFriday"></span> @ 9:00 PM</span>
-                <span x-show="settings.isRehearsalCanceled" class="text-red-400 font-bold ml-1" x-text="lang === 'en' ? 'CANCELED' : 'СКАСОВАНО'"></span>
-            </span>
-            
-            <span class="px-10"></span>
-            
-            <span class="text-slate-400 italic font-serif text-lg" x-text="lang === 'en' ? verse.en : verse.ua"></span>
-            
-            <span class="px-10"></span>
-            
-            <span><span class="text-brassLight font-bold uppercase tracking-wider">Next Service:</span> Feb 22 @ 9:00 AM</span>
-            
-            <span class="px-10"></span>
-            
-            <span>
-                <span class="text-brassLight font-bold uppercase tracking-wider">Next Rehearsal:</span> 
-                <span x-show="!settings.isRehearsalCanceled"><span x-text="nextFriday"></span> @ 9:00 PM</span>
-                <span x-show="settings.isRehearsalCanceled" class="text-red-400 font-bold ml-1" x-text="lang === 'en' ? 'CANCELED' : 'СКАСОВАНО'"></span>
-            </span>
-            
-            <span class="px-10"></span>
-            
-            <span class="text-slate-400 italic font-serif text-lg" x-text="lang === 'en' ? verse.en : verse.ua"></span>
-        </div>
-
     </div>
 
     <nav class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm transition-colors duration-300" :class="mobileMenuOpen ? 'bg-white border-transparent' : ''">
@@ -223,9 +181,7 @@
             <div class="flex justify-between items-center h-20">
                 
                 <a href="#" class="flex items-center gap-3 hover:opacity-80 transition-opacity group z-50 relative">
-                    
                     <img src="logo.png" alt="FUBC Band Logo" class="h-16 w-auto object-contain">
-
                     <div class="font-heading font-bold text-xl sm:text-2xl tracking-[0.15em] text-slate-900 leading-none">
                         FUBC 
                         <span class="text-brass block text-[10px] sm:text-xs font-semibold tracking-[0.35em] mt-0.5 group-hover:text-brassLight transition-colors">BAND</span>
@@ -243,10 +199,17 @@
                     </div>
                 </div>
 
-                <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden z-50 p-2 text-slate-800 hover:text-brass transition-colors focus:outline-none" aria-label="Toggle Menu">
-                    <svg x-show="!mobileMenuOpen" class="w-7 h-7 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-                    <svg x-show="mobileMenuOpen" class="w-7 h-7 transform transition-transform duration-300 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" x-cloak><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
+                <div class="md:hidden flex items-center gap-4">
+                    
+                    <button @click="lang = lang === 'en' ? 'ua' : 'en'" class="text-[10px] font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest border border-slate-200 px-3 py-1.5 rounded-full bg-white/50">
+                        <span :class="lang === 'en' ? 'text-brass font-extrabold' : ''">EN</span><span class="text-slate-300 px-1">/</span><span :class="lang === 'ua' ? 'text-brass font-extrabold' : ''">UA</span>
+                    </button>
+
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="p-2 text-slate-800 hover:text-brass transition-colors focus:outline-none" aria-label="Toggle Menu">
+                        <svg x-show="!mobileMenuOpen" class="w-7 h-7 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                        <svg x-show="mobileMenuOpen" class="w-7 h-7 transform transition-transform duration-300 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" x-cloak><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
 
             </div>
         </div>
@@ -267,7 +230,6 @@
 
             <div class="mb-6 space-y-4 flex flex-col items-center border-t border-slate-100 pt-4">
                 <button @click="document.querySelector('form[name=attendance]').scrollIntoView({behavior: 'smooth'}); mobileMenuOpen = false;" class="text-[10px] font-bold text-brass uppercase tracking-widest hover:underline flex items-center gap-2"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg><span x-text="lang === 'en' ? 'Report Absence' : 'Повідомити про відсутність'"></span></button>
-                <button @click="lang = lang === 'en' ? 'ua' : 'en'" class="text-xs font-bold text-slate-500 uppercase tracking-widest border border-slate-200 px-6 py-2 rounded-full active:bg-slate-50 shadow-sm"><span :class="lang === 'en' ? 'text-brass font-extrabold' : ''">EN</span> <span class="text-slate-300 px-2">/</span> <span :class="lang === 'ua' ? 'text-brass font-extrabold' : ''">UA</span></button>
             </div>
         </div>
     </nav>
@@ -379,6 +341,7 @@
                 <a href="mailto:fubcband@gmail.com" class="hover:text-brass transition-colors">fubcband@gmail.com</a>
             </div>
             <div class="pt-6 border-t border-slate-100 flex flex-col gap-2">
+                <p class="text-xs text-slate-400">&copy; 2026 First Ukrainian Baptist Church Band.</p>
                 <p class="text-xs text-slate-400">Designed and built by Roman Kucheryavyy</p>
                 <a href="/privacy.html" class="text-xs text-slate-400 hover:text-brass transition-colors underline">Privacy Policy</a>
             </div>
