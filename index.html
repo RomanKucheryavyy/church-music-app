@@ -12,9 +12,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 
@@ -32,6 +30,7 @@
                     animation: {
                         'marquee-mobile': 'marquee 25s linear infinite',
                         'marquee-desktop': 'marquee 45s linear infinite',
+                        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                     },
                     keyframes: {
                         marquee: { '0%': { transform: 'translateX(0%)' }, '100%': { transform: 'translateX(-100%)' } }
@@ -43,12 +42,12 @@
     <style>
         [x-cloak] { display: none !important; }
         
+        /* Clean Input Styles */
         input[type=range] { -webkit-appearance: none; background: transparent; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: #b45309; margin-top: -10px; cursor: pointer; border: 2px solid white; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #e2e8f0; border-radius: 99px; }
-        input[type=range]:focus { outline: none; }
         
-        /* Pro Scroll Animations */
+        /* Smooth Scroll Animation */
         .reveal-hidden { opacity: 0; transform: translateY(40px); transition: all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
         .reveal-visible { opacity: 1; transform: translateY(0); }
         
@@ -66,22 +65,17 @@
         mobileMenuOpen: false,
         scrollY: 0, 
         scrollProgress: 0,
+        isLoading: true, // Minimal loading state
 
-        // --- DATA FALLBACKS ---
-        settings: { 
-            isRehearsalCanceled: false, 
-            conductorNote: '',
-            nextRehearsalTime: '9:00 PM' 
-        },
+        settings: { isRehearsalCanceled: false, conductorNote: '', nextRehearsalTime: '9:00 PM' },
         events: [], 
         currentSetlist: [],
         allSongs: [],
 
         verses: [
-            { en: 'Make a joyful noise unto the Lord, all the earth: make a loud noise, and rejoice, and sing praise. - Psalm 98:4', ua: 'Викликніть Господу, уся земле, і співайте, і грайте! - Псалми 98:4' },
-            { en: 'I will sing to the LORD as long as I live; I will sing praise to my God while I have being. - Psalm 104:33', ua: 'Я буду співати Господеві за життя свого, буду співати Богові моєму, поки я є. - Псалми 104:33' },
-            { en: 'Praise him with the sounding of the trumpet, praise him with the harp and lyre. - Psalm 150:3', ua: 'Хваліть Його звуком трубним, хваліть Його на арфі та гуслах! - Псалми 150:3' },
-            { en: 'Sing to him a new song; play skillfully, and shout for joy. - Psalm 33:3', ua: 'Співайте Йому нову пісню, грайте добре на гуслах із радісним співом! - Псалми 33:3' }
+            { en: 'Make a joyful noise unto the Lord...', ua: 'Викликніть Господу, уся земле...' },
+            { en: 'I will sing to the LORD as long as I live...', ua: 'Я буду співати Господеві за життя свого...' },
+            { en: 'Praise him with the sounding of the trumpet...', ua: 'Хваліть Його звуком трубним...' }
         ],
 
         async init() {
@@ -96,59 +90,109 @@
                     this.allSongs = json.allSongs || [];
                 }
             } catch (e) { console.log('Using built-in data'); }
+            
+            // Minimal load simulation
+            setTimeout(() => this.isLoading = false, 300);
         },
 
-        // --- AUTOMATIC 3-WEEK CALCULATOR ---
-        get upcomingFridays() {
-            let dates = [];
+        // --- MASTER SCHEDULING LOGIC (MERGED & SORTED) ---
+        get sortedSchedule() {
+            let mergedEvents = [];
+            const currentYear = new Date().getFullYear();
+
+            // 1. Generate next 3 Fridays (Rehearsals)
             let d = new Date();
             let day = d.getDay();
             let hour = d.getHours();
             let min = d.getMinutes();
             let daysToAdd = 0;
 
-            // Logic: If today is Friday (5)
+            // Logic: Is today Friday? And is it before 9:15 PM?
             if (day === 5) {
-                // If it is BEFORE 9:15 PM, stick to Today
                 if (hour < 21 || (hour === 21 && min < 15)) {
-                    daysToAdd = 0; 
+                    daysToAdd = 0; // It's TODAY!
                 } else {
-                    daysToAdd = 7; // It's late, move to next week
+                    daysToAdd = 7; // It's late, show next week
                 }
             } else {
-                // Calculate days until next Friday
                 daysToAdd = (5 - day + 7) % 7;
             }
-            
             d.setDate(d.getDate() + daysToAdd);
 
-            // Generate next 3 dates
             for (let i = 0; i < 3; i++) {
-                dates.push({
-                    dateString: d.toLocaleDateString(this.lang === 'en' ? 'en-US' : 'uk-UA', { month: 'long', day: 'numeric' }),
+                let rehDate = new Date(d); 
+                rehDate.setHours(21, 0, 0, 0); // Set to 9 PM for sorting
+                
+                mergedEvents.push({
+                    type: 'rehearsal',
+                    dateObj: rehDate, // Real Date object for sorting
+                    dateString: rehDate.toLocaleDateString(this.lang === 'en' ? 'en-US' : 'uk-UA', { month: 'short', day: 'numeric' }),
+                    title_en: 'Weekly Rehearsal',
+                    title_ua: 'Щотижнева Репетиція',
+                    time: this.settings.nextRehearsalTime,
                     isTonight: (i === 0 && daysToAdd === 0)
                 });
                 d.setDate(d.getDate() + 7);
             }
-            return dates;
+
+            // 2. Add CMS Events (Sundays, etc.)
+            this.events.forEach(e => {
+                // Parse 'Feb 22' into a real date. Assuming current year.
+                let evtDate = new Date(e.date + ', ' + currentYear);
+                
+                // Try to set time for sorting (Default to 9am if not specified)
+                let timeParts = e.time.match(/(\d+):(\d+)\s*(AM|PM)/i);
+                if (timeParts) {
+                    let h = parseInt(timeParts[1]);
+                    if (timeParts[3].toUpperCase() === 'PM' && h < 12) h += 12;
+                    if (timeParts[3].toUpperCase() === 'AM' && h === 12) h = 0;
+                    evtDate.setHours(h, parseInt(timeParts[2]), 0, 0);
+                } else {
+                    evtDate.setHours(9, 0, 0, 0);
+                }
+
+                mergedEvents.push({
+                    type: 'event',
+                    dateObj: evtDate,
+                    dateString: e.date,
+                    title_en: e.title_en,
+                    title_ua: e.title_ua,
+                    time: e.time,
+                    day: e.day, // 'Sunday' etc.
+                    isTonight: false
+                });
+            });
+
+            // 3. Sort everything chronologically
+            return mergedEvents.sort((a, b) => a.dateObj - b.dateObj);
         },
 
         // --- SHORTCUTS ---
-        get nextRehearsal() { return this.upcomingFridays[0]; },
-        get futureRehearsals() { return this.upcomingFridays.slice(1); },
+        get nextEvent() { return this.sortedSchedule[0] || {}; },
+        get futureEvents() { return this.sortedSchedule.slice(1); },
 
         get availableDates() {
             let dates = [];
-            if (!this.settings.isRehearsalCanceled) {
+            // Only add the immediate next rehearsal if it exists and isn't canceled
+            const nextReh = this.sortedSchedule.find(e => e.type === 'rehearsal');
+            if (nextReh && !this.settings.isRehearsalCanceled) {
                 dates.push({ 
-                    val: this.nextRehearsal.dateString + ' (Friday Rehearsal)', 
-                    label: this.nextRehearsal.dateString + (this.lang === 'en' ? ' - Friday Rehearsal' : ' - П\'ятнична Репетиція')
+                    val: nextReh.dateString + ' (Rehearsal)', 
+                    label: nextReh.dateString + (this.lang === 'en' ? ' - Rehearsal' : ' - Репетиція') 
                 });
             }
+            // Add CMS events
             this.events.forEach(e => {
                 dates.push({ val: e.date + ' (' + e.title_en + ')', label: e.date + ' - ' + (this.lang === 'en' ? e.title_en : e.title_ua) });
             });
             return dates;
+        },
+
+        copySetlist() {
+            let text = '🎵 Setlist:\n';
+            this.sortedSetlist.forEach(s => text += `- ${s.title}\n`);
+            navigator.clipboard.writeText(text);
+            alert('Setlist copied!');
         },
 
         submitForm() {
@@ -177,45 +221,31 @@
     @scroll.window="scrollY = window.pageYOffset; scrollProgress = (window.pageYOffset / (document.documentElement.scrollHeight - window.innerHeight)) * 100"
 >
 
-    <div class="fixed top-0 left-0 h-1.5 bg-gradient-to-r from-brass to-brassLight z-[100] transition-all duration-150 ease-linear shadow-md" 
-         :style="'width: ' + scrollProgress + '%'"></div>
+    <div class="fixed top-0 left-0 h-1.5 bg-gradient-to-r from-brass to-brassLight z-[100] transition-all duration-150 ease-linear shadow-md" :style="'width: ' + scrollProgress + '%'"></div>
 
     <div class="bg-slate-900 text-white py-2.5 overflow-hidden relative z-50 border-b border-brass/20 flex">
         <div class="whitespace-nowrap animate-marquee-mobile md:animate-marquee-desktop flex items-center min-w-full shrink-0">
             <span class="px-8 flex items-center">
-                <span class="text-brassLight font-bold uppercase tracking-wider mr-2">Next Rehearsal:</span> 
-                
-                <span x-show="nextRehearsal.isTonight && !settings.isRehearsalCanceled" class="inline-flex items-center gap-1.5 bg-red-600/20 border border-red-500/50 text-red-400 px-2 py-0.5 rounded mr-2 animate-pulse">
-                    <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-                    <span class="text-[10px] font-extrabold tracking-widest">TONIGHT</span>
+                <span class="text-brassLight font-bold uppercase tracking-wider mr-2">Next Event:</span> 
+                <span x-show="nextEvent.isTonight" class="inline-flex items-center gap-1.5 bg-red-600/20 border border-red-500/50 text-red-400 px-2 py-0.5 rounded mr-2 animate-pulse">
+                    <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span><span class="text-[10px] font-extrabold tracking-widest">TONIGHT</span>
                 </span>
-
-                <span x-show="!settings.isRehearsalCanceled">
-                    <span x-text="nextRehearsal.dateString"></span> @ <span x-text="settings.nextRehearsalTime"></span>
-                </span>
-                <span x-show="settings.isRehearsalCanceled" class="text-red-400 font-bold ml-1" x-text="lang === 'en' ? 'CANCELED' : 'СКАСОВАНО'"></span>
+                <span x-text="nextEvent.dateString + ' @ ' + nextEvent.time"></span>
             </span>
             <span class="px-8 text-slate-400 italic font-serif text-lg" x-text="lang === 'en' ? verse.en : verse.ua"></span>
-            <span class="px-8"><span class="text-brassLight font-bold uppercase tracking-wider">Next Service:</span> Feb 22 @ 9:00 AM</span>
+            <span class="px-8 flex items-center"><span class="text-brassLight font-bold uppercase tracking-wider mr-2">Next Event:</span><span x-text="nextEvent.dateString + ' @ ' + nextEvent.time"></span></span>
             <span class="px-8"></span> 
         </div>
-        
         <div class="whitespace-nowrap animate-marquee-mobile md:animate-marquee-desktop flex items-center min-w-full shrink-0">
             <span class="px-8 flex items-center">
-                <span class="text-brassLight font-bold uppercase tracking-wider mr-2">Next Rehearsal:</span> 
-                
-                <span x-show="nextRehearsal.isTonight && !settings.isRehearsalCanceled" class="inline-flex items-center gap-1.5 bg-red-600/20 border border-red-500/50 text-red-400 px-2 py-0.5 rounded mr-2 animate-pulse">
-                    <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-                    <span class="text-[10px] font-extrabold tracking-widest">TONIGHT</span>
+                <span class="text-brassLight font-bold uppercase tracking-wider mr-2">Next Event:</span> 
+                <span x-show="nextEvent.isTonight" class="inline-flex items-center gap-1.5 bg-red-600/20 border border-red-500/50 text-red-400 px-2 py-0.5 rounded mr-2 animate-pulse">
+                    <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span><span class="text-[10px] font-extrabold tracking-widest">TONIGHT</span>
                 </span>
-
-                <span x-show="!settings.isRehearsalCanceled">
-                    <span x-text="nextRehearsal.dateString"></span> @ <span x-text="settings.nextRehearsalTime"></span>
-                </span>
-                <span x-show="settings.isRehearsalCanceled" class="text-red-400 font-bold ml-1" x-text="lang === 'en' ? 'CANCELED' : 'СКАСОВАНО'"></span>
+                <span x-text="nextEvent.dateString + ' @ ' + nextEvent.time"></span>
             </span>
             <span class="px-8 text-slate-400 italic font-serif text-lg" x-text="lang === 'en' ? verse.en : verse.ua"></span>
-            <span class="px-8"><span class="text-brassLight font-bold uppercase tracking-wider">Next Service:</span> Feb 22 @ 9:00 AM</span>
+            <span class="px-8 flex items-center"><span class="text-brassLight font-bold uppercase tracking-wider mr-2">Next Event:</span><span x-text="nextEvent.dateString + ' @ ' + nextEvent.time"></span></span>
             <span class="px-8"></span> 
         </div>
     </div>
@@ -223,12 +253,10 @@
     <nav class="sticky top-0 z-40 bg-slate-100/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm transition-colors duration-300" :class="mobileMenuOpen ? 'bg-slate-100 border-transparent' : ''">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
-                
                 <a href="#" class="flex items-center gap-3 hover:opacity-80 transition-opacity group z-50 relative">
                     <img src="logo.png" alt="FUBC Band Logo" class="h-12 w-auto object-contain">
                     <div class="font-heading font-bold text-xl sm:text-2xl tracking-[0.15em] text-slate-900 leading-none">FUBC <span class="text-brass block text-[10px] sm:text-xs font-semibold tracking-[0.35em] mt-0.5 group-hover:text-brassLight transition-colors">BAND</span></div>
                 </a>
-
                 <div class="hidden md:flex items-center gap-10">
                     <button @click="lang = lang === 'en' ? 'ua' : 'en'" class="text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest border border-slate-200 px-4 py-1.5 rounded-full hover:border-brass/50 bg-white"><span :class="lang === 'en' ? 'text-brass font-extrabold' : ''">EN</span> <span class="text-slate-300 px-1">/</span> <span :class="lang === 'ua' ? 'text-brass font-extrabold' : ''">UA</span></button>
                     <div class="flex items-center gap-8">
@@ -237,17 +265,12 @@
                         <a href="#media" class="relative group py-2"><span class="font-bold text-xs uppercase tracking-widest text-slate-500 group-hover:text-brass transition-colors" x-text="lang === 'en' ? 'Media' : 'Медіа'"></span><span class="absolute bottom-0 left-0 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-full"></span></a>
                     </div>
                 </div>
-
                 <div class="md:hidden flex items-center gap-4">
                     <button @click="lang = lang === 'en' ? 'ua' : 'en'" class="text-[10px] font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest border border-slate-200 px-3 py-1.5 rounded-full bg-white/50"><span :class="lang === 'en' ? 'text-brass font-extrabold' : ''">EN</span><span class="text-slate-300 px-1">/</span><span :class="lang === 'ua' ? 'text-brass font-extrabold' : ''">UA</span></button>
-                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="p-2 text-slate-800 hover:text-brass transition-colors focus:outline-none" aria-label="Toggle Menu">
-                        <svg x-show="!mobileMenuOpen" class="w-7 h-7 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-                        <svg x-show="mobileMenuOpen" class="w-7 h-7 transform transition-transform duration-300 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" x-cloak><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </button>
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="p-2 text-slate-800 hover:text-brass transition-colors focus:outline-none"><svg x-show="!mobileMenuOpen" class="w-7 h-7 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg><svg x-show="mobileMenuOpen" class="w-7 h-7 transform transition-transform duration-300 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" x-cloak><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
                 </div>
             </div>
         </div>
-
         <div class="fixed top-16 left-0 w-full h-auto bg-slate-100 border-b-4 border-brass shadow-2xl md:hidden flex flex-col px-6 pb-6 transition-all duration-300 origin-top" x-show="mobileMenuOpen" x-transition:enter="opacity-0 scale-y-0" x-transition:enter-end="opacity-100 scale-y-100" x-transition:leave="opacity-100 scale-y-100" x-transition:leave-end="opacity-0 scale-y-0" x-cloak>
             <div class="flex flex-col items-center justify-center space-y-3 mt-6">
                 <a href="#setlist" @click="mobileMenuOpen = false" class="group relative"><span class="text-xl font-heading font-bold text-slate-800 group-hover:text-brass transition-colors uppercase tracking-widest" x-text="lang === 'en' ? 'Info' : 'Інфо'"></span><span class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-full"></span></a>
@@ -259,16 +282,10 @@
     </nav>
 
     <div class="relative w-full h-[500px] sm:h-[600px] bg-slate-900 overflow-hidden">
-        <img src="https://images.unsplash.com/photo-1573871669414-010dbf73ca84?q=80&w=2071&auto=format&fit=crop" 
-             class="absolute inset-0 w-full h-full object-cover opacity-40 will-change-transform"
-             :style="'transform: translateY(' + (scrollY * 0.4) + 'px)'"
-             alt="Brass Instruments">
+        <img src="https://images.unsplash.com/photo-1573871669414-010dbf73ca84?q=80&w=2071&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-40 will-change-transform" :style="'transform: translateY(' + (scrollY * 0.4) + 'px)'" alt="Brass Instruments">
         <div class="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-slate-900/30 to-slate-900"></div>
         <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4 pt-10 z-10">
-            <h1 class="font-heading text-2xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight mb-6 drop-shadow-2xl max-w-4xl mx-auto leading-snug">
-                <span x-show="lang === 'en'">“Praise him with trumpet sound; praise him with lute and harp!”<br><span class="text-base sm:text-2xl font-medium mt-4 block text-brassLight tracking-wider">– Psalm 150:3</span></span>
-                <span x-show="lang === 'ua'" x-cloak>“Хваліть Його звуком трубним, хваліть Його на арфі та гуслах!”<br><span class="text-base sm:text-2xl font-medium mt-4 block text-brassLight tracking-wider">– Псалми 150:3</span></span>
-            </h1>
+            <h1 class="font-heading text-2xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight mb-6 drop-shadow-2xl max-w-4xl mx-auto leading-snug"><span x-show="lang === 'en'">“Praise him with trumpet sound; praise him with lute and harp!”<br><span class="text-base sm:text-2xl font-medium mt-4 block text-brassLight tracking-wider">– Psalm 150:3</span></span><span x-show="lang === 'ua'" x-cloak>“Хваліть Його звуком трубним, хваліть Його на арфі та гуслах!”<br><span class="text-base sm:text-2xl font-medium mt-4 block text-brassLight tracking-wider">– Псалми 150:3</span></span></h1>
             <p class="text-slate-300 text-sm sm:text-lg max-w-2xl font-light tracking-wide uppercase"><span x-show="lang === 'en'">First Ukrainian Baptist Church Band Ministry</span><span x-show="lang === 'ua'" x-cloak>Оркестр Першої Української Баптистської Церкви</span></p>
         </div>
         <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-[0] z-20"><svg class="relative block w-full h-[60px] sm:h-[100px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M985.66,92.83C906.67,72,823.78,31,743.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z" class="fill-[#f8fafc]"></path></svg></div>
@@ -277,18 +294,19 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 relative z-10 pb-8 space-y-12">
 
         <div x-show="settings.conductorNote" x-cloak class="bg-white border-l-4 border-brass p-6 rounded-lg shadow-lg relative z-20">
-            <div class="flex items-start">
-                <div class="flex-shrink-0 pt-1"><svg class="h-6 w-6 text-brass" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M5.85 3.5a.75.75 0 0 0-1.117-1 9.719 9.719 0 0 0-2.348 4.876.75.75 0 0 0 1.479.248A8.219 8.219 0 0 1 5.85 3.5ZM19.267 2.5a.75.75 0 1 0-1.118 1 8.22 8.22 0 0 1 2.06 4.124.75.75 0 0 0 1.48-.248A9.72 9.72 0 0 0 19.266 2.5Z" /><path fill-rule="evenodd" d="M12 2.25A6.75 6.75 0 0 0 5.25 9v.75a8.217 8.217 0 0 1-2.119 5.52.75.75 0 0 0 .298 1.206c1.544.57 3.16.99 4.831 1.243a3.75 3.75 0 1 0 7.48 0 24.583 24.583 0 0 0 4.83-1.244.75.75 0 0 0 .298-1.205 8.217 8.217 0 0 1-2.118-5.52V9A6.75 6.75 0 0 0 12 2.25ZM9.75 18c0-.034 0-.067.002-.1a25.05 25.05 0 0 0 4.496 0l.002.1a2.25 2.25 0 1 1-4.5 0Z" clip-rule="evenodd" /></svg></div>
-                <div class="ml-4"><h3 class="text-sm font-bold text-slate-900 uppercase tracking-widest mb-2"><span x-show="lang === 'en'">Note from Conductor</span><span x-show="lang === 'ua'" x-cloak>Повідомлення від Диригента</span></h3><div class="text-slate-700 font-medium leading-relaxed" x-text="settings.conductorNote"></div></div>
-            </div>
+            <div class="flex items-start"><div class="flex-shrink-0 pt-1"><svg class="h-6 w-6 text-brass" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M5.85 3.5a.75.75 0 0 0-1.117-1 9.719 9.719 0 0 0-2.348 4.876.75.75 0 0 0 1.479.248A8.219 8.219 0 0 1 5.85 3.5ZM19.267 2.5a.75.75 0 1 0-1.118 1 8.22 8.22 0 0 1 2.06 4.124.75.75 0 0 0 1.48-.248A9.72 9.72 0 0 0 19.266 2.5Z" /><path fill-rule="evenodd" d="M12 2.25A6.75 6.75 0 0 0 5.25 9v.75a8.217 8.217 0 0 1-2.119 5.52.75.75 0 0 0 .298 1.206c1.544.57 3.16.99 4.831 1.243a3.75 3.75 0 1 0 7.48 0 24.583 24.583 0 0 0 4.83-1.244.75.75 0 0 0 .298-1.205 8.217 8.217 0 0 1-2.118-5.52V9A6.75 6.75 0 0 0 12 2.25ZM9.75 18c0-.034 0-.067.002-.1a25.05 25.05 0 0 0 4.496 0l.002.1a2.25 2.25 0 1 1-4.5 0Z" clip-rule="evenodd" /></svg></div><div class="ml-4"><h3 class="text-sm font-bold text-slate-900 uppercase tracking-widest mb-2"><span x-show="lang === 'en'">Note from Conductor</span><span x-show="lang === 'ua'" x-cloak>Повідомлення від Диригента</span></h3><div class="text-slate-700 font-medium leading-relaxed" x-text="settings.conductorNote"></div></div></div>
         </div>
 
         <section id="setlist" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden scroll-mt-32 reveal-hidden" x-data="{ shown: false }" x-intersect.threshold.05.once="shown = true" :class="shown ? 'reveal-visible' : ''">
             <div class="px-6 py-8 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
                 <div><h2 class="font-heading text-2xl font-bold text-slate-900"><span x-show="lang === 'en'">Performance Setlist</span><span x-show="lang === 'ua'" x-cloak>Програма Виступу</span></h2><p class="text-textMuted text-sm mt-1 font-medium"><span x-show="lang === 'en'">Upcoming Service Material</span><span x-show="lang === 'ua'" x-cloak>Матеріал найближчого служіння</span></p></div>
-                <button @click="showLibrary = true" class="text-sm font-semibold text-brass hover:text-brassLight transition-colors flex items-center gap-2 group"><span x-show="lang === 'en'">View Full Library</span><span x-show="lang === 'ua'" x-cloak>Відкрити Архів</span><span class="group-hover:translate-x-1 transition-transform">&rarr;</span></button>
+                <div class="flex items-center gap-4">
+                    <button @click="copySetlist()" class="text-xs font-bold text-slate-400 hover:text-brass transition-colors uppercase tracking-widest">Copy</button>
+                    <button @click="showLibrary = true" class="text-sm font-semibold text-brass hover:text-brassLight transition-colors flex items-center gap-2 group"><span x-show="lang === 'en'">View Full Library</span><span x-show="lang === 'ua'" x-cloak>Відкрити Архів</span><span class="group-hover:translate-x-1 transition-transform">&rarr;</span></button>
+                </div>
             </div>
-            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50/50">
+            <div x-show="isLoading" class="p-10 text-center text-slate-400 font-mono text-sm animate-pulse">Loading setlist...</div>
+            <div x-show="!isLoading" class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50/50">
                 <template x-for="song in sortedSetlist" :key="song.title">
                     <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
                         <div class="absolute left-0 top-0 bottom-0 w-1 bg-brass opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -303,33 +321,24 @@
             <section class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden reveal-hidden" x-data="{ shown: false }" x-intersect.threshold.05.once="shown = true" :class="shown ? 'reveal-visible' : ''">
                 <div class="px-6 py-6 border-b border-slate-100"><h2 class="font-heading text-xl font-bold text-slate-900"><span x-show="lang === 'en'">Schedule</span><span x-show="lang === 'ua'" x-cloak>Розклад</span></h2></div>
                 <div class="p-6 space-y-4">
+                    <div x-show="isLoading" class="p-4 text-center text-slate-400 font-mono text-xs">Syncing calendar...</div>
                     
-                    <div class="flex items-center gap-5 p-4 rounded-xl border border-slate-100 bg-slate-50">
-                        <div class="h-14 w-16 min-w-[4rem] rounded-lg bg-white flex flex-col items-center justify-center text-center border border-slate-200 shadow-sm"><span class="text-[9px] text-brass font-bold uppercase tracking-tight" x-text="nextRehearsal.dateString.split(' ')[0]"></span><span class="text-lg text-slate-900 font-extrabold leading-none" x-text="nextRehearsal.dateString.split(' ')[1]"></span></div>
+                    <div x-show="!isLoading" class="flex items-center gap-5 p-4 rounded-xl border border-slate-100 bg-slate-50 relative overflow-hidden transition-all hover:shadow-md">
+                        <div x-show="nextEvent.type === 'rehearsal' && nextEvent.isTonight" class="absolute top-0 right-0 p-2"><span class="text-[9px] bg-red-100 text-red-600 px-2 py-1 rounded font-extrabold tracking-wider animate-pulse uppercase">Tonight</span></div>
+                        <div class="h-14 w-16 min-w-[4rem] rounded-lg bg-white flex flex-col items-center justify-center text-center border border-slate-200 shadow-sm"><span class="text-[9px] text-brass font-bold uppercase tracking-tight" x-text="nextEvent.dateString?.split(' ')[0]"></span><span class="text-lg text-slate-900 font-extrabold leading-none" x-text="nextEvent.dateString?.split(' ')[1]"></span></div>
                         <div>
-                            <h3 class="font-bold text-slate-900 flex items-center gap-2">
-                                <span x-show="lang === 'en'">Weekly Rehearsal</span><span x-show="lang === 'ua'" x-cloak>Щотижнева Репетиція</span>
-                                <span x-show="nextRehearsal.isTonight && !settings.isRehearsalCanceled" class="text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded font-extrabold tracking-wider animate-pulse">TONIGHT</span>
-                            </h3>
-                            <p class="text-slate-500 text-sm">Friday • <span x-text="settings.nextRehearsalTime"></span></p>
-                            <span x-show="settings.isRehearsalCanceled" class="inline-block mt-1 px-2 py-0.5 bg-red-100 text-red-600 text-[10px] font-bold uppercase rounded">Canceled</span>
+                            <h3 class="font-bold text-slate-900" x-text="lang === 'en' ? nextEvent.title_en : nextEvent.title_ua"></h3>
+                            <p class="text-slate-500 text-sm" x-text="(nextEvent.type === 'rehearsal' ? 'Friday' : (nextEvent.day || '')) + ' • ' + nextEvent.time"></p>
+                            <span x-show="nextEvent.type === 'rehearsal' && settings.isRehearsalCanceled" class="inline-block mt-1 px-2 py-0.5 bg-red-100 text-red-600 text-[10px] font-bold uppercase rounded">Canceled</span>
                         </div>
                     </div>
 
-                    <template x-for="fut in futureRehearsals">
+                    <template x-for="evt in futureEvents">
                         <div class="flex items-center gap-5 p-4 rounded-xl border border-slate-100 bg-white">
-                            <div class="h-14 w-16 min-w-[4rem] rounded-lg bg-slate-50 flex flex-col items-center justify-center text-center border border-slate-200"><span class="text-[9px] text-slate-400 font-bold uppercase tracking-tight" x-text="fut.dateString.split(' ')[0]"></span><span class="text-lg text-slate-700 font-extrabold leading-none" x-text="fut.dateString.split(' ')[1]"></span></div>
-                            <div><h3 class="font-bold text-slate-900"><span x-show="lang === 'en'">Weekly Rehearsal</span><span x-show="lang === 'ua'" x-cloak>Щотижнева Репетиція</span></h3><p class="text-slate-500 text-sm">Friday • <span x-text="settings.nextRehearsalTime"></span></p></div>
+                            <div class="h-14 w-16 min-w-[4rem] rounded-lg bg-slate-50 flex flex-col items-center justify-center text-center border border-slate-200"><span class="text-[9px] text-slate-400 font-bold uppercase tracking-tight" x-text="evt.dateString?.split(' ')[0]"></span><span class="text-lg text-slate-700 font-extrabold leading-none" x-text="evt.dateString?.split(' ')[1]"></span></div>
+                            <div><h3 class="font-bold text-slate-900" x-text="lang === 'en' ? evt.title_en : evt.title_ua"></h3><p class="text-slate-500 text-sm" x-text="(evt.day || 'Friday') + ' • ' + evt.time"></p></div>
                         </div>
                     </template>
-
-                    <template x-for="event in events">
-                        <div class="flex items-center gap-5 p-4 rounded-xl border border-slate-100 bg-white">
-                            <div class="h-14 w-16 min-w-[4rem] rounded-lg bg-slate-50 flex flex-col items-center justify-center text-center border border-slate-200"><span class="text-[9px] text-slate-400 font-bold uppercase tracking-tight" x-text="event.date.split(' ')[0]"></span><span class="text-lg text-slate-700 font-extrabold leading-none" x-text="event.date.split(' ')[1]"></span></div>
-                            <div><h3 class="font-bold text-slate-900" x-text="lang === 'en' ? event.title_en : event.title_ua"></h3><p class="text-slate-500 text-sm" x-text="event.day + ' • ' + event.time"></p></div>
-                        </div>
-                    </template>
-
                 </div>
             </section>
 
