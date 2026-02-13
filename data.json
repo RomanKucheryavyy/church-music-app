@@ -1,18 +1,11 @@
 {
   "settings": {
     "isRehearsalCanceled": false,
-    "nextRehearsalDate": "Feb 20",
+    "nextRehearsalDate": "Feb 13",
     "nextRehearsalTime": "9:00 PM",
     "conductorNote": "Focus on Манить серце мечтою: Articulation, Style & Expression"
   },
   "events": [
-    {
-      "date": "Feb 20",
-      "day": "Friday",
-      "title_en": "Band Rehearsal",
-      "title_ua": "Репетиція гурту",
-      "time": "9:00 PM"
-    },
     {
       "date": "Feb 22",
       "day": "Sunday",
