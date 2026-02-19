@@ -4,77 +4,82 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FUBC Program Studio</title>
-    <link rel="icon" type="image/png" href="/logo.png">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
     <style>
-        :root {
-            --bg-color: #f8fafc; --surface-color: #ffffff; --text-primary: #0f172a; --border-color: #e2e8f0; --accent-color: #b45309; --preview-bg: #cbd5e1;
-        }
+        :root { --bg-color: #f8fafc; --surface-color: #ffffff; --text-primary: #0f172a; --border-color: #e2e8f0; --accent-color: #b45309; --preview-bg: #cbd5e1; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-primary); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; }
-        
         header { width: 100%; background-color: var(--surface-color); padding: 15px 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; z-index: 10; }
         header h1 { margin: 0; font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: 0.05em; }
-        header a { text-decoration: none; color: var(--text-primary); font-size: 12px; font-weight: 600; text-transform: uppercase; cursor: pointer; }
-
+        
         #login-wall { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; width: 100%; text-align: center; }
         .login-btn { background: var(--text-primary); color: white; padding: 12px 24px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; margin-top: 20px; }
 
-        .container { width: 100%; height: 100%; display: none; grid-template-columns: 400px 1fr; overflow: hidden; }
-
+        .container { width: 100%; height: 100%; display: none; grid-template-columns: 450px 1fr; overflow: hidden; }
         .panel-builder { background: var(--surface-color); border-right: 1px solid var(--border-color); padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
         
         label { display: block; font-size: 11px; font-weight: 700; margin-bottom: 5px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
         input, select { width: 100%; padding: 10px; background: #f1f5f9; color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; font-size: 14px; box-sizing: border-box; outline: none; transition: border 0.2s; }
-        input:focus, select:focus { border-color: var(--accent-color); background: white; }
-
+        
         .controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; }
         
-        .program-row { display: flex; gap: 8px; align-items: center; background: white; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); margin-bottom: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .program-row { display: flex; gap: 6px; align-items: center; background: white; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); margin-bottom: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .drag-handle { cursor: grab; color: #94a3b8; font-size: 16px; padding: 0 4px; }
-        .program-row select { width: 35%; font-size: 12px; padding: 6px; }
-        .program-row input { width: 55%; font-size: 13px; font-weight: 500; padding: 6px; background: white; }
-        .delete-btn { color: #ef4444; border: none; background: none; font-weight: bold; cursor: pointer; padding: 0 8px; font-size: 16px; }
+        
+        .program-row .type-input { width: 30%; font-size: 12px; padding: 8px 6px; font-weight: bold;}
+        .program-row .desc-input { width: 45%; font-size: 13px; font-weight: 500; padding: 8px 6px; }
+        .program-row .duration-input { width: 15%; font-size: 12px; padding: 8px 2px; text-align: center; background: #fffbeb; border-color: #fde68a; }
+        
+        .delete-btn { color: #ef4444; border: none; background: none; font-weight: bold; cursor: pointer; padding: 0 6px; font-size: 18px; }
 
-        button { border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; padding: 12px; border: none; transition: all 0.2s; }
+        button { border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; padding: 12px; border: none; transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
         button.primary { background: var(--accent-color); color: white; width: 100%; box-shadow: 0 4px 6px -1px rgba(180, 83, 9, 0.3); }
-        button.primary:hover { background: #d97706; transform: translateY(-1px); }
         button.secondary { background: white; border: 1px solid var(--border-color); color: var(--text-primary); }
-        button.secondary:hover { border-color: var(--accent-color); color: var(--accent-color); }
-        button.viber { background: #7360f2; color: white; width: 100%; margin-top: 10px; }
+        button.cloud-btn { background: #10b981; color: white; width: 100%; margin-top: 10px; }
+        button.cloud-btn:hover { background: #059669; }
         
-        #loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.9); display: none; justify-content: center; align-items: center; z-index: 100; flex-direction: column; backdrop-filter: blur(2px); }
-        
+        .run-clock { display: flex; justify-content: space-between; align-items: center; background: #0f172a; color: white; padding: 10px 15px; border-radius: 6px; font-size: 12px; font-weight: 600; margin-top: 10px; }
+        .run-clock span.highlight { color: #fde047; font-size: 14px; }
+
         #pdf-preview-wrapper { background-color: var(--preview-bg); padding: 40px; overflow: auto; display: flex; justify-content: center; align-items: flex-start; }
         #pdf-preview-container { background: white; color: black; width: 8.5in; min-height: 11in; padding: 0.5in; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); text-align: center; box-sizing: border-box; position: relative; }
-        
         #pdf-preview-container h1 { font-family: 'Montserrat', sans-serif; font-size: 32pt; margin-bottom: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: -1px; }
         #pdf-preview-container h3 { font-family: 'Inter', sans-serif; font-size: 16pt; font-weight: normal; margin-top: 0; margin-bottom: 30px; color: #444; border-bottom: 2px solid black; padding-bottom: 20px; display: inline-block; min-width: 60%; }
         .preview-item { margin-bottom: 0; width: 100%; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
         .preview-type { font-weight: 800; color: #000; }
         .preview-desc { font-weight: 500; color: #000; }
+
+        #loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.9); display: none; justify-content: center; align-items: center; z-index: 100; flex-direction: column; backdrop-filter: blur(2px); }
     </style>
 </head>
 <body>
 
     <div id="login-wall">
         <h2 style="font-family: 'Montserrat', sans-serif;">Authorized Access Only</h2>
-        <p style="color: #64748b;">Please log in with your band admin account.</p>
         <button class="login-btn" onclick="netlifyIdentity.open()">Log In</button>
     </div>
 
+    <datalist id="item-types-list">
+        <option value="Дух. Оркестр:"></option>
+        <option value="Заг. Спів:"></option>
+        <option value="Привітання/Молитва"></option>
+        <option value="Проповідь"></option>
+        <option value="Участь:"></option>
+        <option value="Молитва за Україну"></option>
+        <option value="Заключна молитва"></option>
+        <option value="Оголошення"></option>
+    </datalist>
+    <datalist id="song-list-data"></datalist>
+
     <input type="file" id="pdf-upload" accept=".pdf" style="display:none" onchange="handlePdfImport(this)">
-    
     <div id="loading-overlay">
-        <div style="font-weight: bold; font-size: 18px; color: var(--accent-color);">Reading PDF...</div>
-        <div id="debug-text" style="margin-top: 10px; font-size: 12px; color: #666;"></div>
+        <div style="font-weight: bold; font-size: 18px; color: var(--accent-color);" id="debug-text">Working...</div>
     </div>
 
     <div class="main-wrapper" style="width: 100%; height: 100%; display: none; flex-direction: column;">
@@ -82,32 +87,50 @@
             <h1>FUBC <span style="color: var(--accent-color)">PROGRAM STUDIO</span></h1>
             <div style="display: flex; gap: 20px; align-items: center;">
                 <span id="user-name" style="font-size: 12px; font-weight: 600;"></span>
-                <a onclick="logout()" style="color: #ef4444;">Log Out</a>
+                <a onclick="logout()" style="color: #ef4444; cursor:pointer;">Log Out</a>
             </div>
         </header>
 
         <div class="container" style="display: grid;">
             <div class="panel-builder">
+                <div style="background: #f1f5f9; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <label>☁️ Cloud Templates</label>
+                    <div style="display: flex; gap: 5px;">
+                        <select id="cloud-templates" style="flex:1;"><option value="">-- Load Cloud Template --</option></select>
+                        <button class="secondary" onclick="loadCloudTemplate()" style="padding: 5px 10px;">Load</button>
+                        <button class="secondary" onclick="saveToCloud('template')" style="padding: 5px 10px;">Save As</button>
+                    </div>
+                </div>
+
                 <div style="display: flex; gap: 10px;">
                     <button class="secondary" onclick="document.getElementById('pdf-upload').click()" style="flex:1; border-color: var(--accent-color); color: var(--accent-color); font-weight:bold;">📂 Import PDF</button>
                     <button class="secondary" onclick="loadDefault()" style="flex:1">Reset</button>
                 </div>
+                
                 <div class="controls-grid">
                     <div><label>Date</label><input type="date" id="service-date" onchange="triggerUpdate()"></div>
+                    <div><label>Start Time</label><input type="time" id="start-time" value="09:00" onchange="triggerUpdate()"></div>
                     <div><label>Font Size</label><input type="number" id="font-size" value="22" min="14" max="40" oninput="triggerUpdate()"></div>
                     <div><label>Spacing</label><select id="line-spacing" onchange="triggerUpdate()"><option value="1.4">Tight</option><option value="1.6" selected>Normal</option><option value="2.0">Wide</option></select></div>
-                     <div><label>Margins</label><select id="margin-size" onchange="triggerUpdate()"><option value="0px">Full Width</option><option value="20px">Slim</option><option value="50px">Narrow</option></select></div>
                 </div>
+
+                <div class="run-clock">
+                    <span>Total Time: <span id="total-min" class="highlight">0</span> min</span>
+                    <span>Est. End: <span id="est-end" class="highlight">--:--</span></span>
+                </div>
+
                 <div style="flex: 1; overflow-y: auto;">
-                    <label>Program Order</label>
+                    <label style="margin-top: 10px;">Program Order (Type | Description | Minutes)</label>
                     <div id="program-items"></div>
-                    <button class="secondary" style="width: 100%; margin-top: 10px; border-style: dashed;" onclick="addProgramRow()">+ Add Item</button>
+                    <button class="secondary" style="width: 100%; margin-top: 10px; border-style: dashed;" onclick="addProgramRow('', '', '')">+ Add Item</button>
                 </div>
-                <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid #e2e8f0;">
-                    <button class="viber" onclick="shareToViber()">💬 Send to Viber</button>
+
+                <div style="margin-top: auto; padding-top: 15px; border-top: 1px solid #e2e8f0;">
+                    <button class="cloud-btn" onclick="saveToCloud('publish')">🚀 Publish to Live Website</button>
                     <button class="primary" onclick="generatePDF()" style="margin-top: 10px;">📥 Download PDF</button>
                 </div>
             </div>
+            
             <div id="pdf-preview-wrapper">
                 <div id="pdf-preview-container">
                     <h1>Програма служіння</h1>
@@ -119,12 +142,9 @@
     </div>
 
     <script>
-        // Init PDF Worker (Use matching version)
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
-        
-        const itemTypes = ["Дух. Оркестр:", "Заг. Спів:", "Привітання/Молитва", "Проповідь", "Участь:", "Молитва за Україну", "Заключна молитва", "Оголошення", "Інше:", "None (Text Only)"];
-        
-        // --- AUTH ---
+        let cloudDataGlobal = null; 
+
         netlifyIdentity.on('init', checkAuth);
         netlifyIdentity.on('login', checkAuth);
         netlifyIdentity.on('logout', checkAuth);
@@ -143,141 +163,157 @@
         }
         function logout() { netlifyIdentity.logout(); }
 
-        function initApp() {
+        async function initApp() {
+            // Fetch live data from the website for autocomplete and templates
+            try {
+                const response = await fetch('/data.json?t=' + new Date().getTime());
+                if (response.ok) {
+                    const json = await response.json();
+                    cloudDataGlobal = json;
+
+                    // Populate Autocomplete
+                    const datalist = document.getElementById('song-list-data');
+                    datalist.innerHTML = "";
+                    if (json.allSongs) {
+                        json.allSongs.forEach(song => {
+                            const option = document.createElement('option');
+                            const prefix = song.n && song.n !== 'New' ? `#${song.n} - ` : '';
+                            option.value = prefix + song.u;
+                            datalist.appendChild(option);
+                        });
+                    }
+
+                    // Populate Cloud Templates
+                    const templateSelect = document.getElementById('cloud-templates');
+                    templateSelect.innerHTML = '<option value="">-- Load Cloud Template --</option>';
+                    if (json.cloudTemplates) {
+                        json.cloudTemplates.forEach(t => {
+                            templateSelect.innerHTML += `<option value="${t.name}">${t.name}</option>`;
+                        });
+                    }
+                }
+            } catch (e) { console.log("Fetch failed, running offline."); }
+
             const savedState = localStorage.getItem('fubc_studio_state');
             if (savedState) restoreState(JSON.parse(savedState));
             else loadDefault();
+            
             new Sortable(document.getElementById('program-items'), { handle: '.drag-handle', animation: 150, onEnd: triggerUpdate });
-            if(!document.getElementById('service-date').value) {
-                document.getElementById('service-date').valueAsDate = new Date();
+            if(!document.getElementById('service-date').value) document.getElementById('service-date').valueAsDate = new Date();
+            triggerUpdate();
+        }
+
+        // --- CLOUD SYNC ENGINE (NETLIFY GIT API) ---
+        async function saveToCloud(action) {
+            const user = netlifyIdentity.currentUser();
+            if(!user) return alert("You must be logged in to sync to the cloud.");
+            
+            let templateName = null;
+            if(action === 'template') {
+                templateName = prompt("Enter a name for this Cloud Template (e.g. 'Communion Sunday'):");
+                if(!templateName) return;
+            }
+
+            document.getElementById('loading-overlay').style.display = 'flex';
+            document.getElementById('debug-text').innerText = "Connecting to Database...";
+
+            try {
+                const token = await user.jwt();
+                
+                // Fetch the current state of data.json from Git
+                const res = await fetch('/.netlify/git/github/contents/data.json', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if(!res.ok) throw new Error("Could not connect to GitHub Repo via Netlify API.");
+                
+                const fileInfo = await res.json();
+                
+                // Decode base64 file content safely
+                const contentStr = decodeURIComponent(escape(atob(fileInfo.content)));
+                let dbData = JSON.parse(contentStr);
+
+                // Collect current rows
+                const rows = [];
+                document.querySelectorAll('.program-row').forEach(r => {
+                    rows.push({ 
+                        type: r.querySelector('.type-input').value.trim(), 
+                        desc: r.querySelector('.desc-input').value.trim(),
+                        dur: r.querySelector('.duration-input').value.trim()
+                    });
+                });
+
+                if (action === 'publish') {
+                    dbData.serviceProgram = {
+                        date: document.getElementById('service-date').value,
+                        isVisible: true,
+                        items: rows
+                    };
+                } else if (action === 'template') {
+                    if(!dbData.cloudTemplates) dbData.cloudTemplates = [];
+                    const existingIndex = dbData.cloudTemplates.findIndex(t => t.name === templateName);
+                    const newTemp = { name: templateName, items: rows };
+                    
+                    if(existingIndex > -1) dbData.cloudTemplates[existingIndex] = newTemp;
+                    else dbData.cloudTemplates.push(newTemp);
+                }
+
+                document.getElementById('debug-text').innerText = "Saving data to cloud...";
+
+                // Re-encode to Base64
+                const newContentBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(dbData, null, 2))));
+                
+                // PUT back to Git
+                const putRes = await fetch('/.netlify/git/github/contents/data.json', {
+                    method: 'PUT',
+                    headers: { 
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: action === 'publish' ? `[Studio] Published Service Program for ${document.getElementById('service-date').value}` : `[Studio] Saved Cloud Template: ${templateName}`,
+                        content: newContentBase64,
+                        sha: fileInfo.sha,
+                        branch: "main" 
+                    })
+                });
+
+                if(!putRes.ok) throw new Error("Database write rejected.");
+                
+                alert("Cloud Sync Successful! Changes are live.");
+                initApp(); // Refresh templates dropdown
+
+            } catch(e) {
+                console.error(e);
+                alert("Cloud Sync Failed: " + e.message);
+            } finally {
+                document.getElementById('loading-overlay').style.display = 'none';
+            }
+        }
+
+        function loadCloudTemplate() {
+            const tName = document.getElementById('cloud-templates').value;
+            if(!tName || !cloudDataGlobal || !cloudDataGlobal.cloudTemplates) return;
+            
+            const template = cloudDataGlobal.cloudTemplates.find(t => t.name === tName);
+            if(template && template.items) {
+                document.getElementById('program-items').innerHTML = "";
+                template.items.forEach(i => addProgramRow(i.type, i.desc, i.dur));
                 triggerUpdate();
             }
         }
 
-        // --- NEW AGGRESSIVE PDF PARSER ---
-        async function handlePdfImport(input) {
-            if (input.files && input.files[0]) {
-                const file = input.files[0];
-                document.getElementById('loading-overlay').style.display = 'flex';
-                document.getElementById('debug-text').innerText = "Scanning document structure...";
-
-                try {
-                    const arrayBuffer = await file.arrayBuffer();
-                    const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
-                    const page = await pdf.getPage(1);
-                    const textContent = await page.getTextContent();
-                    
-                    // 1. Sort all items by Y (Top->Bottom) then X (Left->Right)
-                    const items = textContent.items.map(i => ({ 
-                        str: i.str, 
-                        y: i.transform[5], // PDF Y coordinate
-                        x: i.transform[4]  // PDF X coordinate
-                    })).sort((a, b) => {
-                        // Sort by Y desc (top of page is higher Y in PDF coords)
-                        if (Math.abs(a.y - b.y) > 10) return b.y - a.y; 
-                        return a.x - b.x; // Left to right
-                    });
-
-                    // 2. Group into lines (tolerant of slight vertical misalignments)
-                    let lines = [];
-                    let currentLine = "";
-                    let lastY = -1;
-
-                    items.forEach(item => {
-                        if (!item.str.trim()) return;
-                        
-                        // If we jump down significantly, it's a new line
-                        if (lastY !== -1 && Math.abs(item.y - lastY) > 10) {
-                            if (currentLine) lines.push(currentLine.trim());
-                            currentLine = item.str;
-                        } else {
-                            // Same line, append with space
-                            currentLine += " " + item.str;
-                        }
-                        lastY = item.y;
-                    });
-                    if (currentLine) lines.push(currentLine.trim());
-
-                    // 3. Process Lines
-                    document.getElementById('program-items').innerHTML = ""; 
-                    let foundItemsCount = 0;
-
-                    for (let line of lines) {
-                        // Clean weird spaces
-                        line = line.replace(/\s+/g, ' ').trim();
-                        
-                        // Detect Date
-                        const dateMatch = line.match(/(\d{1,2})[\/\.](\d{1,2})[\/\.](\d{4})/);
-                        if (dateMatch) {
-                            const y = dateMatch[3];
-                            const m = dateMatch[1].padStart(2, '0');
-                            const d = dateMatch[2].padStart(2, '0');
-                            document.getElementById('service-date').value = `${y}-${m}-${d}`;
-                            continue; // Don't add date as a row
-                        }
-
-                        // Skip specific headers
-                        if (line.toLowerCase().includes("програма") || line.toLowerCase().includes("page")) continue;
-
-                        let matchedType = null;
-                        let desc = line;
-
-                        // Check known types (Case Insensitive)
-                        for (let type of itemTypes) {
-                            const cleanType = type.replace(':', '').trim().toLowerCase();
-                            // Check if line starts with specific type
-                            if (line.toLowerCase().startsWith(cleanType)) {
-                                matchedType = type;
-                                // Strip type from desc
-                                desc = line.substring(type.replace(':', '').length).trim();
-                                if (desc.startsWith(':')) desc = desc.substring(1).trim();
-                                break;
-                            }
-                        }
-
-                        // If not found, check partials
-                        if (!matchedType) {
-                            if (line.toLowerCase().includes("заг.") && line.toLowerCase().includes("спів")) matchedType = "Заг. Спів:";
-                            else if (line.toLowerCase().includes("дух.") && line.toLowerCase().includes("оркестр")) matchedType = "Дух. Оркестр:";
-                            else if (line.toLowerCase().includes("проповідь")) matchedType = "Проповідь";
-                            else if (line.toLowerCase().includes("участь")) matchedType = "Участь:";
-                            else if (line.toLowerCase().includes("молитва")) matchedType = "Привітання/Молитва";
-                        }
-
-                        if (matchedType) {
-                            addProgramRow(matchedType, desc);
-                            foundItemsCount++;
-                        } else {
-                            // Add Unknown Lines as Text
-                            if (line.length > 3) {
-                                addProgramRow("None (Text Only)", line);
-                                foundItemsCount++;
-                            }
-                        }
-                    }
-
-                    triggerUpdate();
-                    alert(`Import Complete! Found ${foundItemsCount} items.`);
-
-                } catch (e) {
-                    console.error(e);
-                    alert("Error reading PDF. The file might be an image scan instead of text.");
-                } finally {
-                    document.getElementById('loading-overlay').style.display = 'none';
-                    input.value = '';
-                }
-            }
-        }
-
-        // --- APP LOGIC ---
-        function addProgramRow(type = "Дух. Оркестр:", desc = "") {
+        // --- BUILDER & PREVIEW LOGIC ---
+        function addProgramRow(type = "Дух. Оркестр:", desc = "", dur = "") {
             const container = document.getElementById('program-items');
             const row = document.createElement('div');
             row.className = 'program-row';
-            let selectHTML = `<select onchange="triggerUpdate()">`;
-            itemTypes.forEach(t => selectHTML += `<option value="${t}" ${t === type ? 'selected' : ''}>${t}</option>`);
-            selectHTML += `</select>`;
-            row.innerHTML = `<span class="drag-handle">☰</span>${selectHTML}<input type="text" value="${desc}" oninput="triggerUpdate()" placeholder="Details..."><button class="delete-btn" onclick="this.parentElement.remove(); triggerUpdate()">×</button>`;
+            row.innerHTML = `
+                <span class="drag-handle">☰</span>
+                <input type="text" class="type-input" list="item-types-list" value="${type}" placeholder="Type (Bold)..." oninput="triggerUpdate()">
+                <input type="text" class="desc-input" list="song-list-data" value="${desc}" placeholder="Description / Song..." oninput="triggerUpdate()">
+                <input type="number" class="duration-input" value="${dur}" placeholder="min" min="0" oninput="triggerUpdate()">
+                <button class="delete-btn" onclick="this.parentElement.remove(); triggerUpdate()">×</button>
+            `;
             container.appendChild(row);
             triggerUpdate();
         }
@@ -291,38 +327,103 @@
             container.style.fontSize = `${document.getElementById('font-size').value}pt`;
             const content = document.getElementById('preview-content');
             content.innerHTML = "";
-            content.style.paddingLeft = document.getElementById('margin-size').value;
-            content.style.paddingRight = document.getElementById('margin-size').value;
             const spacing = document.getElementById('line-spacing').value;
 
+            let totalMinutes = 0;
+
             document.querySelectorAll('.program-row').forEach(row => {
-                const type = row.querySelector('select').value;
-                const desc = row.querySelector('input').value;
-                let html = (type === "None (Text Only)") ? `<span class="preview-desc">${desc}</span>` : `<span class="preview-type">${(desc.trim() === "" && type.endsWith(":")) ? type.slice(0, -1) : type}</span> <span class="preview-desc">${desc}</span>`;
+                let typeVal = row.querySelector('.type-input').value.trim();
+                let descVal = row.querySelector('.desc-input').value.trim();
+                let durVal = parseInt(row.querySelector('.duration-input').value) || 0;
+                totalMinutes += durVal;
+
+                if (typeVal.endsWith(':') && descVal === "") typeVal = typeVal.slice(0, -1);
+                let html = typeVal === "" ? `<span class="preview-desc">${descVal}</span>` : `<span class="preview-type">${typeVal}</span> <span class="preview-desc">${descVal}</span>`;
                 content.innerHTML += `<div class="preview-item" style="line-height: ${spacing}">${html}</div>`;
             });
+
+            document.getElementById('total-min').innerText = totalMinutes;
+            const startTimeVal = document.getElementById('start-time').value;
+            if (startTimeVal) {
+                const [hours, mins] = startTimeVal.split(':').map(Number);
+                const endDate = new Date(); endDate.setHours(hours, mins, 0, 0); endDate.setMinutes(endDate.getMinutes() + totalMinutes);
+                document.getElementById('est-end').innerText = endDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            }
+
             saveState();
         }
 
         function saveState() {
             const rows = [];
-            document.querySelectorAll('.program-row').forEach(r => rows.push({ type: r.querySelector('select').value, desc: r.querySelector('input').value }));
-            const state = { date: document.getElementById('service-date').value, fontSize: document.getElementById('font-size').value, items: rows };
-            localStorage.setItem('fubc_studio_state', JSON.stringify(state));
+            document.querySelectorAll('.program-row').forEach(r => { rows.push({ type: r.querySelector('.type-input').value, desc: r.querySelector('.desc-input').value, dur: r.querySelector('.duration-input').value }); });
+            localStorage.setItem('fubc_studio_state', JSON.stringify({ date: document.getElementById('service-date').value, startTime: document.getElementById('start-time').value, fontSize: document.getElementById('font-size').value, items: rows }));
         }
 
         function restoreState(state) {
             document.getElementById('service-date').value = state.date || '';
+            document.getElementById('start-time').value = state.startTime || '09:00';
             document.getElementById('font-size').value = state.fontSize || 22;
             document.getElementById('program-items').innerHTML = "";
-            if (state.items) state.items.forEach(i => addProgramRow(i.type, i.desc));
+            if (state.items) state.items.forEach(i => addProgramRow(i.type, i.desc, i.dur));
             triggerUpdate();
         }
 
         function loadDefault() {
             document.getElementById('program-items').innerHTML = "";
-            ["Дух. Оркестр:", "Привітання/Молитва", "Заг. Спів:", "Проповідь", "Участь:", "Заключна молитва"].forEach(t => addProgramRow(t, ""));
+            addProgramRow("Дух. Оркестр:", "", "10"); addProgramRow("Привітання/Молитва", "", "5"); addProgramRow("Заг. Спів:", "", "5"); addProgramRow("Проповідь", "", "30"); addProgramRow("Участь:", "", "5"); addProgramRow("Заключна молитва", "", "5");
             triggerUpdate();
+        }
+
+        // --- IMPORT / EXPORT ---
+        async function handlePdfImport(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                document.getElementById('loading-overlay').style.display = 'flex';
+                document.getElementById('debug-text').innerText = "Reading PDF...";
+                try {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+                    const page = await pdf.getPage(1);
+                    const textContent = await page.getTextContent();
+                    const items = textContent.items.map(i => ({ str: i.str, y: i.transform[5], x: i.transform[4] })).sort((a, b) => Math.abs(a.y - b.y) > 10 ? b.y - a.y : a.x - b.x);
+                    let lines = [], currentLine = "", lastY = -1;
+                    items.forEach(item => {
+                        if (!item.str.trim()) return;
+                        if (lastY !== -1 && Math.abs(item.y - lastY) > 10) { if (currentLine) lines.push(currentLine.trim()); currentLine = item.str; } 
+                        else currentLine += " " + item.str; lastY = item.y;
+                    });
+                    if (currentLine) lines.push(currentLine.trim());
+                    document.getElementById('program-items').innerHTML = ""; 
+                    const itemTypesArray = ["Дух. Оркестр:", "Заг. Спів:", "Привітання/Молитва", "Проповідь", "Участь:", "Молитва за Україну", "Заключна молитва", "Оголошення"];
+                    for (let line of lines) {
+                        line = line.replace(/\s+/g, ' ').trim();
+                        if (line.match(/(\d{1,2})[\/\.](\d{1,2})[\/\.](\d{4})/)) {
+                            const dateMatch = line.match(/(\d{1,2})[\/\.](\d{1,2})[\/\.](\d{4})/);
+                            document.getElementById('service-date').value = `${dateMatch[3]}-${dateMatch[1].padStart(2, '0')}-${dateMatch[2].padStart(2, '0')}`;
+                            continue;
+                        }
+                        if (line.toLowerCase().includes("програма") || line.toLowerCase().includes("page")) continue;
+                        let matchedType = "", desc = line;
+                        for (let type of itemTypesArray) {
+                            if (line.toLowerCase().startsWith(type.replace(':', '').trim().toLowerCase())) {
+                                matchedType = type; desc = line.substring(type.replace(':', '').length).trim(); if (desc.startsWith(':')) desc = desc.substring(1).trim(); break;
+                            }
+                        }
+                        if (!matchedType) {
+                            if (line.toLowerCase().includes("заг.") && line.toLowerCase().includes("спів")) matchedType = "Заг. Спів:";
+                            else if (line.toLowerCase().includes("дух.") && line.toLowerCase().includes("оркестр")) matchedType = "Дух. Оркестр:";
+                            else if (line.toLowerCase().includes("проповідь")) matchedType = "Проповідь";
+                            else if (line.toLowerCase().includes("участь")) matchedType = "Участь:";
+                            else if (line.toLowerCase().includes("молитва")) matchedType = "Привітання/Молитва";
+                        }
+                        if (matchedType) {
+                            let estimatedTime = "5"; if(matchedType === "Проповідь") estimatedTime = "30"; if(matchedType.includes("Оркестр")) estimatedTime = "10";
+                            addProgramRow(matchedType, desc, estimatedTime);
+                        } else if (line.length > 3) addProgramRow("", line, "2");
+                    }
+                    triggerUpdate();
+                } catch (e) { alert("Error reading PDF."); } finally { document.getElementById('loading-overlay').style.display = 'none'; input.value = ''; }
+            }
         }
 
         function generatePDF() {
@@ -330,16 +431,6 @@
             const dateStr = document.getElementById('preview-date').innerText.replace(/\//g, '-');
             const opt = { margin: 0, filename: `Program_${dateStr}.pdf`, image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } };
             html2pdf().set(opt).from(element).save();
-        }
-
-        function shareToViber() {
-            let text = `Програма служіння - ${document.getElementById('preview-date').innerText}\n\n`;
-            document.querySelectorAll('.program-row').forEach(row => {
-                const type = row.querySelector('select').value;
-                const desc = row.querySelector('input').value;
-                if(type !== "None (Text Only)") text += `${type} ${desc}\n`; else text += `${desc}\n`;
-            });
-            window.open(`viber://forward?text=${encodeURIComponent(text)}`, '_blank');
         }
     </script>
 </body>
