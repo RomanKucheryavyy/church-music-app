@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FUBC Program Studio</title>
+    <link rel="icon" type="image/png" href="/logo.png">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script> <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #f8fafc; --surface-color: #ffffff; --text-primary: #0f172a; --border-color: #e2e8f0; --accent-color: #b45309; --preview-bg: #cbd5e1;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-primary); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; }
+        
+        /* Fixed CSS Error: Removed invalid 'px-6' and replaced with proper padding */
+        header { width: 100%; background-color: var(--surface-color); padding: 15px 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; z-index: 10; }
+        header h1 { margin: 0; font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: 0.05em; }
+        header a { text-decoration: none; color: var(--text-primary); font-size: 12px; font-weight: 600; text-transform: uppercase; cursor: pointer; }
+
+        .container { width: 100%; height: 100%; display: none; /* Hidden by default for security */ grid-template-columns: 400px 1fr; overflow: hidden; }
+
+        /* LOGIN WALL STYLES */
+        #login-wall { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; width: 100%; text-align: center; }
+        .login-btn { background: var(--text-primary); color: white; padding: 12px 24px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; margin-top: 20px; }
+        .login-btn:hover { opacity: 0.9; }
+
+        /* BUILDER PANEL */
+        .panel-builder { background: var(--surface-color); border-right: 1px solid var(--border-color); padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        
+        label { display: block; font-size: 11px; font-weight: 700; margin-bottom: 5px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+        input, select { width: 100%; padding: 10px; background: #f1f5f9; color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; font-size: 14px; box-sizing: border-box; outline: none; transition: border 0.2s; }
+        input:focus, select:focus { border-color: var(--accent-color); background: white; }
+
+        .controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; }
+        
+        .program-row { display: flex; gap: 8px; align-items: center; background: white; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); margin-bottom: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .drag-handle { cursor: grab; color: #94a3b8; font-size: 16px; padding: 0 4px; }
+        .program-row select { width: 35%; font-size: 12px; padding: 6px; }
+        .program-row input { width: 55%; font-size: 13px; font-weight: 500; padding: 6px; background: white; }
+        .delete-btn { color: #ef4444; border: none; background: none; font-weight: bold; cursor: pointer; padding: 0 8px; font-size: 16px; }
+
+        button { border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; padding: 12px; border: none; transition: all 0.2s; }
+        button.primary { background: var(--accent-color); color: white; width: 100%; box-shadow: 0 4px 6px -1px rgba(180, 83, 9, 0.3); }
+        button.primary:hover { background: #d97706; transform: translateY(-1px); }
+        button.secondary { background: white; border: 1px solid var(--border-color); color: var(--text-primary); }
+        button.secondary:hover { border-color: var(--accent-color); color: var(--accent-color); }
+        button.viber { background: #7360f2; color: white; width: 100%; margin-top: 10px; }
+        
+        /* PREVIEW PANEL */
+        #pdf-preview-wrapper { background-color: var(--preview-bg); padding: 40px; overflow: auto; display: flex; justify-content: center; align-items: flex-start; }
+        #pdf-preview-container { background: white; color: black; width: 8.5in; min-height: 11in; padding: 0.5in; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); text-align: center; box-sizing: border-box; position: relative; }
+        
+        /* PRINT TYPOGRAPHY */
+        #pdf-preview-container h1 { font-family: 'Montserrat', sans-serif; font-size: 32pt; margin-bottom: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: -1px; }
+        #pdf-preview-container h3 { font-family: 'Inter', sans-serif; font-size: 16pt; font-weight: normal; margin-top: 0; margin-bottom: 30px; color: #444; border-bottom: 2px solid black; padding-bottom: 20px; display: inline-block; min-width: 60%; }
+        .preview-item { margin-bottom: 0; width: 100%; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+        .preview-type { font-weight: 800; color: #000; }
+        .preview-desc { font-weight: 500; color: #000; }
+    </style>
+</head>
+<body>
+
+    <div id="login-wall">
+        <h2 style="font-family: 'Montserrat', sans-serif;">Authorized Access Only</h2>
+        <p style="color: #64748b;">Please log in with your band admin account.</p>
+        <button class="login-btn" onclick="netlifyIdentity.open()">Log In</button>
+    </div>
+
+    <div class="main-wrapper" style="width: 100%; height: 100%; display: none; flex-direction: column;">
+        <header>
+            <h1>FUBC <span style="color: var(--accent-color)">PROGRAM STUDIO</span></h1>
+            <div style="display: flex; gap: 20px; align-items: center;">
+                <span id="user-name" style="font-size: 12px; font-weight: 600;"></span>
+                <a onclick="logout()" style="color: #ef4444;">Log Out</a>
+            </div>
+        </header>
+
+        <div class="container" style="display: grid;">
+            <div class="panel-builder">
+                <div style="display: flex; gap: 10px;">
+                    <button class="secondary" onclick="loadDefault()" style="flex:1">Load Template</button>
+                    <button class="secondary" onclick="clearAll()" style="flex:1">Clear</button>
+                </div>
+
+                <div class="controls-grid">
+                    <div><label>Date</label><input type="date" id="service-date" onchange="triggerUpdate()"></div>
+                    <div><label>Font Size</label><input type="number" id="font-size" value="22" min="14" max="40" oninput="triggerUpdate()"></div>
+                    <div><label>Spacing</label><select id="line-spacing" onchange="triggerUpdate()"><option value="1.4">Tight</option><option value="1.6" selected>Normal</option><option value="2.0">Wide</option></select></div>
+                     <div><label>Margins</label><select id="margin-size" onchange="triggerUpdate()"><option value="0px">Full Width</option><option value="20px">Slim</option><option value="50px">Narrow</option></select></div>
+                </div>
+
+                <div style="flex: 1; overflow-y: auto;">
+                    <label>Program Order</label>
+                    <div id="program-items"></div>
+                    <button class="secondary" style="width: 100%; margin-top: 10px; border-style: dashed;" onclick="addProgramRow()">+ Add Item</button>
+                </div>
+
+                <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                    <button class="viber" onclick="shareToViber()">💬 Send to Viber</button>
+                    <button class="primary" onclick="generatePDF()" style="margin-top: 10px;">📥 Download PDF</button>
+                </div>
+            </div>
+
+            <div id="pdf-preview-wrapper">
+                <div id="pdf-preview-container">
+                    <h1>Програма служіння</h1>
+                    <h3 id="preview-date">...</h3>
+                    <div id="preview-content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const itemTypes = ["Дух. Оркестр:", "Заг. Спів:", "Привітання/Молитва", "Проповідь", "Участь:", "Молитва за Україну", "Заключна молитва", "Оголошення", "None (Text Only)"];
+        
+        // --- SECURITY LOGIC ---
+        function checkAuth() {
+            const user = netlifyIdentity.currentUser();
+            if (user) {
+                document.getElementById('login-wall').style.display = 'none';
+                document.querySelector('.main-wrapper').style.display = 'flex';
+                document.getElementById('user-name').innerText = user.user_metadata.full_name || user.email;
+                initApp();
+            } else {
+                document.getElementById('login-wall').style.display = 'flex';
+                document.querySelector('.main-wrapper').style.display = 'none';
+            }
+        }
+
+        function logout() {
+            netlifyIdentity.logout();
+            checkAuth();
+        }
+
+        // Initialize Identity
+        netlifyIdentity.on('init', checkAuth);
+        netlifyIdentity.on('login', checkAuth);
+        netlifyIdentity.on('logout', checkAuth);
+
+        // --- APP LOGIC ---
+        function initApp() {
+            const savedState = localStorage.getItem('fubc_studio_state');
+            if (savedState) restoreState(JSON.parse(savedState));
+            else loadDefault();
+            
+            // Re-init sortable to be safe
+            const el = document.getElementById('program-items');
+            if(el) new Sortable(el, { handle: '.drag-handle', animation: 150, onEnd: triggerUpdate });
+            
+            if(!document.getElementById('service-date').value) {
+                document.getElementById('service-date').valueAsDate = new Date();
+                triggerUpdate();
+            }
+        }
+
+        function addProgramRow(type = "Дух. Оркестр:", desc = "") {
+            const container = document.getElementById('program-items');
+            const row = document.createElement('div');
+            row.className = 'program-row';
+            let selectHTML = `<select onchange="triggerUpdate()">`;
+            itemTypes.forEach(t => selectHTML += `<option value="${t}" ${t === type ? 'selected' : ''}>${t}</option>`);
+            selectHTML += `</select>`;
+            row.innerHTML = `<span class="drag-handle">☰</span>${selectHTML}<input type="text" value="${desc}" oninput="triggerUpdate()" placeholder="Details..."><button class="delete-btn" onclick="this.parentElement.remove(); triggerUpdate()">×</button>`;
+            container.appendChild(row);
+            triggerUpdate();
+        }
+
+        function triggerUpdate() {
+            const d = new Date(document.getElementById('service-date').value);
+            d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
+            document.getElementById('preview-date').innerText = d ? `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}` : '...';
+
+            const container = document.getElementById('pdf-preview-container');
+            container.style.fontSize = `${document.getElementById('font-size').value}pt`;
+            const content = document.getElementById('preview-content');
+            content.innerHTML = "";
+            content.style.paddingLeft = document.getElementById('margin-size').value;
+            content.style.paddingRight = document.getElementById('margin-size').value;
+            const spacing = document.getElementById('line-spacing').value;
+
+            document.querySelectorAll('.program-row').forEach(row => {
+                const type = row.querySelector('select').value;
+                const desc = row.querySelector('input').value;
+                let html = (type === "None (Text Only)") ? `<span class="preview-desc">${desc}</span>` : `<span class="preview-type">${(desc.trim() === "" && type.endsWith(":")) ? type.slice(0, -1) : type}</span> <span class="preview-desc">${desc}</span>`;
+                content.innerHTML += `<div class="preview-item" style="line-height: ${spacing}">${html}</div>`;
+            });
+            saveState();
+        }
+
+        function saveState() {
+            const rows = [];
+            document.querySelectorAll('.program-row').forEach(r => rows.push({ type: r.querySelector('select').value, desc: r.querySelector('input').value }));
+            const state = { date: document.getElementById('service-date').value, fontSize: document.getElementById('font-size').value, items: rows };
+            localStorage.setItem('fubc_studio_state', JSON.stringify(state));
+        }
+
+        function restoreState(state) {
+            document.getElementById('service-date').value = state.date || '';
+            document.getElementById('font-size').value = state.fontSize || 22;
+            document.getElementById('program-items').innerHTML = "";
+            if (state.items) state.items.forEach(i => addProgramRow(i.type, i.desc));
+            triggerUpdate();
+        }
+
+        function loadDefault() {
+            document.getElementById('program-items').innerHTML = "";
+            ["Дух. Оркестр:", "Привітання/Молитва", "Заг. Спів:", "Проповідь", "Участь:", "Заключна молитва"].forEach(t => addProgramRow(t, ""));
+            triggerUpdate();
+        }
+        
+        function clearAll() { document.getElementById('program-items').innerHTML = ""; triggerUpdate(); }
+
+        function generatePDF() {
+            const element = document.getElementById('pdf-preview-container');
+            const dateStr = document.getElementById('preview-date').innerText.replace(/\//g, '-');
+            const opt = { margin: 0, filename: `Program_${dateStr}.pdf`, image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } };
+            html2pdf().set(opt).from(element).save();
+        }
+
+        function shareToViber() {
+            let text = `Програма служіння - ${document.getElementById('preview-date').innerText}\n\n`;
+            document.querySelectorAll('.program-row').forEach(row => {
+                const type = row.querySelector('select').value;
+                const desc = row.querySelector('input').value;
+                if(type !== "None (Text Only)") text += `${type} ${desc}\n`; else text += `${desc}\n`;
+            });
+            window.open(`viber://forward?text=${encodeURIComponent(text)}`, '_blank');
+        }
+    </script>
+</body>
+</html>
