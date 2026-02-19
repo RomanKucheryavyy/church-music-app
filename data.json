@@ -514,12 +514,8 @@
     }
   ],
   "serviceProgram": {
-    "date": "2026-02-19",
-    "isVisible": true,
-    "items": [
-      {
-        "type": "Мы у берега земного"
-      }
-    ]
+    "date": "",
+    "isVisible": false,
+    "items": []
   }
 }
