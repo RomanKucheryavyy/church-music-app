@@ -9,7 +9,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
@@ -23,14 +24,11 @@
         header h1 { margin: 0; font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: 0.05em; }
         header a { text-decoration: none; color: var(--text-primary); font-size: 12px; font-weight: 600; text-transform: uppercase; cursor: pointer; }
 
-        /* Login Wall */
         #login-wall { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; width: 100%; text-align: center; }
         .login-btn { background: var(--text-primary); color: white; padding: 12px 24px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; margin-top: 20px; }
-        
-        /* Main Layout */
+
         .container { width: 100%; height: 100%; display: none; grid-template-columns: 400px 1fr; overflow: hidden; }
 
-        /* Builder Panel */
         .panel-builder { background: var(--surface-color); border-right: 1px solid var(--border-color); padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
         
         label { display: block; font-size: 11px; font-weight: 700; margin-bottom: 5px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
@@ -52,14 +50,11 @@
         button.secondary:hover { border-color: var(--accent-color); color: var(--accent-color); }
         button.viber { background: #7360f2; color: white; width: 100%; margin-top: 10px; }
         
-        /* Loading Overlay */
-        #loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.8); display: none; justify-content: center; align-items: center; z-index: 50; backdrop-filter: blur(2px); }
+        #loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.9); display: none; justify-content: center; align-items: center; z-index: 100; flex-direction: column; backdrop-filter: blur(2px); }
         
-        /* Preview Panel */
         #pdf-preview-wrapper { background-color: var(--preview-bg); padding: 40px; overflow: auto; display: flex; justify-content: center; align-items: flex-start; }
         #pdf-preview-container { background: white; color: black; width: 8.5in; min-height: 11in; padding: 0.5in; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); text-align: center; box-sizing: border-box; position: relative; }
         
-        /* Print Typography */
         #pdf-preview-container h1 { font-family: 'Montserrat', sans-serif; font-size: 32pt; margin-bottom: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: -1px; }
         #pdf-preview-container h3 { font-family: 'Inter', sans-serif; font-size: 16pt; font-weight: normal; margin-top: 0; margin-bottom: 30px; color: #444; border-bottom: 2px solid black; padding-bottom: 20px; display: inline-block; min-width: 60%; }
         .preview-item { margin-bottom: 0; width: 100%; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
@@ -76,8 +71,10 @@
     </div>
 
     <input type="file" id="pdf-upload" accept=".pdf" style="display:none" onchange="handlePdfImport(this)">
-    <div id="loading-overlay" style="display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 100; justify-content: center; align-items: center; flex-direction: column;">
+    
+    <div id="loading-overlay">
         <div style="font-weight: bold; font-size: 18px; color: var(--accent-color);">Reading PDF...</div>
+        <div id="debug-text" style="margin-top: 10px; font-size: 12px; color: #666;"></div>
     </div>
 
     <div class="main-wrapper" style="width: 100%; height: 100%; display: none; flex-direction: column;">
@@ -92,29 +89,25 @@
         <div class="container" style="display: grid;">
             <div class="panel-builder">
                 <div style="display: flex; gap: 10px;">
-                    <button class="secondary" onclick="document.getElementById('pdf-upload').click()" style="flex:1; border-color: var(--accent-color); color: var(--accent-color);">📂 Import PDF</button>
+                    <button class="secondary" onclick="document.getElementById('pdf-upload').click()" style="flex:1; border-color: var(--accent-color); color: var(--accent-color); font-weight:bold;">📂 Import PDF</button>
                     <button class="secondary" onclick="loadDefault()" style="flex:1">Reset</button>
                 </div>
-
                 <div class="controls-grid">
                     <div><label>Date</label><input type="date" id="service-date" onchange="triggerUpdate()"></div>
                     <div><label>Font Size</label><input type="number" id="font-size" value="22" min="14" max="40" oninput="triggerUpdate()"></div>
                     <div><label>Spacing</label><select id="line-spacing" onchange="triggerUpdate()"><option value="1.4">Tight</option><option value="1.6" selected>Normal</option><option value="2.0">Wide</option></select></div>
                      <div><label>Margins</label><select id="margin-size" onchange="triggerUpdate()"><option value="0px">Full Width</option><option value="20px">Slim</option><option value="50px">Narrow</option></select></div>
                 </div>
-
                 <div style="flex: 1; overflow-y: auto;">
                     <label>Program Order</label>
                     <div id="program-items"></div>
                     <button class="secondary" style="width: 100%; margin-top: 10px; border-style: dashed;" onclick="addProgramRow()">+ Add Item</button>
                 </div>
-
                 <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid #e2e8f0;">
                     <button class="viber" onclick="shareToViber()">💬 Send to Viber</button>
                     <button class="primary" onclick="generatePDF()" style="margin-top: 10px;">📥 Download PDF</button>
                 </div>
             </div>
-
             <div id="pdf-preview-wrapper">
                 <div id="pdf-preview-container">
                     <h1>Програма служіння</h1>
@@ -126,12 +119,12 @@
     </div>
 
     <script>
-        // Init PDF.js Worker
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        // Init PDF Worker (Use matching version)
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
         
         const itemTypes = ["Дух. Оркестр:", "Заг. Спів:", "Привітання/Молитва", "Проповідь", "Участь:", "Молитва за Україну", "Заключна молитва", "Оголошення", "Інше:", "None (Text Only)"];
         
-        // --- AUTH & INIT ---
+        // --- AUTH ---
         netlifyIdentity.on('init', checkAuth);
         netlifyIdentity.on('login', checkAuth);
         netlifyIdentity.on('logout', checkAuth);
@@ -161,113 +154,114 @@
             }
         }
 
-        // --- PDF IMPORT ENGINE (FIXED) ---
+        // --- NEW AGGRESSIVE PDF PARSER ---
         async function handlePdfImport(input) {
             if (input.files && input.files[0]) {
                 const file = input.files[0];
                 document.getElementById('loading-overlay').style.display = 'flex';
-                
+                document.getElementById('debug-text').innerText = "Scanning document structure...";
+
                 try {
                     const arrayBuffer = await file.arrayBuffer();
                     const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
                     const page = await pdf.getPage(1);
                     const textContent = await page.getTextContent();
                     
-                    // --- NEW RECONSTRUCTION LOGIC ---
-                    // 1. Group items by Y coordinate (Row detection)
-                    const rows = {};
-                    const yTolerance = 5; // Pixels of tolerance to group same line
-                    
-                    textContent.items.forEach(item => {
-                        // In PDF, (0,0) is bottom-left, so higher Y means higher up the page
-                        const y = item.transform[5]; 
-                        const x = item.transform[4];
-                        const text = item.str;
+                    // 1. Sort all items by Y (Top->Bottom) then X (Left->Right)
+                    const items = textContent.items.map(i => ({ 
+                        str: i.str, 
+                        y: i.transform[5], // PDF Y coordinate
+                        x: i.transform[4]  // PDF X coordinate
+                    })).sort((a, b) => {
+                        // Sort by Y desc (top of page is higher Y in PDF coords)
+                        if (Math.abs(a.y - b.y) > 10) return b.y - a.y; 
+                        return a.x - b.x; // Left to right
+                    });
 
-                        if (!text.trim()) return;
+                    // 2. Group into lines (tolerant of slight vertical misalignments)
+                    let lines = [];
+                    let currentLine = "";
+                    let lastY = -1;
 
-                        // Find existing row within tolerance
-                        let foundY = Object.keys(rows).find(key => Math.abs(key - y) < yTolerance);
+                    items.forEach(item => {
+                        if (!item.str.trim()) return;
                         
-                        if (foundY) {
-                            rows[foundY].push({ x, text });
+                        // If we jump down significantly, it's a new line
+                        if (lastY !== -1 && Math.abs(item.y - lastY) > 10) {
+                            if (currentLine) lines.push(currentLine.trim());
+                            currentLine = item.str;
                         } else {
-                            rows[y] = [{ x, text }];
+                            // Same line, append with space
+                            currentLine += " " + item.str;
                         }
+                        lastY = item.y;
                     });
+                    if (currentLine) lines.push(currentLine.trim());
 
-                    // 2. Sort rows by Y (Top to Bottom) - Descending Y
-                    const sortedYKeys = Object.keys(rows).sort((a, b) => parseFloat(b) - parseFloat(a));
+                    // 3. Process Lines
+                    document.getElementById('program-items').innerHTML = ""; 
+                    let foundItemsCount = 0;
 
-                    // 3. Construct full lines
-                    const finalLines = [];
-                    sortedYKeys.forEach(y => {
-                        // Sort items in row by X (Left to Right)
-                        const rowItems = rows[y].sort((a, b) => a.x - b.x);
-                        const lineText = rowItems.map(i => i.text).join(' ').trim(); // Join with space
-                        finalLines.push(lineText);
-                    });
-
-                    // --- PARSING LOGIC ---
-                    document.getElementById('program-items').innerHTML = ""; // Clear current
-
-                    for (let line of finalLines) {
-                        line = line.replace(/\s+/g, ' ').trim(); // Clean extra spaces
-                        if (!line) continue;
-
-                        // 1. Date Detection
-                        if (line.match(/\d{1,2}\/\d{1,2}\/\d{4}/)) {
-                            const dateMatch = line.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-                            if(dateMatch) {
-                                const y = dateMatch[3];
-                                const m = dateMatch[1].padStart(2, '0');
-                                const d = dateMatch[2].padStart(2, '0');
-                                document.getElementById('service-date').value = `${y}-${m}-${d}`;
-                            }
-                            continue;
+                    for (let line of lines) {
+                        // Clean weird spaces
+                        line = line.replace(/\s+/g, ' ').trim();
+                        
+                        // Detect Date
+                        const dateMatch = line.match(/(\d{1,2})[\/\.](\d{1,2})[\/\.](\d{4})/);
+                        if (dateMatch) {
+                            const y = dateMatch[3];
+                            const m = dateMatch[1].padStart(2, '0');
+                            const d = dateMatch[2].padStart(2, '0');
+                            document.getElementById('service-date').value = `${y}-${m}-${d}`;
+                            continue; // Don't add date as a row
                         }
 
-                        // 2. Ignore Headers
-                        if (line.includes("Програма служіння") || line.includes("--- PAGE")) continue;
+                        // Skip specific headers
+                        if (line.toLowerCase().includes("програма") || line.toLowerCase().includes("page")) continue;
 
-                        // 3. Match against known types
                         let matchedType = null;
                         let desc = line;
 
+                        // Check known types (Case Insensitive)
                         for (let type of itemTypes) {
-                            // "Дух. Оркестр:" -> "Дух. Оркестр"
-                            const cleanType = type.replace(':', '').trim();
-                            // Check if line starts with "Дух. Оркестр"
-                            if (line.toLowerCase().startsWith(cleanType.toLowerCase())) {
+                            const cleanType = type.replace(':', '').trim().toLowerCase();
+                            // Check if line starts with specific type
+                            if (line.toLowerCase().startsWith(cleanType)) {
                                 matchedType = type;
-                                // Remove the type from the description
-                                desc = line.substring(cleanType.length).trim();
+                                // Strip type from desc
+                                desc = line.substring(type.replace(':', '').length).trim();
                                 if (desc.startsWith(':')) desc = desc.substring(1).trim();
                                 break;
                             }
                         }
 
-                        // 4. Add Row
+                        // If not found, check partials
+                        if (!matchedType) {
+                            if (line.toLowerCase().includes("заг.") && line.toLowerCase().includes("спів")) matchedType = "Заг. Спів:";
+                            else if (line.toLowerCase().includes("дух.") && line.toLowerCase().includes("оркестр")) matchedType = "Дух. Оркестр:";
+                            else if (line.toLowerCase().includes("проповідь")) matchedType = "Проповідь";
+                            else if (line.toLowerCase().includes("участь")) matchedType = "Участь:";
+                            else if (line.toLowerCase().includes("молитва")) matchedType = "Привітання/Молитва";
+                        }
+
                         if (matchedType) {
                             addProgramRow(matchedType, desc);
+                            foundItemsCount++;
                         } else {
-                            if (line.length > 2) { 
-                                // Guessing logic for unmatched lines
-                                if (line.startsWith('#')) {
-                                     addProgramRow("Заг. Спів:", line);
-                                } else {
-                                     addProgramRow("None (Text Only)", line);
-                                }
+                            // Add Unknown Lines as Text
+                            if (line.length > 3) {
+                                addProgramRow("None (Text Only)", line);
+                                foundItemsCount++;
                             }
                         }
                     }
-                    
+
                     triggerUpdate();
-                    alert("Import successful! Rows reconstructed.");
+                    alert(`Import Complete! Found ${foundItemsCount} items.`);
 
                 } catch (e) {
                     console.error(e);
-                    alert("Error reading PDF. Please ensure it is a valid text PDF.");
+                    alert("Error reading PDF. The file might be an image scan instead of text.");
                 } finally {
                     document.getElementById('loading-overlay').style.display = 'none';
                     input.value = '';
@@ -275,7 +269,7 @@
             }
         }
 
-        // --- CORE FUNCTIONS ---
+        // --- APP LOGIC ---
         function addProgramRow(type = "Дух. Оркестр:", desc = "") {
             const container = document.getElementById('program-items');
             const row = document.createElement('div');
