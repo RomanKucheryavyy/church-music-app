@@ -2,7 +2,7 @@ const CACHE_NAME = "fubc-band-v1";
 const urlsToCache = [
   "/",
   "/index.html",
-  "/logo.png",
+  "/social-logo.png",
   "/manifest.json",
   "https://cdn.tailwindcss.com", // Cache the styling
   "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
