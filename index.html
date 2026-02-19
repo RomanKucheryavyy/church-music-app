@@ -12,7 +12,16 @@
     <meta property="og:url" content="https://www.fubcband.com/">
     <meta property="og:title" content="FUBC Band | Official Site">
     <meta property="og:description" content="First Ukrainian Baptist Church Band Ministry - Schedule, Setlists, and Musician Tools.">
-    <meta property="og:image" content="https://www.fubcband.com/social-logo.png">
+    <meta property="og:image" content="https://www.fubcband.com/social-logo.png?v=2">
+
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://www.fubcband.com/">
+    <meta property="twitter:title" content="FUBC Band | Official Site">
+    <meta property="twitter:description" content="First Ukrainian Baptist Church Band Ministry - Schedule, Setlists, and Musician Tools.">
+    <meta property="twitter:image" content="https://www.fubcband.com/social-logo.png?v=2">
+    
+    <meta name="thumbnail" content="https://www.fubcband.com/social-logo.png?v=2" />
+    <meta name="robots" content="max-image-preview:large">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,7 +36,20 @@
 
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#0f172a">
-    <link rel="icon" type="image/png" href="/social-logo.png">
+    <link rel="apple-touch-icon" href="/social-logo.png?v=2">
+    <link rel="icon" type="image/png" href="/social-logo.png?v=2">
+    <link rel="canonical" href="https://www.fubcband.com">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "FUBC Band",
+      "url": "https://www.fubcband.com",
+      "logo": "https://www.fubcband.com/social-logo.png",
+      "description": "First Ukrainian Baptist Church Band Ministry"
+    }
+    </script>
 
     <script>
         tailwind.config = {
@@ -49,11 +71,16 @@
     </script>
     <style>
         [x-cloak] { display: none !important; }
+        
+        /* Clean Input Styles */
         input[type=range] { -webkit-appearance: none; background: transparent; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: #b45309; margin-top: -10px; cursor: pointer; border: 2px solid white; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #e2e8f0; border-radius: 99px; }
+        
+        /* Smooth Scroll Animation */
         .reveal-hidden { opacity: 0; transform: translateY(40px); transition: all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
         .reveal-visible { opacity: 1; transform: translateY(0); }
+        
         @media print { nav, footer, .bg-slate-900, #tools, section[class*="bg-slate-900"], button, .fixed { display: none !important; } body { background: white; color: black; } }
     </style>
 </head>
@@ -85,7 +112,6 @@
         async init() {
             this.verse = this.verses[Math.floor(Math.random() * this.verses.length)];
             try {
-                // Fetch data, bypass cache to ensure we get new Cloud Syncs
                 const response = await fetch('/data.json?t=' + new Date().getTime());
                 if (response.ok) {
                     const json = await response.json();
@@ -96,6 +122,7 @@
                     this.program = json.serviceProgram || { isVisible: false, date: '', items: [] };
                 }
             } catch (e) { console.log('Using built-in data'); }
+            
             setTimeout(() => this.isLoading = false, 300);
         },
 
@@ -110,8 +137,11 @@
             let daysToAdd = 0;
 
             if (day === 5) {
-                if (hour < 21 || (hour === 21 && min < 15)) { daysToAdd = 0; } 
-                else { daysToAdd = 7; }
+                if (hour < 21 || (hour === 21 && min < 15)) {
+                    daysToAdd = 0; 
+                } else {
+                    daysToAdd = 7; 
+                }
             } else {
                 daysToAdd = (5 - day + 7) % 7;
             }
@@ -120,29 +150,41 @@
             for (let i = 0; i < 3; i++) {
                 let rehDate = new Date(d); 
                 rehDate.setHours(21, 0, 0, 0); 
+                
                 mergedEvents.push({
-                    type: 'rehearsal', dateObj: rehDate, 
+                    type: 'rehearsal',
+                    dateObj: rehDate, 
                     dateString: rehDate.toLocaleDateString(this.lang === 'en' ? 'en-US' : 'uk-UA', { month: 'short', day: 'numeric' }),
-                    title_en: 'Weekly Rehearsal', title_ua: 'Щотижнева Репетиція',
-                    time: this.settings.nextRehearsalTime, isTonight: (i === 0 && daysToAdd === 0)
+                    title_en: 'Weekly Rehearsal',
+                    title_ua: 'Щотижнева Репетиція',
+                    time: this.settings.nextRehearsalTime,
+                    isTonight: (i === 0 && daysToAdd === 0)
                 });
                 d.setDate(d.getDate() + 7);
             }
 
             this.events.forEach(e => {
                 let evtDate = new Date(e.date + ', ' + currentYear);
+                
                 let timeParts = e.time.match(/(\d+):(\d+)\s*(AM|PM)/i);
                 if (timeParts) {
                     let h = parseInt(timeParts[1]);
                     if (timeParts[3].toUpperCase() === 'PM' && h < 12) h += 12;
                     if (timeParts[3].toUpperCase() === 'AM' && h === 12) h = 0;
                     evtDate.setHours(h, parseInt(timeParts[2]), 0, 0);
-                } else { evtDate.setHours(9, 0, 0, 0); }
+                } else {
+                    evtDate.setHours(9, 0, 0, 0);
+                }
 
                 mergedEvents.push({
-                    type: 'event', dateObj: evtDate, dateString: e.date,
-                    title_en: e.title_en, title_ua: e.title_ua, time: e.time,
-                    day: e.day, isTonight: false
+                    type: 'event',
+                    dateObj: evtDate,
+                    dateString: e.date,
+                    title_en: e.title_en,
+                    title_ua: e.title_ua,
+                    time: e.time,
+                    day: e.day, 
+                    isTonight: false
                 });
             });
 
@@ -151,11 +193,15 @@
 
         get nextEvent() { return this.sortedSchedule[0] || {}; },
         get futureEvents() { return this.sortedSchedule.slice(1); },
+
         get availableDates() {
             let dates = [];
             const nextReh = this.sortedSchedule.find(e => e.type === 'rehearsal');
             if (nextReh && !this.settings.isRehearsalCanceled) {
-                dates.push({ val: nextReh.dateString + ' (Rehearsal)', label: nextReh.dateString + (this.lang === 'en' ? ' - Rehearsal' : ' - Репетиція') });
+                dates.push({ 
+                    val: nextReh.dateString + ' (Rehearsal)', 
+                    label: nextReh.dateString + (this.lang === 'en' ? ' - Rehearsal' : ' - Репетиція') 
+                });
             }
             this.events.forEach(e => {
                 dates.push({ val: e.date + ' (' + e.title_en + ')', label: e.date + ' - ' + (this.lang === 'en' ? e.title_en : e.title_ua) });
@@ -190,6 +236,7 @@
                     (s.n && song.binderNumber && String(s.n) === String(song.binderNumber)) || 
                     (s.u && song.title && String(s.u).toLowerCase() === String(song.title).toLowerCase())
                 );
+                
                 return {
                     ...song,
                     link: song.link || (masterSong ? masterSong.link : ''),
@@ -222,6 +269,7 @@
             </span>
             <span class="px-8 text-slate-400 italic font-serif text-lg" x-text="lang === 'en' ? verse.en : verse.ua"></span>
             <span class="px-8 flex items-center"><span class="text-brassLight font-bold uppercase tracking-wider mr-2">Next Event:</span><span x-text="nextEvent.dateString + ' @ ' + nextEvent.time"></span></span>
+            <span class="px-8"></span> 
         </div>
         <div class="whitespace-nowrap animate-marquee-mobile md:animate-marquee-desktop flex items-center min-w-full shrink-0">
             <span class="px-8 flex items-center">
@@ -233,6 +281,7 @@
             </span>
             <span class="px-8 text-slate-400 italic font-serif text-lg" x-text="lang === 'en' ? verse.en : verse.ua"></span>
             <span class="px-8 flex items-center"><span class="text-brassLight font-bold uppercase tracking-wider mr-2">Next Event:</span><span x-text="nextEvent.dateString + ' @ ' + nextEvent.time"></span></span>
+            <span class="px-8"></span> 
         </div>
     </div>
 
@@ -240,7 +289,6 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <a href="#" class="flex items-center gap-3 hover:opacity-80 transition-opacity group z-50 relative">
-                    <img src="logo.png" alt="FUBC Band Logo" class="h-12 w-auto object-contain">
                     <div class="font-heading font-bold text-xl sm:text-2xl tracking-[0.15em] text-slate-900 leading-none">FUBC <span class="text-brass block text-[10px] sm:text-xs font-semibold tracking-[0.35em] mt-0.5 group-hover:text-brassLight transition-colors">BAND</span></div>
                 </a>
                 <div class="hidden md:flex items-center gap-10">
@@ -337,6 +385,7 @@
                 <div class="px-6 py-6 border-b border-slate-100"><h2 class="font-heading text-xl font-bold text-slate-900"><span x-show="lang === 'en'">Schedule</span><span x-show="lang === 'ua'" x-cloak>Розклад</span></h2></div>
                 <div class="p-6 space-y-4">
                     <div x-show="isLoading" class="p-4 text-center text-slate-400 font-mono text-xs">Syncing calendar...</div>
+                    
                     <div x-show="!isLoading" class="flex items-center gap-5 p-4 rounded-xl border border-slate-100 bg-slate-50 relative overflow-hidden transition-all hover:shadow-md">
                         <div x-show="nextEvent.type === 'rehearsal' && nextEvent.isTonight" class="absolute top-0 right-0 p-2"><span class="text-[9px] bg-red-100 text-red-600 px-2 py-1 rounded font-extrabold tracking-wider animate-pulse uppercase">Tonight</span></div>
                         <div class="h-14 w-16 min-w-[4rem] rounded-lg bg-white flex flex-col items-center justify-center text-center border border-slate-200 shadow-sm"><span class="text-[9px] text-brass font-bold uppercase tracking-tight" x-text="nextEvent.dateString?.split(' ')[0]"></span><span class="text-lg text-slate-900 font-extrabold leading-none" x-text="nextEvent.dateString?.split(' ')[1]"></span></div>
@@ -346,6 +395,7 @@
                             <span x-show="nextEvent.type === 'rehearsal' && settings.isRehearsalCanceled" class="inline-block mt-1 px-2 py-0.5 bg-red-100 text-red-600 text-[10px] font-bold uppercase rounded">Canceled</span>
                         </div>
                     </div>
+
                     <template x-for="evt in futureEvents">
                         <div class="flex items-center gap-5 p-4 rounded-xl border border-slate-100 bg-white">
                             <div class="h-14 w-16 min-w-[4rem] rounded-lg bg-slate-50 flex flex-col items-center justify-center text-center border border-slate-200"><span class="text-[9px] text-slate-400 font-bold uppercase tracking-tight" x-text="evt.dateString?.split(' ')[0]"></span><span class="text-lg text-slate-700 font-extrabold leading-none" x-text="evt.dateString?.split(' ')[1]"></span></div>
