@@ -1,13 +1,50 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Content Manager</title>
-  
-  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-</head>
-<body>
-  <script src="https://unpkg.com/netlify-cms@^2.0.0/dist/netlify-cms.js"></script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FUBC Admin Console</title>
+  </head>
+  <body>
+    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+
+    <script>
+      CMS.registerEventListener({
+          name: 'preSave',
+          handler: ({ entry }) => {
+              let data = entry.get('data');
+              
+              if (entry.get('collection') === 'data' && entry.get('slug') === 'general') {
+                  const setlist = data.get('currentSetlist');
+                  let allSongs = data.get('allSongs');
+
+                  if (setlist && allSongs) {
+                      setlist.forEach((setSong) => {
+                          const link = setSong.get('link');
+                          const chords = setSong.get('chords');
+                          const bNum = setSong.get('binderNumber');
+                          const title = setSong.get('title');
+
+                          // If the user typed a new link into the setlist
+                          if (link || chords) {
+                              const index = allSongs.findIndex(s => 
+                                  (s.get('n') && bNum && String(s.get('n')) === String(bNum)) || 
+                                  (s.get('u') && title && String(s.get('u')).toLowerCase() === String(title).toLowerCase())
+                              );
+
+                              // Update the master library so it never forgets
+                              if (index !== -1) {
+                                  if (link) allSongs = allSongs.setIn([index, 'link'], link);
+                                  if (chords) allSongs = allSongs.setIn([index, 'chords'], chords);
+                              }
+                          }
+                      });
+                      return data.set('allSongs', allSongs);
+                  }
+              }
+              return data;
+          }
+      });
+    </script>
+  </body>
 </html>
