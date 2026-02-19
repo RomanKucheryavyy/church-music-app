@@ -1,0 +1,112 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "uploads"
+public_folder: "/uploads"
+
+# Fixes common slug errors
+slug:
+  encoding: "ascii"
+  clean_accents: true
+  sanitize_replacement: "-"
+
+collections:
+  - name: "data"
+    label: "Site Data"
+    files:
+      - name: "general"
+        label: "Dashboard & Content"
+        file: "data.json"
+        description: "Manage your band website content here."
+        fields:
+          # --- SECTION 1: GLOBAL SETTINGS ---
+          - label: "⚙️ General Settings"
+            name: "settings"
+            widget: "object"
+            collapsed: false
+            fields:
+              - label: "Conductor's Note"
+                name: "conductorNote"
+                widget: "text"
+                required: false
+                hint: "Write a message here to pin it to the top of the site. Leave blank to hide it."
+              
+              - label: "Next Rehearsal Date (Override)"
+                name: "nextRehearsalDate"
+                widget: "string"
+                required: false
+                hint: "e.g. 'Feb 20'. If you leave this empty, the site automatically calculates the next Friday."
+
+              - label: "Next Rehearsal Time"
+                name: "nextRehearsalTime"
+                widget: "string"
+                default: "9:00 PM"
+                required: false
+                hint: "e.g. '9:00 PM' or '7:30 PM'."
+              
+              - label: "Cancel Next Rehearsal?"
+                name: "isRehearsalCanceled"
+                widget: "boolean"
+                default: false
+                hint: "Toggle this ON to show a 'Canceled' badge on the schedule."
+
+          # --- SECTION 2: SPECIAL EVENTS ---
+          - label: "📅 Extra Events (Sundays / Specials)"
+            name: "events"
+            widget: "list"
+            collapsed: true
+            summary: "{{title_en}} - {{date}}"
+            fields:
+              - {label: "Date (e.g. Feb 22)", name: "date", widget: "string"}
+              - {label: "Day of Week", name: "day", widget: "string"}
+              - {label: "Title (English)", name: "title_en", widget: "string"}
+              - {label: "Title (Ukrainian)", name: "title_ua", widget: "string"}
+              - {label: "Time", name: "time", widget: "string"}
+
+          # --- SECTION 3: SUNDAY SERVICE PROGRAM (NEW FEATURE) ---
+          - label: "📜 Sunday Service Program"
+            name: "serviceProgram"
+            widget: "object"
+            collapsed: false
+            fields:
+              - {label: "Program Date", name: "date", widget: "datetime", format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false}
+              - label: "Show on Website?"
+                name: "isVisible"
+                widget: "boolean"
+                default: true
+                hint: "If active, this will automatically appear on the homepage on the selected date."
+              - label: "Program Items"
+                name: "items"
+                widget: "list"
+                summary: "{{type}}: {{desc}}"
+                fields:
+                  - label: "Type"
+                    name: "type"
+                    widget: "select"
+                    options: ["Дух. Оркестр", "Заг. Спів", "Привітання/Молитва", "Проповідь", "Участь", "Молитва за Україну", "Оголошення", "Інше"]
+                    default: "Дух. Оркестр"
+                  - {label: "Description / Song Name", name: "desc", widget: "string", required: false}
+
+          # --- SECTION 4: CURRENT SETLIST ---
+          - label: "🎵 Current Setlist"
+            name: "currentSetlist"
+            widget: "list"
+            collapsed: false
+            summary: "{{binderNumber}} - {{title}}"
+            fields:
+              - {label: "Song Title", name: "title", widget: "string"}
+              - {label: "Subtitle / Author", name: "sub", widget: "string", required: false}
+              - {label: "Binder Number", name: "binderNumber", widget: "string", required: false, hint: "Type 'New' or a number."}
+              - {label: "Audio Link (YouTube/MP3)", name: "link", widget: "string", required: false}
+              - {label: "Sheet Music Link (PDF)", name: "chords", widget: "string", required: false}
+
+          # --- SECTION 5: MASTER LIBRARY ---
+          - label: "📚 Master Song Library"
+            name: "allSongs"
+            widget: "list"
+            collapsed: true
+            summary: "#{{n}} - {{u}}"
+            fields:
+              - {label: "Binder #", name: "n", widget: "string"}
+              - {label: "Song Title", name: "u", widget: "string"}
