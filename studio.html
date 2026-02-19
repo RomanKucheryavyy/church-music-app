@@ -11,6 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="/social-logo.png?v=2">
 
     <style>
         :root { --bg-color: #f8fafc; --surface-color: #ffffff; --text-primary: #0f172a; --border-color: #e2e8f0; --accent-color: #b45309; --preview-bg: #cbd5e1; }
@@ -47,7 +48,14 @@
         .run-clock { display: flex; justify-content: space-between; align-items: center; background: #0f172a; color: white; padding: 10px 15px; border-radius: 6px; font-size: 12px; font-weight: 600; margin-top: 10px; }
         .run-clock span.highlight { color: #fde047; font-size: 14px; }
 
+        /* PREVIEW SCALING LOGIC */
         #pdf-preview-wrapper { background-color: var(--preview-bg); padding: 40px; overflow: auto; display: flex; justify-content: center; align-items: flex-start; }
+        
+        .preview-scale-wrapper {
+            transform-origin: top center;
+            transition: transform 0.2s;
+        }
+
         #pdf-preview-container { background: white; color: black; width: 8.5in; min-height: 11in; padding: 0.5in; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); text-align: center; box-sizing: border-box; position: relative; }
         #pdf-preview-container h1 { font-family: 'Montserrat', sans-serif; font-size: 32pt; margin-bottom: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: -1px; }
         #pdf-preview-container h3 { font-family: 'Inter', sans-serif; font-size: 16pt; font-weight: normal; margin-top: 0; margin-bottom: 30px; color: #444; border-bottom: 2px solid black; padding-bottom: 20px; display: inline-block; min-width: 60%; }
@@ -56,11 +64,22 @@
         .preview-desc { font-weight: 500; color: #000; }
 
         #loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.9); display: none; justify-content: center; align-items: center; z-index: 100; flex-direction: column; backdrop-filter: blur(2px); }
+
+        /* PRINT STYLESHEET */
+        @media print {
+            body { background: white; }
+            header, .panel-builder, #login-wall, #loading-overlay { display: none !important; }
+            .container { display: block !important; }
+            #pdf-preview-wrapper { background: none; padding: 0; overflow: visible; display: block; }
+            .preview-scale-wrapper { transform: none !important; }
+            #pdf-preview-container { width: 100%; height: auto; box-shadow: none; padding: 0; min-height: auto; }
+        }
     </style>
 </head>
 <body>
 
     <div id="login-wall">
+        <img src="/social-logo.png" style="width:80px; margin-bottom:20px; opacity:0.8;">
         <h2 style="font-family: 'Montserrat', sans-serif;">Authorized Access Only</h2>
         <button class="login-btn" onclick="netlifyIdentity.open()">Log In</button>
     </div>
@@ -87,7 +106,7 @@
             <h1>FUBC <span style="color: var(--accent-color)">PROGRAM STUDIO</span></h1>
             <div style="display: flex; gap: 20px; align-items: center;">
                 <span id="user-name" style="font-size: 12px; font-weight: 600;"></span>
-                <a onclick="logout()" style="color: #ef4444; cursor:pointer;">Log Out</a>
+                <a onclick="logout()" style="color: #ef4444; cursor:pointer; font-weight:bold; font-size: 12px; text-transform: uppercase;">Log Out</a>
             </div>
         </header>
 
@@ -104,7 +123,7 @@
 
                 <div style="display: flex; gap: 10px;">
                     <button class="secondary" onclick="document.getElementById('pdf-upload').click()" style="flex:1; border-color: var(--accent-color); color: var(--accent-color); font-weight:bold;">📂 Import PDF</button>
-                    <button class="secondary" onclick="loadDefault()" style="flex:1">Reset</button>
+                    <button class="secondary" onclick="loadDefault()" style="flex:1">Reset Form</button>
                 </div>
                 
                 <div class="controls-grid">
@@ -127,15 +146,21 @@
 
                 <div style="margin-top: auto; padding-top: 15px; border-top: 1px solid #e2e8f0;">
                     <button class="cloud-btn" onclick="saveToCloud('publish')">🚀 Publish to Live Website</button>
-                    <button class="primary" onclick="generatePDF()" style="margin-top: 10px;">📥 Download PDF</button>
+                    <button class="viber" onclick="shareToViber()">💬 Copy Text for Viber</button>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                        <button class="primary" onclick="window.print()">🖨️ Print Direct</button>
+                        <button class="primary" onclick="generatePDF()">📥 Export PDF</button>
+                    </div>
                 </div>
             </div>
             
             <div id="pdf-preview-wrapper">
-                <div id="pdf-preview-container">
-                    <h1>Програма служіння</h1>
-                    <h3 id="preview-date">...</h3>
-                    <div id="preview-content"></div>
+                <div class="preview-scale-wrapper" id="scale-wrapper">
+                    <div id="pdf-preview-container">
+                        <h1>Програма служіння</h1>
+                        <h3 id="preview-date">...</h3>
+                        <div id="preview-content"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -144,6 +169,22 @@
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
         let cloudDataGlobal = null; 
+
+        function adjustScale() {
+            const wrapper = document.getElementById('pdf-preview-wrapper');
+            const scaleWrapper = document.getElementById('scale-wrapper');
+            if(!wrapper || !scaleWrapper) return;
+            const availableWidth = wrapper.clientWidth - 80; 
+            const letterWidthInPx = 816; 
+            
+            if (availableWidth < letterWidthInPx) {
+                const scale = availableWidth / letterWidthInPx;
+                scaleWrapper.style.transform = `scale(${scale})`;
+            } else {
+                scaleWrapper.style.transform = `scale(1)`;
+            }
+        }
+        window.addEventListener('resize', adjustScale);
 
         netlifyIdentity.on('init', checkAuth);
         netlifyIdentity.on('login', checkAuth);
@@ -164,14 +205,12 @@
         function logout() { netlifyIdentity.logout(); }
 
         async function initApp() {
-            // Fetch live data from the website for autocomplete and templates
             try {
                 const response = await fetch('/data.json?t=' + new Date().getTime());
                 if (response.ok) {
                     const json = await response.json();
                     cloudDataGlobal = json;
 
-                    // Populate Autocomplete
                     const datalist = document.getElementById('song-list-data');
                     datalist.innerHTML = "";
                     if (json.allSongs) {
@@ -183,7 +222,6 @@
                         });
                     }
 
-                    // Populate Cloud Templates
                     const templateSelect = document.getElementById('cloud-templates');
                     templateSelect.innerHTML = '<option value="">-- Load Cloud Template --</option>';
                     if (json.cloudTemplates) {
@@ -201,16 +239,16 @@
             new Sortable(document.getElementById('program-items'), { handle: '.drag-handle', animation: 150, onEnd: triggerUpdate });
             if(!document.getElementById('service-date').value) document.getElementById('service-date').valueAsDate = new Date();
             triggerUpdate();
+            setTimeout(adjustScale, 100);
         }
 
-        // --- CLOUD SYNC ENGINE (NETLIFY GIT API) ---
         async function saveToCloud(action) {
             const user = netlifyIdentity.currentUser();
             if(!user) return alert("You must be logged in to sync to the cloud.");
             
             let templateName = null;
             if(action === 'template') {
-                templateName = prompt("Enter a name for this Cloud Template (e.g. 'Communion Sunday'):");
+                templateName = prompt("Enter a name for this Cloud Template:");
                 if(!templateName) return;
             }
 
@@ -219,20 +257,13 @@
 
             try {
                 const token = await user.jwt();
-                
-                // Fetch the current state of data.json from Git
-                const res = await fetch('/.netlify/git/github/contents/data.json', {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
+                const res = await fetch('/.netlify/git/github/contents/data.json', { headers: { Authorization: `Bearer ${token}` }});
                 if(!res.ok) throw new Error("Could not connect to GitHub Repo via Netlify API.");
                 
                 const fileInfo = await res.json();
-                
-                // Decode base64 file content safely
                 const contentStr = decodeURIComponent(escape(atob(fileInfo.content)));
                 let dbData = JSON.parse(contentStr);
 
-                // Collect current rows
                 const rows = [];
                 document.querySelectorAll('.program-row').forEach(r => {
                     rows.push({ 
@@ -258,17 +289,11 @@
                 }
 
                 document.getElementById('debug-text').innerText = "Saving data to cloud...";
-
-                // Re-encode to Base64
                 const newContentBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(dbData, null, 2))));
                 
-                // PUT back to Git
                 const putRes = await fetch('/.netlify/git/github/contents/data.json', {
                     method: 'PUT',
-                    headers: { 
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         message: action === 'publish' ? `[Studio] Published Service Program for ${document.getElementById('service-date').value}` : `[Studio] Saved Cloud Template: ${templateName}`,
                         content: newContentBase64,
@@ -280,7 +305,7 @@
                 if(!putRes.ok) throw new Error("Database write rejected.");
                 
                 alert("Cloud Sync Successful! Changes are live.");
-                initApp(); // Refresh templates dropdown
+                initApp(); 
 
             } catch(e) {
                 console.error(e);
@@ -302,7 +327,105 @@
             }
         }
 
-        // --- BUILDER & PREVIEW LOGIC ---
+        async function handlePdfImport(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                document.getElementById('loading-overlay').style.display = 'flex';
+                document.getElementById('debug-text').innerText = "Analyzing PDF Structure...";
+
+                try {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+                    const page = await pdf.getPage(1);
+                    const textContent = await page.getTextContent();
+                    
+                    if (textContent.items.length === 0) {
+                        alert("Error: No readable text found. This PDF appears to be a scanned image.");
+                        return;
+                    }
+
+                    const items = textContent.items.map(i => ({ str: i.str, y: i.transform[5], x: i.transform[4] })).sort((a, b) => {
+                        if (Math.abs(a.y - b.y) > 20) return b.y - a.y; 
+                        return a.x - b.x;
+                    });
+
+                    let lines = [];
+                    let currentLine = "";
+                    let lastY = -1;
+
+                    items.forEach(item => {
+                        let text = item.str.trim();
+                        if (!text) return;
+                        
+                        if (lastY !== -1 && Math.abs(item.y - lastY) > 20) {
+                            if (currentLine) lines.push(currentLine.trim());
+                            currentLine = text;
+                        } else {
+                            currentLine += " " + text;
+                        }
+                        lastY = item.y;
+                    });
+                    if (currentLine) lines.push(currentLine.trim());
+
+                    document.getElementById('program-items').innerHTML = ""; 
+
+                    for (let line of lines) {
+                        line = line.replace(/\s+/g, ' ').trim();
+                        if(!line) continue;
+                        
+                        const dateMatch = line.match(/(\d{1,2})[\/\.](\d{1,2})[\/\.](\d{4})/);
+                        if (dateMatch) {
+                            const y = dateMatch[3]; const m = dateMatch[1].padStart(2, '0'); const d = dateMatch[2].padStart(2, '0');
+                            document.getElementById('service-date').value = `${y}-${m}-${d}`;
+                            continue;
+                        }
+
+                        let lowerLine = line.toLowerCase();
+                        if (lowerLine.includes("програма") || lowerLine.includes("page")) continue;
+
+                        let matchedType = "";
+                        let desc = line;
+                        let dur = "5"; 
+
+                        if (lowerLine.includes("оркестр")) { matchedType = "Дух. Оркестр:"; dur = "10"; }
+                        else if (lowerLine.includes("заг") && lowerLine.includes("спів")) { matchedType = "Заг. Спів:"; }
+                        else if (lowerLine.includes("проповідь") || lowerLine.includes("слово")) { matchedType = "Проповідь"; dur = "30"; }
+                        else if (lowerLine.includes("участь") || lowerLine.includes("гурт") || lowerLine.includes("хор")) { matchedType = "Участь:"; }
+                        else if (lowerLine.includes("заключна") && lowerLine.includes("молитва")) { matchedType = "Заключна молитва"; dur = "3"; }
+                        else if (lowerLine.includes("україну") && lowerLine.includes("молитва")) { matchedType = "Молитва за Україну"; }
+                        else if (lowerLine.includes("привітання") || lowerLine.includes("молитва")) { matchedType = "Привітання/Молитва"; }
+                        else if (lowerLine.includes("оголошення")) { matchedType = "Оголошення"; dur = "3"; }
+
+                        if (matchedType) {
+                            let cleanDesc = line;
+                            const prefixesToRemove = ["Дух. Оркестр:", "Заг. Спів:", "Привітання/Молитва", "Проповідь", "Участь:", "Молитва за Україну", "Заключна молитва", "Оголошення"];
+                            
+                            for (let prefix of prefixesToRemove) {
+                                if (cleanDesc.toLowerCase().startsWith(prefix.toLowerCase())) {
+                                    cleanDesc = cleanDesc.substring(prefix.length).trim();
+                                    if(cleanDesc.startsWith(':') || cleanDesc.startsWith('-')) cleanDesc = cleanDesc.substring(1).trim();
+                                    break;
+                                }
+                            }
+                            addProgramRow(matchedType, cleanDesc, dur);
+                        } else if (line.length > 2) {
+                            addProgramRow("", line, "2");
+                        }
+                    }
+                    
+                    triggerUpdate();
+                    alert("Import Complete! Please verify the parsed rows.");
+
+                } catch (e) {
+                    console.error(e);
+                    alert("Error reading PDF: " + e.message);
+                } finally {
+                    document.getElementById('loading-overlay').style.display = 'none';
+                    input.value = '';
+                }
+            }
+        }
+
         function addProgramRow(type = "Дух. Оркестр:", desc = "", dur = "") {
             const container = document.getElementById('program-items');
             const row = document.createElement('div');
@@ -374,63 +497,36 @@
             triggerUpdate();
         }
 
-        // --- IMPORT / EXPORT ---
-        async function handlePdfImport(input) {
-            if (input.files && input.files[0]) {
-                const file = input.files[0];
-                document.getElementById('loading-overlay').style.display = 'flex';
-                document.getElementById('debug-text').innerText = "Reading PDF...";
-                try {
-                    const arrayBuffer = await file.arrayBuffer();
-                    const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
-                    const page = await pdf.getPage(1);
-                    const textContent = await page.getTextContent();
-                    const items = textContent.items.map(i => ({ str: i.str, y: i.transform[5], x: i.transform[4] })).sort((a, b) => Math.abs(a.y - b.y) > 10 ? b.y - a.y : a.x - b.x);
-                    let lines = [], currentLine = "", lastY = -1;
-                    items.forEach(item => {
-                        if (!item.str.trim()) return;
-                        if (lastY !== -1 && Math.abs(item.y - lastY) > 10) { if (currentLine) lines.push(currentLine.trim()); currentLine = item.str; } 
-                        else currentLine += " " + item.str; lastY = item.y;
-                    });
-                    if (currentLine) lines.push(currentLine.trim());
-                    document.getElementById('program-items').innerHTML = ""; 
-                    const itemTypesArray = ["Дух. Оркестр:", "Заг. Спів:", "Привітання/Молитва", "Проповідь", "Участь:", "Молитва за Україну", "Заключна молитва", "Оголошення"];
-                    for (let line of lines) {
-                        line = line.replace(/\s+/g, ' ').trim();
-                        if (line.match(/(\d{1,2})[\/\.](\d{1,2})[\/\.](\d{4})/)) {
-                            const dateMatch = line.match(/(\d{1,2})[\/\.](\d{1,2})[\/\.](\d{4})/);
-                            document.getElementById('service-date').value = `${dateMatch[3]}-${dateMatch[1].padStart(2, '0')}-${dateMatch[2].padStart(2, '0')}`;
-                            continue;
-                        }
-                        if (line.toLowerCase().includes("програма") || line.toLowerCase().includes("page")) continue;
-                        let matchedType = "", desc = line;
-                        for (let type of itemTypesArray) {
-                            if (line.toLowerCase().startsWith(type.replace(':', '').trim().toLowerCase())) {
-                                matchedType = type; desc = line.substring(type.replace(':', '').length).trim(); if (desc.startsWith(':')) desc = desc.substring(1).trim(); break;
-                            }
-                        }
-                        if (!matchedType) {
-                            if (line.toLowerCase().includes("заг.") && line.toLowerCase().includes("спів")) matchedType = "Заг. Спів:";
-                            else if (line.toLowerCase().includes("дух.") && line.toLowerCase().includes("оркестр")) matchedType = "Дух. Оркестр:";
-                            else if (line.toLowerCase().includes("проповідь")) matchedType = "Проповідь";
-                            else if (line.toLowerCase().includes("участь")) matchedType = "Участь:";
-                            else if (line.toLowerCase().includes("молитва")) matchedType = "Привітання/Молитва";
-                        }
-                        if (matchedType) {
-                            let estimatedTime = "5"; if(matchedType === "Проповідь") estimatedTime = "30"; if(matchedType.includes("Оркестр")) estimatedTime = "10";
-                            addProgramRow(matchedType, desc, estimatedTime);
-                        } else if (line.length > 3) addProgramRow("", line, "2");
-                    }
-                    triggerUpdate();
-                } catch (e) { alert("Error reading PDF."); } finally { document.getElementById('loading-overlay').style.display = 'none'; input.value = ''; }
-            }
-        }
-
         function generatePDF() {
             const element = document.getElementById('pdf-preview-container');
+            const scaleWrapper = document.getElementById('scale-wrapper');
+            const originalTransform = scaleWrapper.style.transform;
+            scaleWrapper.style.transform = 'scale(1)';
+
             const dateStr = document.getElementById('preview-date').innerText.replace(/\//g, '-');
-            const opt = { margin: 0, filename: `Program_${dateStr}.pdf`, image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } };
-            html2pdf().set(opt).from(element).save();
+            const opt = { 
+                margin: 0, 
+                filename: `Program_${dateStr}.pdf`, 
+                image: { type: 'jpeg', quality: 1 }, 
+                html2canvas: { scale: 2, useCORS: true }, 
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } 
+            };
+            
+            html2pdf().set(opt).from(element).save().then(() => {
+                scaleWrapper.style.transform = originalTransform;
+            });
+        }
+
+        function shareToViber() {
+            let text = `Програма служіння - ${document.getElementById('preview-date').innerText}\n\n`;
+            document.querySelectorAll('.program-row').forEach(row => {
+                const type = row.querySelector('.type-input').value.trim();
+                const desc = row.querySelector('.desc-input').value.trim();
+                if(type !== "") text += `${type} ${desc}\n`; else text += `${desc}\n`;
+            });
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Text copied to clipboard! You can now paste it into Viber.");
+            });
         }
     </script>
 </body>
