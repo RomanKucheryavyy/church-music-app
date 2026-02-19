@@ -339,7 +339,9 @@
     },
     {
       "n": "73",
-      "u": "Миллионы людей"
+      "u": "Миллионы людей",
+      "link": "https://www.youtube.com/watch?v=lSO6geUuSes",
+      "chords": "https://mscmusic.org/works/MXO-04800"
     },
     {
       "n": "74",
@@ -483,7 +485,8 @@
     },
     {
       "n": "109",
-      "u": "Ныне Его я дитя"
+      "u": "Ныне Его я дитя",
+      "link": "https://www.youtube.com/watch?v=4AArEcxpiSk"
     },
     {
       "n": "110",
@@ -513,6 +516,10 @@
   "serviceProgram": {
     "date": "2026-02-19",
     "isVisible": true,
-    "items": []
+    "items": [
+      {
+        "type": "Мы у берега земного"
+      }
+    ]
   }
 }
