@@ -64,7 +64,31 @@ collections:
               - {label: "Title (Ukrainian)", name: "title_ua", widget: "string"}
               - {label: "Time", name: "time", widget: "string"}
 
-          # --- SECTION 3: CURRENT SETLIST ---
+          # --- SECTION 3: SUNDAY SERVICE PROGRAM (NEW FEATURE) ---
+          - label: "📜 Sunday Service Program"
+            name: "serviceProgram"
+            widget: "object"
+            collapsed: false
+            fields:
+              - {label: "Program Date", name: "date", widget: "datetime", format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false}
+              - label: "Show on Website?"
+                name: "isVisible"
+                widget: "boolean"
+                default: true
+                hint: "If active, this will automatically appear on the homepage on the selected date."
+              - label: "Program Items"
+                name: "items"
+                widget: "list"
+                summary: "{{type}}: {{desc}}"
+                fields:
+                  - label: "Type"
+                    name: "type"
+                    widget: "select"
+                    options: ["Дух. Оркестр", "Заг. Спів", "Привітання/Молитва", "Проповідь", "Участь", "Молитва за Україну", "Оголошення", "Інше"]
+                    default: "Дух. Оркестр"
+                  - {label: "Description / Song Name", name: "desc", widget: "string", required: false}
+
+          # --- SECTION 4: CURRENT SETLIST ---
           - label: "🎵 Current Setlist"
             name: "currentSetlist"
             widget: "list"
@@ -77,7 +101,7 @@ collections:
               - {label: "Audio Link (YouTube/MP3)", name: "link", widget: "string", required: false}
               - {label: "Sheet Music Link (PDF)", name: "chords", widget: "string", required: false}
 
-          # --- SECTION 4: MASTER LIBRARY ---
+          # --- SECTION 5: MASTER LIBRARY ---
           - label: "📚 Master Song Library"
             name: "allSongs"
             widget: "list"
