@@ -53,7 +53,7 @@
         button.viber { background: #7360f2; color: white; width: 100%; margin-top: 10px; }
         
         /* Loading Overlay */
-        #loading-overlay { position: fixed; inset: 0; bg: rgba(255,255,255,0.8); display: none; justify-content: center; align-items: center; z-index: 50; backdrop-filter: blur(2px); }
+        #loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.8); display: none; justify-content: center; align-items: center; z-index: 50; backdrop-filter: blur(2px); }
         
         /* Preview Panel */
         #pdf-preview-wrapper { background-color: var(--preview-bg); padding: 40px; overflow: auto; display: flex; justify-content: center; align-items: flex-start; }
@@ -161,7 +161,7 @@
             }
         }
 
-        // --- PDF IMPORT ENGINE ---
+        // --- PDF IMPORT ENGINE (FIXED) ---
         async function handlePdfImport(input) {
             if (input.files && input.files[0]) {
                 const file = input.files[0];
@@ -170,27 +170,55 @@
                 try {
                     const arrayBuffer = await file.arrayBuffer();
                     const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
-                    const page = await pdf.getPage(1); // Only read page 1
+                    const page = await pdf.getPage(1);
                     const textContent = await page.getTextContent();
                     
-                    // Simple extraction: join all strings with newlines
-                    let fullText = textContent.items.map(item => item.str).join('\n');
+                    // --- NEW RECONSTRUCTION LOGIC ---
+                    // 1. Group items by Y coordinate (Row detection)
+                    const rows = {};
+                    const yTolerance = 5; // Pixels of tolerance to group same line
                     
-                    // Clear current
-                    document.getElementById('program-items').innerHTML = "";
-                    
-                    // Parse Lines
-                    const lines = fullText.split('\n');
-                    
-                    for (let i = 0; i < lines.length; i++) {
-                        let line = lines[i].trim();
+                    textContent.items.forEach(item => {
+                        // In PDF, (0,0) is bottom-left, so higher Y means higher up the page
+                        const y = item.transform[5]; 
+                        const x = item.transform[4];
+                        const text = item.str;
+
+                        if (!text.trim()) return;
+
+                        // Find existing row within tolerance
+                        let foundY = Object.keys(rows).find(key => Math.abs(key - y) < yTolerance);
+                        
+                        if (foundY) {
+                            rows[foundY].push({ x, text });
+                        } else {
+                            rows[y] = [{ x, text }];
+                        }
+                    });
+
+                    // 2. Sort rows by Y (Top to Bottom) - Descending Y
+                    const sortedYKeys = Object.keys(rows).sort((a, b) => parseFloat(b) - parseFloat(a));
+
+                    // 3. Construct full lines
+                    const finalLines = [];
+                    sortedYKeys.forEach(y => {
+                        // Sort items in row by X (Left to Right)
+                        const rowItems = rows[y].sort((a, b) => a.x - b.x);
+                        const lineText = rowItems.map(i => i.text).join(' ').trim(); // Join with space
+                        finalLines.push(lineText);
+                    });
+
+                    // --- PARSING LOGIC ---
+                    document.getElementById('program-items').innerHTML = ""; // Clear current
+
+                    for (let line of finalLines) {
+                        line = line.replace(/\s+/g, ' ').trim(); // Clean extra spaces
                         if (!line) continue;
 
-                        // 1. Try to find Date (MM/DD/YYYY or similar)
+                        // 1. Date Detection
                         if (line.match(/\d{1,2}\/\d{1,2}\/\d{4}/)) {
                             const dateMatch = line.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
                             if(dateMatch) {
-                                // Convert to YYYY-MM-DD for input
                                 const y = dateMatch[3];
                                 const m = dateMatch[1].padStart(2, '0');
                                 const d = dateMatch[2].padStart(2, '0');
@@ -206,13 +234,13 @@
                         let matchedType = null;
                         let desc = line;
 
-                        // Check exact starts
                         for (let type of itemTypes) {
-                            // Clean type (remove colon for checking)
+                            // "Дух. Оркестр:" -> "Дух. Оркестр"
                             const cleanType = type.replace(':', '').trim();
-                            if (line.startsWith(cleanType)) {
+                            // Check if line starts with "Дух. Оркестр"
+                            if (line.toLowerCase().startsWith(cleanType.toLowerCase())) {
                                 matchedType = type;
-                                // Remove type from desc
+                                // Remove the type from the description
                                 desc = line.substring(cleanType.length).trim();
                                 if (desc.startsWith(':')) desc = desc.substring(1).trim();
                                 break;
@@ -223,9 +251,8 @@
                         if (matchedType) {
                             addProgramRow(matchedType, desc);
                         } else {
-                            // If it's just text, add as "None (Text Only)" or guess "Інше"
-                            if (line.length > 3) { // Ignore artifacts
-                                // Check if it looks like a song #
+                            if (line.length > 2) { 
+                                // Guessing logic for unmatched lines
                                 if (line.startsWith('#')) {
                                      addProgramRow("Заг. Спів:", line);
                                 } else {
@@ -236,14 +263,14 @@
                     }
                     
                     triggerUpdate();
-                    alert("Import successful! Please review the items.");
+                    alert("Import successful! Rows reconstructed.");
 
                 } catch (e) {
                     console.error(e);
-                    alert("Error reading PDF. Make sure it is a valid text-based PDF.");
+                    alert("Error reading PDF. Please ensure it is a valid text PDF.");
                 } finally {
                     document.getElementById('loading-overlay').style.display = 'none';
-                    input.value = ''; // Reset input
+                    input.value = '';
                 }
             }
         }
