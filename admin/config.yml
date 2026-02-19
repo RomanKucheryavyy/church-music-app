@@ -5,7 +5,6 @@ backend:
 media_folder: "uploads"
 public_folder: "/uploads"
 
-# Fixes common slug errors
 slug:
   encoding: "ascii"
   clean_accents: true
@@ -26,30 +25,10 @@ collections:
             widget: "object"
             collapsed: false
             fields:
-              - label: "Conductor's Note"
-                name: "conductorNote"
-                widget: "text"
-                required: false
-                hint: "Write a message here to pin it to the top of the site. Leave blank to hide it."
-              
-              - label: "Next Rehearsal Date (Override)"
-                name: "nextRehearsalDate"
-                widget: "string"
-                required: false
-                hint: "e.g. 'Feb 20'. If you leave this empty, the site automatically calculates the next Friday."
-
-              - label: "Next Rehearsal Time"
-                name: "nextRehearsalTime"
-                widget: "string"
-                default: "9:00 PM"
-                required: false
-                hint: "e.g. '9:00 PM' or '7:30 PM'."
-              
-              - label: "Cancel Next Rehearsal?"
-                name: "isRehearsalCanceled"
-                widget: "boolean"
-                default: false
-                hint: "Toggle this ON to show a 'Canceled' badge on the schedule."
+              - {label: "Conductor's Note", name: "conductorNote", widget: "text", required: false}
+              - {label: "Next Rehearsal Date (Override)", name: "nextRehearsalDate", widget: "string", required: false}
+              - {label: "Next Rehearsal Time", name: "nextRehearsalTime", widget: "string", default: "9:00 PM", required: false}
+              - {label: "Cancel Next Rehearsal?", name: "isRehearsalCanceled", widget: "boolean", default: false}
 
           # --- SECTION 2: SPECIAL EVENTS ---
           - label: "📅 Extra Events (Sundays / Specials)"
@@ -64,29 +43,22 @@ collections:
               - {label: "Title (Ukrainian)", name: "title_ua", widget: "string"}
               - {label: "Time", name: "time", widget: "string"}
 
-          # --- SECTION 3: SUNDAY SERVICE PROGRAM (NEW FEATURE) ---
+          # --- SECTION 3: SUNDAY SERVICE PROGRAM ---
           - label: "📜 Sunday Service Program"
             name: "serviceProgram"
             widget: "object"
-            collapsed: false
+            collapsed: true
             fields:
               - {label: "Program Date", name: "date", widget: "datetime", format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false}
-              - label: "Show on Website?"
-                name: "isVisible"
-                widget: "boolean"
-                default: true
-                hint: "If active, this will automatically appear on the homepage on the selected date."
+              - {label: "Show on Website?", name: "isVisible", widget: "boolean", default: true}
               - label: "Program Items"
                 name: "items"
                 widget: "list"
-                summary: "{{type}}: {{desc}}"
+                summary: "{{type}} {{desc}}"
                 fields:
-                  - label: "Type"
-                    name: "type"
-                    widget: "select"
-                    options: ["Дух. Оркестр", "Заг. Спів", "Привітання/Молитва", "Проповідь", "Участь", "Молитва за Україну", "Оголошення", "Інше"]
-                    default: "Дух. Оркестр"
+                  - {label: "Type", name: "type", widget: "string", required: false}
                   - {label: "Description / Song Name", name: "desc", widget: "string", required: false}
+                  - {label: "Duration (min)", name: "dur", widget: "string", required: false}
 
           # --- SECTION 4: CURRENT SETLIST ---
           - label: "🎵 Current Setlist"
@@ -97,16 +69,34 @@ collections:
             fields:
               - {label: "Song Title", name: "title", widget: "string"}
               - {label: "Subtitle / Author", name: "sub", widget: "string", required: false}
-              - {label: "Binder Number", name: "binderNumber", widget: "string", required: false, hint: "Type 'New' or a number."}
+              - {label: "Binder Number", name: "binderNumber", widget: "string", required: false}
               - {label: "Audio Link (YouTube/MP3)", name: "link", widget: "string", required: false}
               - {label: "Sheet Music Link (PDF)", name: "chords", widget: "string", required: false}
 
-          # --- SECTION 5: MASTER LIBRARY ---
+          # --- SECTION 5: MASTER LIBRARY (NOW WITH MEMORY) ---
           - label: "📚 Master Song Library"
             name: "allSongs"
             widget: "list"
             collapsed: true
             summary: "#{{n}} - {{u}}"
             fields:
-              - {label: "Binder #", name: "n", widget: "string"}
-              - {label: "Song Title", name: "u", widget: "string"}
+              - {label: "Binder #", name: "n", widget: "string", required: false}
+              - {label: "Song Title", name: "u", widget: "string", required: false}
+              - {label: "Memorized Audio Link", name: "link", widget: "string", required: false}
+              - {label: "Memorized Sheet Music", name: "chords", widget: "string", required: false}
+
+          # --- SECTION 6: CLOUD TEMPLATES (FOR STUDIO) ---
+          - label: "☁️ Studio Cloud Templates"
+            name: "cloudTemplates"
+            widget: "list"
+            collapsed: true
+            summary: "{{name}}"
+            fields:
+              - {label: "Template Name", name: "name", widget: "string"}
+              - label: "Items"
+                name: "items"
+                widget: "list"
+                fields:
+                  - {label: "Type", name: "type", widget: "string", required: false}
+                  - {label: "Description", name: "desc", widget: "string", required: false}
+                  - {label: "Duration", name: "dur", widget: "string", required: false}
