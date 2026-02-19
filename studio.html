@@ -8,7 +8,10 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script> <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
     <style>
         :root {
@@ -16,19 +19,18 @@
         }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-primary); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; }
         
-        /* Fixed CSS Error: Removed invalid 'px-6' and replaced with proper padding */
         header { width: 100%; background-color: var(--surface-color); padding: 15px 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; z-index: 10; }
         header h1 { margin: 0; font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: 0.05em; }
         header a { text-decoration: none; color: var(--text-primary); font-size: 12px; font-weight: 600; text-transform: uppercase; cursor: pointer; }
 
-        .container { width: 100%; height: 100%; display: none; /* Hidden by default for security */ grid-template-columns: 400px 1fr; overflow: hidden; }
-
-        /* LOGIN WALL STYLES */
+        /* Login Wall */
         #login-wall { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; width: 100%; text-align: center; }
         .login-btn { background: var(--text-primary); color: white; padding: 12px 24px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; margin-top: 20px; }
-        .login-btn:hover { opacity: 0.9; }
+        
+        /* Main Layout */
+        .container { width: 100%; height: 100%; display: none; grid-template-columns: 400px 1fr; overflow: hidden; }
 
-        /* BUILDER PANEL */
+        /* Builder Panel */
         .panel-builder { background: var(--surface-color); border-right: 1px solid var(--border-color); padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
         
         label { display: block; font-size: 11px; font-weight: 700; margin-bottom: 5px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
@@ -50,11 +52,14 @@
         button.secondary:hover { border-color: var(--accent-color); color: var(--accent-color); }
         button.viber { background: #7360f2; color: white; width: 100%; margin-top: 10px; }
         
-        /* PREVIEW PANEL */
+        /* Loading Overlay */
+        #loading-overlay { position: fixed; inset: 0; bg: rgba(255,255,255,0.8); display: none; justify-content: center; align-items: center; z-index: 50; backdrop-filter: blur(2px); }
+        
+        /* Preview Panel */
         #pdf-preview-wrapper { background-color: var(--preview-bg); padding: 40px; overflow: auto; display: flex; justify-content: center; align-items: flex-start; }
         #pdf-preview-container { background: white; color: black; width: 8.5in; min-height: 11in; padding: 0.5in; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); text-align: center; box-sizing: border-box; position: relative; }
         
-        /* PRINT TYPOGRAPHY */
+        /* Print Typography */
         #pdf-preview-container h1 { font-family: 'Montserrat', sans-serif; font-size: 32pt; margin-bottom: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: -1px; }
         #pdf-preview-container h3 { font-family: 'Inter', sans-serif; font-size: 16pt; font-weight: normal; margin-top: 0; margin-bottom: 30px; color: #444; border-bottom: 2px solid black; padding-bottom: 20px; display: inline-block; min-width: 60%; }
         .preview-item { margin-bottom: 0; width: 100%; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
@@ -70,6 +75,11 @@
         <button class="login-btn" onclick="netlifyIdentity.open()">Log In</button>
     </div>
 
+    <input type="file" id="pdf-upload" accept=".pdf" style="display:none" onchange="handlePdfImport(this)">
+    <div id="loading-overlay" style="display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 100; justify-content: center; align-items: center; flex-direction: column;">
+        <div style="font-weight: bold; font-size: 18px; color: var(--accent-color);">Reading PDF...</div>
+    </div>
+
     <div class="main-wrapper" style="width: 100%; height: 100%; display: none; flex-direction: column;">
         <header>
             <h1>FUBC <span style="color: var(--accent-color)">PROGRAM STUDIO</span></h1>
@@ -82,8 +92,8 @@
         <div class="container" style="display: grid;">
             <div class="panel-builder">
                 <div style="display: flex; gap: 10px;">
-                    <button class="secondary" onclick="loadDefault()" style="flex:1">Load Template</button>
-                    <button class="secondary" onclick="clearAll()" style="flex:1">Clear</button>
+                    <button class="secondary" onclick="document.getElementById('pdf-upload').click()" style="flex:1; border-color: var(--accent-color); color: var(--accent-color);">📂 Import PDF</button>
+                    <button class="secondary" onclick="loadDefault()" style="flex:1">Reset</button>
                 </div>
 
                 <div class="controls-grid">
@@ -116,9 +126,16 @@
     </div>
 
     <script>
-        const itemTypes = ["Дух. Оркестр:", "Заг. Спів:", "Привітання/Молитва", "Проповідь", "Участь:", "Молитва за Україну", "Заключна молитва", "Оголошення", "None (Text Only)"];
+        // Init PDF.js Worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
         
-        // --- SECURITY LOGIC ---
+        const itemTypes = ["Дух. Оркестр:", "Заг. Спів:", "Привітання/Молитва", "Проповідь", "Участь:", "Молитва за Україну", "Заключна молитва", "Оголошення", "Інше:", "None (Text Only)"];
+        
+        // --- AUTH & INIT ---
+        netlifyIdentity.on('init', checkAuth);
+        netlifyIdentity.on('login', checkAuth);
+        netlifyIdentity.on('logout', checkAuth);
+
         function checkAuth() {
             const user = netlifyIdentity.currentUser();
             if (user) {
@@ -131,33 +148,107 @@
                 document.querySelector('.main-wrapper').style.display = 'none';
             }
         }
+        function logout() { netlifyIdentity.logout(); }
 
-        function logout() {
-            netlifyIdentity.logout();
-            checkAuth();
-        }
-
-        // Initialize Identity
-        netlifyIdentity.on('init', checkAuth);
-        netlifyIdentity.on('login', checkAuth);
-        netlifyIdentity.on('logout', checkAuth);
-
-        // --- APP LOGIC ---
         function initApp() {
             const savedState = localStorage.getItem('fubc_studio_state');
             if (savedState) restoreState(JSON.parse(savedState));
             else loadDefault();
-            
-            // Re-init sortable to be safe
-            const el = document.getElementById('program-items');
-            if(el) new Sortable(el, { handle: '.drag-handle', animation: 150, onEnd: triggerUpdate });
-            
+            new Sortable(document.getElementById('program-items'), { handle: '.drag-handle', animation: 150, onEnd: triggerUpdate });
             if(!document.getElementById('service-date').value) {
                 document.getElementById('service-date').valueAsDate = new Date();
                 triggerUpdate();
             }
         }
 
+        // --- PDF IMPORT ENGINE ---
+        async function handlePdfImport(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                document.getElementById('loading-overlay').style.display = 'flex';
+                
+                try {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+                    const page = await pdf.getPage(1); // Only read page 1
+                    const textContent = await page.getTextContent();
+                    
+                    // Simple extraction: join all strings with newlines
+                    let fullText = textContent.items.map(item => item.str).join('\n');
+                    
+                    // Clear current
+                    document.getElementById('program-items').innerHTML = "";
+                    
+                    // Parse Lines
+                    const lines = fullText.split('\n');
+                    
+                    for (let i = 0; i < lines.length; i++) {
+                        let line = lines[i].trim();
+                        if (!line) continue;
+
+                        // 1. Try to find Date (MM/DD/YYYY or similar)
+                        if (line.match(/\d{1,2}\/\d{1,2}\/\d{4}/)) {
+                            const dateMatch = line.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+                            if(dateMatch) {
+                                // Convert to YYYY-MM-DD for input
+                                const y = dateMatch[3];
+                                const m = dateMatch[1].padStart(2, '0');
+                                const d = dateMatch[2].padStart(2, '0');
+                                document.getElementById('service-date').value = `${y}-${m}-${d}`;
+                            }
+                            continue;
+                        }
+
+                        // 2. Ignore Headers
+                        if (line.includes("Програма служіння") || line.includes("--- PAGE")) continue;
+
+                        // 3. Match against known types
+                        let matchedType = null;
+                        let desc = line;
+
+                        // Check exact starts
+                        for (let type of itemTypes) {
+                            // Clean type (remove colon for checking)
+                            const cleanType = type.replace(':', '').trim();
+                            if (line.startsWith(cleanType)) {
+                                matchedType = type;
+                                // Remove type from desc
+                                desc = line.substring(cleanType.length).trim();
+                                if (desc.startsWith(':')) desc = desc.substring(1).trim();
+                                break;
+                            }
+                        }
+
+                        // 4. Add Row
+                        if (matchedType) {
+                            addProgramRow(matchedType, desc);
+                        } else {
+                            // If it's just text, add as "None (Text Only)" or guess "Інше"
+                            if (line.length > 3) { // Ignore artifacts
+                                // Check if it looks like a song #
+                                if (line.startsWith('#')) {
+                                     addProgramRow("Заг. Спів:", line);
+                                } else {
+                                     addProgramRow("None (Text Only)", line);
+                                }
+                            }
+                        }
+                    }
+                    
+                    triggerUpdate();
+                    alert("Import successful! Please review the items.");
+
+                } catch (e) {
+                    console.error(e);
+                    alert("Error reading PDF. Make sure it is a valid text-based PDF.");
+                } finally {
+                    document.getElementById('loading-overlay').style.display = 'none';
+                    input.value = ''; // Reset input
+                }
+            }
+        }
+
+        // --- CORE FUNCTIONS ---
         function addProgramRow(type = "Дух. Оркестр:", desc = "") {
             const container = document.getElementById('program-items');
             const row = document.createElement('div');
@@ -173,7 +264,7 @@
         function triggerUpdate() {
             const d = new Date(document.getElementById('service-date').value);
             d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
-            document.getElementById('preview-date').innerText = d ? `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}` : '...';
+            document.getElementById('preview-date').innerText = d && !isNaN(d) ? `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}` : '...';
 
             const container = document.getElementById('pdf-preview-container');
             container.style.fontSize = `${document.getElementById('font-size').value}pt`;
@@ -212,8 +303,6 @@
             ["Дух. Оркестр:", "Привітання/Молитва", "Заг. Спів:", "Проповідь", "Участь:", "Заключна молитва"].forEach(t => addProgramRow(t, ""));
             triggerUpdate();
         }
-        
-        function clearAll() { document.getElementById('program-items').innerHTML = ""; triggerUpdate(); }
 
         function generatePDF() {
             const element = document.getElementById('pdf-preview-container');
