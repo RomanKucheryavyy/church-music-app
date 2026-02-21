@@ -822,21 +822,15 @@
         </div>
     </footer>
 
-<script>
+    <script>
         document.addEventListener('alpine:init', () => {
             
-            // 1. Safe Cache Loader (Prevents the blank screen crash)
-            const validInstruments = ['Flute', 'Oboe', 'Clarinet', 'Alto Saxophone', 'Trumpet', 'French Horn', 'Tenor Horn', 'Baritone', 'Trombone', 'Tuba'];
+            // 1. Safe Cache Loader
+            const validInstruments = ['Flute', 'Oboe', 'Clarinet', 'Saxophone', 'Trumpet', 'French Horn', 'Tenor Horn', 'Baritone', 'Trombone', 'Tuba'];
             const getSavedInst = () => {
                 let saved = localStorage.getItem('fubc_school_instrument');
-                if (saved === 'Saxophone') saved = 'Alto Saxophone'; // Safely maps old cache
+                if (saved === 'Alto Saxophone') saved = 'Saxophone'; // backwards compat
                 return validInstruments.includes(saved) ? saved : 'Trumpet';
-            };
-
-            // 2. Safe JSON parser for log to prevent cache corruption crashes
-            const getPracticedLog = () => {
-                try { return JSON.parse(localStorage.getItem('fubc_school_weekly_log')) || []; } 
-                catch(e) { return []; }
             };
 
             Alpine.data('schoolApp', () => ({
@@ -912,7 +906,6 @@
                 getRankName() { let hrs = (this.currentUser ? this.currentUser.total_minutes : this.totalMinutes) / 60; if(hrs < 1) return this.lang === 'en' ? 'Beginner' : 'Початківець'; if(hrs < 5) return this.lang === 'en' ? 'Apprentice' : 'Учень'; if(hrs < 20) return this.lang === 'en' ? 'Musician' : 'Музикант'; if(hrs < 50) return this.lang === 'en' ? 'Section Leader' : 'Лідер групи'; return this.lang === 'en' ? 'Maestro' : 'Маестро'; },
                 getRankColor() { let hrs = (this.currentUser ? this.currentUser.total_minutes : this.totalMinutes) / 60; if(hrs < 5) return 'text-slate-500'; if(hrs < 20) return 'text-emerald-500'; if(hrs < 50) return 'text-blue-500'; return 'text-brass'; },
 
-                // CRITICAL FIX: Ensure validInstruments is mapped
                 availableInstruments: validInstruments,
                 globalInstrument: getSavedInst(),
                 selectedGroup: 0,
@@ -921,7 +914,7 @@
                 streak: parseInt(localStorage.getItem('fubc_school_streak')) || 0,
                 lastPractice: localStorage.getItem('fubc_school_last_date') || '',
                 practicedToday: false,
-                practicedLog: getPracticedLog(),
+                practicedLog: (function() { try { return JSON.parse(localStorage.getItem('fubc_school_weekly_log')) || []; } catch(e) { return []; } })(),
                 weekDays: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
                 get currentDayOfWeek() { return new Date().getDay(); },
                 hasPracticedOnDay(dayIndex) { const logToCheck = this.currentUser ? this.currentUser.log : this.practicedLog; if (!logToCheck) return false; const today = new Date(); const dayDiff = today.getDay() - dayIndex; const targetDate = new Date(today); targetDate.setDate(today.getDate() - dayDiff); return logToCheck.includes(targetDate.toDateString()); },
@@ -950,7 +943,6 @@
                 ],
 
                 async init() {
-                    // Start initialization smoothly
                     this.updateGlobalInstrument(this.globalInstrument, true);
                     
                     const supabaseUrl = 'https://levtwocaqocalknouepf.supabase.co';
@@ -1029,18 +1021,19 @@
                     this.globalInstrument = inst; localStorage.setItem('fubc_school_instrument', inst);
                     this.interactiveChart.instrument = inst; 
                     
+                    // Reset to safe defaults to prevent undefined array crashes
                     this.interactiveChart.selectedRange = 'Mid';
                     this.interactiveChart.selectedNote = 0; 
-                    
                     this.stopFingeringAudio();
+
                     let groupIdx = 0;
-                    // CRITICAL FIX: Ensure 'Alto Saxophone' matches properly for sheet music selection
                     if (['Flute', 'Oboe'].includes(inst)) groupIdx = 0; 
                     else if (['Clarinet', 'Trumpet'].includes(inst)) groupIdx = 1; 
-                    else if (['Alto Saxophone', 'Tenor Horn'].includes(inst)) groupIdx = 2; 
+                    else if (['Saxophone', 'Tenor Horn'].includes(inst)) groupIdx = 2; 
                     else if (['French Horn'].includes(inst)) groupIdx = 3; 
                     else if (['Trombone', 'Baritone'].includes(inst)) groupIdx = 4; 
                     else if (['Tuba'].includes(inst)) groupIdx = 5;
+                    
                     this.selectedGroup = groupIdx;
                     this.$nextTick(() => { this.renderWarmups(); this.renderScales(); });
                     if(!silent) this.triggerToast(this.lang === 'en' ? `Instrument set to ${inst}` : `Інструмент: ${inst}`);
@@ -1081,7 +1074,7 @@
                         var visualObj = ABCJS.renderAbc('abc-fullscreen', header + dataObj.abc[this.selectedGroup], { responsive: 'resize', scale: modalScale, paddingtop: 30, paddingbottom: 30, add_classes: true })[0];
                         if(this.synthControl) { this.synthControl.pause(); }
                         this.synthControl = new ABCJS.synth.SynthController(); this.synthControl.load("#audio-control", null, { displayLoop: true, displayRestart: true, displayPlay: true, displayProgress: true, displayWarp: true });
-                        let program = 56; if (group.clef === 'bass') program = 57; if (this.globalInstrument === 'Flute') program = 73; if (this.globalInstrument === 'Clarinet') program = 71; if (this.globalInstrument === 'Alto Saxophone') program = 65; if (this.globalInstrument === 'French Horn') program = 60; if (this.globalInstrument === 'Tuba') program = 58;
+                        let program = 56; if (group.clef === 'bass') program = 57; if (this.globalInstrument === 'Flute') program = 73; if (this.globalInstrument === 'Clarinet') program = 71; if (this.globalInstrument === 'Saxophone') program = 65; if (this.globalInstrument === 'French Horn') program = 60; if (this.globalInstrument === 'Tuba') program = 58;
                         var createSynth = new ABCJS.synth.CreateSynth(); createSynth.init({ visualObj: visualObj }).then(() => { this.synthControl.setTune(visualObj, false, { program: program }); }).catch(console.warn);
                     });
                 },
@@ -1120,8 +1113,8 @@
                     let inst = this.interactiveChart.instrument;
                     let ranges = ['Low', 'Mid', 'High'];
                     
-                    const baseMidiMap = { 'Flute': 60, 'Oboe': 60, 'Clarinet': 52, 'Alto Saxophone': 58, 'Trumpet': 54, 'French Horn': 60, 'Tenor Horn': 54, 'Baritone': 40, 'Trombone': 40, 'Tuba': 28 };
-                    const transpositions = { 'Flute': 0, 'Oboe': 0, 'Trombone': 0, 'Baritone': 0, 'Tuba': 0, 'Clarinet': -2, 'Trumpet': -2, 'Alto Saxophone': -9, 'Tenor Horn': -9, 'French Horn': -7 };
+                    const baseMidiMap = { 'Flute': 60, 'Oboe': 60, 'Clarinet': 52, 'Saxophone': 58, 'Trumpet': 54, 'French Horn': 60, 'Tenor Horn': 54, 'Baritone': 40, 'Trombone': 40, 'Tuba': 28 };
+                    const transpositions = { 'Flute': 0, 'Oboe': 0, 'Trombone': 0, 'Baritone': 0, 'Tuba': 0, 'Clarinet': -2, 'Trumpet': -2, 'Saxophone': -9, 'Tenor Horn': -9, 'French Horn': -7 };
                     
                     let targetMidi = baseMidiMap[inst];
                     let currentMidi = targetMidi;
@@ -1186,7 +1179,6 @@
 
                 printStaves(count) { const container = document.getElementById('print-staves'); container.innerHTML = ''; for(let i=0; i<count; i++) { container.innerHTML += `<div class='stave-group'><div class='stave'></div><div class='stave'></div><div class='stave'></div><div class='stave'></div><div class='stave'></div></div>`; } window.print(); },
 
-                // CRITICAL FIX: Ensure 'instrument' invokes getSavedInst() so it matches the data library safely
                 interactiveChart: {
                     instrument: getSavedInst(), 
                     selectedRange: 'Mid', selectedNote: 0, ranges: ['Low', 'Mid', 'High'],
@@ -1194,7 +1186,7 @@
                         'Flute':{type:'woodwind',notes:{'Low':[{name:'C',lh:[0,1,1,1],rh:[1,1,1,1]},{name:'D',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,1]},{name:'F',lh:[1,1,1,1],rh:[1,0,0,1]},{name:'G',lh:[1,1,1,1],rh:[0,0,0,1]},{name:'A',lh:[1,1,1,0],rh:[0,0,0,1]},{name:'B',lh:[1,1,0,0],rh:[0,0,0,1]}],'Mid':[{name:'C',lh:[0,1,0,0],rh:[0,0,0,1]},{name:'Db',lh:[0,0,0,0],rh:[0,0,0,1]},{name:'D',lh:[1,0,1,1],rh:[1,1,1,0]},{name:'Eb',lh:[1,0,1,1],rh:[1,1,1,1]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,1]},{name:'F',lh:[1,1,1,1],rh:[1,0,0,1]},{name:'Gb',lh:[1,1,1,1],rh:[0,0,1,1]},{name:'G',lh:[1,1,1,1],rh:[0,0,0,1]},{name:'Ab',lh:[1,1,1,1],rh:[0,0,0,1]},{name:'A',lh:[1,1,1,0],rh:[0,0,0,1]},{name:'Bb',lh:[1,1,0,0],rh:[1,0,0,1]},{name:'B',lh:[1,1,0,0],rh:[0,0,0,1]},{name:'C↑',lh:[0,1,0,0],rh:[0,0,0,1]}],'High':[{name:'C',lh:[0,1,0,0],rh:[0,0,0,1]},{name:'D',lh:[1,0,1,1],rh:[0,0,0,0]},{name:'E',lh:[1,1,1,0],rh:[1,1,0,1]},{name:'F',lh:[1,1,0,1],rh:[1,0,0,1]},{name:'G',lh:[1,0,1,1],rh:[0,0,0,1]},{name:'A',lh:[1,0,1,0],rh:[1,0,0,1]},{name:'B',lh:[1,0,0,0],rh:[0,0,0,1]}]}},
                         'Oboe':{type:'woodwind',notes:{'Low':[{name:'C',lh:[0,1,1,1],rh:[1,1,1,1]},{name:'D',lh:[0,1,1,1],rh:[1,1,1,0]},{name:'E',lh:[0,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[0,1,1,1],rh:[1,0,0,0]},{name:'G',lh:[0,1,1,1],rh:[0,0,0,0]},{name:'A',lh:[0,1,1,0],rh:[0,0,0,0]},{name:'B',lh:[0,1,0,0],rh:[0,0,0,0]}],'Mid':[{name:'C',lh:[0,0,1,0],rh:[0,0,0,0]},{name:'Db',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'D',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'Eb',lh:[1,1,1,1],rh:[1,1,1,1]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[1,1,1,1],rh:[1,0,0,0]},{name:'Gb',lh:[1,1,1,1],rh:[0,1,0,0]},{name:'G',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'Ab',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'A',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'Bb',lh:[1,1,0,0],rh:[1,0,0,0]},{name:'B',lh:[1,1,0,0],rh:[0,0,0,0]},{name:'C↑',lh:[1,0,1,0],rh:[0,0,0,0]}],'High':[{name:'C',lh:[1,0,1,0],rh:[0,0,0,0]},{name:'D',lh:[1,0,1,1],rh:[0,0,0,0]},{name:'E',lh:[1,0,1,0],rh:[1,0,0,0]},{name:'F',lh:[1,0,1,0],rh:[0,1,0,0]},{name:'G',lh:[1,0,1,0],rh:[0,0,0,0]},{name:'A',lh:[1,0,1,1],rh:[0,0,0,0]},{name:'B',lh:[1,0,0,0],rh:[0,0,0,0]}]}},
                         'Clarinet':{type:'woodwind',notes:{'Low':[{name:'E',lh:[1,1,1,1],rh:[1,1,1,1]},{name:'F',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'G',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'A',lh:[1,1,1,1],rh:[1,0,0,0]},{name:'B',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'C',lh:[1,1,1,0],rh:[0,0,0,0]}],'Mid':[{name:'C',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'Db',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'D',lh:[1,1,0,0],rh:[0,0,0,0]},{name:'Eb',lh:[1,1,0,0],rh:[0,0,0,0]},{name:'E',lh:[1,0,0,0],rh:[0,0,0,0]},{name:'F',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'Gb',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'G',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'Ab',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'A',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'Bb',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'B',lh:[1,1,1,1],rh:[1,1,1,1]},{name:'C↑',lh:[1,1,1,1],rh:[1,1,1,0]}],'High':[{name:'C',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'D',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'E',lh:[1,1,1,1],rh:[1,0,0,0]},{name:'F',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'G',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'A',lh:[1,1,0,0],rh:[0,0,0,0]}]}},
-                        'Alto Saxophone':{type:'woodwind',notes:{'Low':[{name:'Bb',lh:[0,1,1,1],rh:[1,1,1,1]},{name:'C',lh:[0,1,1,1],rh:[1,1,1,0]},{name:'D',lh:[0,1,1,1],rh:[1,1,1,0]},{name:'E',lh:[0,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[0,1,1,1],rh:[1,0,0,0]}],'Mid':[{name:'G',lh:[0,1,1,1],rh:[0,0,0,0]},{name:'Ab',lh:[0,1,1,1],rh:[0,0,0,0]},{name:'A',lh:[0,1,1,0],rh:[0,0,0,0]},{name:'Bb',lh:[0,1,1,0],rh:[1,0,0,0]},{name:'B',lh:[0,1,0,0],rh:[0,0,0,0]},{name:'C',lh:[0,0,1,0],rh:[0,0,0,0]},{name:'Db',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'D',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'Eb',lh:[1,1,1,1],rh:[1,1,1,1]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[1,1,1,1],rh:[1,0,0,0]},{name:'Gb',lh:[1,1,1,1],rh:[0,1,0,0]},{name:'G↑',lh:[1,1,1,1],rh:[0,0,0,0]}],'High':[{name:'G',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'A',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'B',lh:[1,1,0,0],rh:[0,0,0,0]},{name:'C',lh:[1,0,1,0],rh:[0,0,0,0]},{name:'D',lh:[1,0,0,0],rh:[0,0,0,0]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[1,1,0,1],rh:[1,0,0,0]}]}},
+                        'Saxophone':{type:'woodwind',notes:{'Low':[{name:'Bb',lh:[0,1,1,1],rh:[1,1,1,1]},{name:'C',lh:[0,1,1,1],rh:[1,1,1,0]},{name:'D',lh:[0,1,1,1],rh:[1,1,1,0]},{name:'E',lh:[0,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[0,1,1,1],rh:[1,0,0,0]}],'Mid':[{name:'G',lh:[0,1,1,1],rh:[0,0,0,0]},{name:'Ab',lh:[0,1,1,1],rh:[0,0,0,0]},{name:'A',lh:[0,1,1,0],rh:[0,0,0,0]},{name:'Bb',lh:[0,1,1,0],rh:[1,0,0,0]},{name:'B',lh:[0,1,0,0],rh:[0,0,0,0]},{name:'C',lh:[0,0,1,0],rh:[0,0,0,0]},{name:'Db',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'D',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'Eb',lh:[1,1,1,1],rh:[1,1,1,1]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[1,1,1,1],rh:[1,0,0,0]},{name:'Gb',lh:[1,1,1,1],rh:[0,1,0,0]},{name:'G↑',lh:[1,1,1,1],rh:[0,0,0,0]}],'High':[{name:'G',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'A',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'B',lh:[1,1,0,0],rh:[0,0,0,0]},{name:'C',lh:[1,0,1,0],rh:[0,0,0,0]},{name:'D',lh:[1,0,0,0],rh:[0,0,0,0]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[1,1,0,1],rh:[1,0,0,0]}]}},
                         'Trumpet':{type:'valves',notes:{'Low':[{name:'F#',val:[1,1,1]},{name:'G',val:[1,0,1]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'C',val:[0,0,0]}],'Mid':[{name:'C',val:[0,0,0]},{name:'C#/Db',val:[1,1,1]},{name:'D',val:[1,0,1]},{name:'Eb',val:[0,1,1]},{name:'E',val:[1,1,0]},{name:'F',val:[1,0,0]},{name:'F#/Gb',val:[0,1,0]},{name:'G',val:[0,0,0]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}],'High':[{name:'C',val:[0,0,0]},{name:'D',val:[1,0,0]},{name:'E',val:[0,0,0]},{name:'F',val:[1,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[1,1,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}]}},
                         'French Horn':{type:'valves',notes:{'Low':[{name:'C',val:[0,0,0]},{name:'D',val:[1,0,1]},{name:'E',val:[0,1,0]},{name:'F',val:[0,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[1,1,0]},{name:'B',val:[0,1,0]}],'Mid':[{name:'C',val:[0,0,0]},{name:'Db',val:[1,1,0]},{name:'D',val:[1,0,0]},{name:'Eb',val:[0,1,0]},{name:'E',val:[0,0,0]},{name:'F',val:[1,0,0]},{name:'Gb',val:[0,1,0]},{name:'G',val:[0,0,0]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}],'High':[{name:'C',val:[0,0,0]},{name:'D',val:[1,0,0]},{name:'E',val:[0,0,0]},{name:'F',val:[1,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[1,1,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}]}},
                         'Tenor Horn':{type:'valves',notes:{'Low':[{name:'F#',val:[1,1,1]},{name:'G',val:[1,0,1]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'C',val:[0,0,0]}],'Mid':[{name:'C',val:[0,0,0]},{name:'C#/Db',val:[1,1,1]},{name:'D',val:[1,0,1]},{name:'Eb',val:[0,1,1]},{name:'E',val:[1,1,0]},{name:'F',val:[1,0,0]},{name:'F#/Gb',val:[0,1,0]},{name:'G',val:[0,0,0]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}],'High':[{name:'C',val:[0,0,0]},{name:'D',val:[1,0,0]},{name:'E',val:[0,0,0]},{name:'F',val:[1,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[1,1,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}]}},
@@ -1208,4 +1200,3 @@
     </script>
 </body>
 </html>
-
