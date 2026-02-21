@@ -822,16 +822,21 @@
         </div>
     </footer>
 
-    <script>
+<script>
         document.addEventListener('alpine:init', () => {
             
-            // 1. Safe Cache Loader
-            // This prevents Alpine from completely crashing if there is old/invalid data in localStorage
+            // 1. Safe Cache Loader (Prevents the blank screen crash)
             const validInstruments = ['Flute', 'Oboe', 'Clarinet', 'Alto Saxophone', 'Trumpet', 'French Horn', 'Tenor Horn', 'Baritone', 'Trombone', 'Tuba'];
             const getSavedInst = () => {
                 let saved = localStorage.getItem('fubc_school_instrument');
-                if (saved === 'Saxophone') saved = 'Alto Saxophone'; // Map your old variable cleanly
+                if (saved === 'Saxophone') saved = 'Alto Saxophone'; // Safely maps old cache
                 return validInstruments.includes(saved) ? saved : 'Trumpet';
+            };
+
+            // 2. Safe JSON parser for log to prevent cache corruption crashes
+            const getPracticedLog = () => {
+                try { return JSON.parse(localStorage.getItem('fubc_school_weekly_log')) || []; } 
+                catch(e) { return []; }
             };
 
             Alpine.data('schoolApp', () => ({
@@ -907,6 +912,7 @@
                 getRankName() { let hrs = (this.currentUser ? this.currentUser.total_minutes : this.totalMinutes) / 60; if(hrs < 1) return this.lang === 'en' ? 'Beginner' : 'Початківець'; if(hrs < 5) return this.lang === 'en' ? 'Apprentice' : 'Учень'; if(hrs < 20) return this.lang === 'en' ? 'Musician' : 'Музикант'; if(hrs < 50) return this.lang === 'en' ? 'Section Leader' : 'Лідер групи'; return this.lang === 'en' ? 'Maestro' : 'Маестро'; },
                 getRankColor() { let hrs = (this.currentUser ? this.currentUser.total_minutes : this.totalMinutes) / 60; if(hrs < 5) return 'text-slate-500'; if(hrs < 20) return 'text-emerald-500'; if(hrs < 50) return 'text-blue-500'; return 'text-brass'; },
 
+                // CRITICAL FIX: Ensure validInstruments is mapped
                 availableInstruments: validInstruments,
                 globalInstrument: getSavedInst(),
                 selectedGroup: 0,
@@ -915,7 +921,7 @@
                 streak: parseInt(localStorage.getItem('fubc_school_streak')) || 0,
                 lastPractice: localStorage.getItem('fubc_school_last_date') || '',
                 practicedToday: false,
-                practicedLog: JSON.parse(localStorage.getItem('fubc_school_weekly_log')) || [],
+                practicedLog: getPracticedLog(),
                 weekDays: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
                 get currentDayOfWeek() { return new Date().getDay(); },
                 hasPracticedOnDay(dayIndex) { const logToCheck = this.currentUser ? this.currentUser.log : this.practicedLog; if (!logToCheck) return false; const today = new Date(); const dayDiff = today.getDay() - dayIndex; const targetDate = new Date(today); targetDate.setDate(today.getDate() - dayDiff); return logToCheck.includes(targetDate.toDateString()); },
@@ -924,7 +930,6 @@
                 sessionPhases: [ { name_en: 'Warm-Ups', name_ua: 'Розминка', duration: 300 }, { name_en: 'Repertoire', name_ua: 'Репертуар', duration: 900 }, { name_en: 'Review', name_ua: 'Повторення', duration: 300 } ],
                 submitStatus: 'idle', synthControl: null, schoolSongs: [],
 
-                // Corrected Octaves for instruments
                 exercises: [
                     { title_en: '1. Long Tones', title_ua: '1. Довгі Ноти', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/4\nb\' a\' g\' f\'|e\' d\' c\' b|b4 z4|]','L:1/4\nc\' b a g|f e d c|c4 z4|]','L:1/4\ng\' f\' e\' d\'|c\' b a g|g4 z4|]','L:1/4\nf e d c|B A G F|F4 z4|]','L:1/4\nB A G F|E D C B,|B,4 z4|]','L:1/4\nB, A, G, F,|E, D, C, B,,|B,,4 z4|]'] },
                     { title_en: '2. Flexibility', title_ua: '2. Гнучкість', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\n(b f\' b f\' b2) z2|(c\' g\' c\' g\' c\'2) z2|(d\' a\' d\' a\' d\'2) z2|(e\' b\' e\' b\' e\'2) z2|]','L:1/8\n(c g c g c2) z2|(d a d a d2) z2|(e b e b e2) z2|(f c\' f c\' f2) z2|]','L:1/8\n(g d\' g d\' g2) z2|(a e\' a e\' a2) z2|(b f\' b f\' b2) z2|(c\' g\' c\' g\' c\'2) z2|]','L:1/8\n(F c F c F2) z2|(G d G d G2) z2|(A e A e A2) z2|(B f B f B2) z2|]','L:1/8\n(B, F B, F B,2) z2|(C G C G C2) z2|(D A D A D2) z2|(E B E B E2) z2|]','L:1/8\n(B,, F, B,, F, B,,2) z2|(C, G, C, G, C,2) z2|(D, A, D, A, D,2) z2|(E, B, E, B, E,2) z2|]'] },
@@ -945,7 +950,7 @@
                 ],
 
                 async init() {
-                    // Update instrument first!
+                    // Start initialization smoothly
                     this.updateGlobalInstrument(this.globalInstrument, true);
                     
                     const supabaseUrl = 'https://levtwocaqocalknouepf.supabase.co';
@@ -1029,7 +1034,13 @@
                     
                     this.stopFingeringAudio();
                     let groupIdx = 0;
-                    if (['Flute', 'Oboe'].includes(inst)) groupIdx = 0; else if (['Clarinet', 'Trumpet'].includes(inst)) groupIdx = 1; else if (['Alto Saxophone', 'Tenor Horn'].includes(inst)) groupIdx = 2; else if (['French Horn'].includes(inst)) groupIdx = 3; else if (['Trombone', 'Baritone'].includes(inst)) groupIdx = 4; else if (['Tuba'].includes(inst)) groupIdx = 5;
+                    // CRITICAL FIX: Ensure 'Alto Saxophone' matches properly for sheet music selection
+                    if (['Flute', 'Oboe'].includes(inst)) groupIdx = 0; 
+                    else if (['Clarinet', 'Trumpet'].includes(inst)) groupIdx = 1; 
+                    else if (['Alto Saxophone', 'Tenor Horn'].includes(inst)) groupIdx = 2; 
+                    else if (['French Horn'].includes(inst)) groupIdx = 3; 
+                    else if (['Trombone', 'Baritone'].includes(inst)) groupIdx = 4; 
+                    else if (['Tuba'].includes(inst)) groupIdx = 5;
                     this.selectedGroup = groupIdx;
                     this.$nextTick(() => { this.renderWarmups(); this.renderScales(); });
                     if(!silent) this.triggerToast(this.lang === 'en' ? `Instrument set to ${inst}` : `Інструмент: ${inst}`);
@@ -1175,6 +1186,7 @@
 
                 printStaves(count) { const container = document.getElementById('print-staves'); container.innerHTML = ''; for(let i=0; i<count; i++) { container.innerHTML += `<div class='stave-group'><div class='stave'></div><div class='stave'></div><div class='stave'></div><div class='stave'></div><div class='stave'></div></div>`; } window.print(); },
 
+                // CRITICAL FIX: Ensure 'instrument' invokes getSavedInst() so it matches the data library safely
                 interactiveChart: {
                     instrument: getSavedInst(), 
                     selectedRange: 'Mid', selectedNote: 0, ranges: ['Low', 'Mid', 'High'],
@@ -1196,3 +1208,4 @@
     </script>
 </body>
 </html>
+
