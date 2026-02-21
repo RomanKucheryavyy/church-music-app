@@ -638,7 +638,7 @@
                             </button>
                             <button @click="printStaves(12)" class="w-full flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200 hover:border-brass hover:bg-brass/5 transition-all duration-200 group">
                                 <span class="font-bold text-[10px] sm:text-xs text-slate-700 group-hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Print 12 Staves</span><span x-show="lang === 'ua'" x-cloak>Друк 12 рядків</span></span>
-                                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 group-hover:text-brass transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 group-hover:text-brass transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
                             </button>
                         </div>
                     </div>
@@ -673,7 +673,7 @@
                         </div>
                         
                         <div class="flex flex-wrap gap-1.5 sm:gap-3 justify-center mb-6 sm:mb-8 w-full max-w-2xl min-h-[40px]">
-                            <template x-for="(note, index) in interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange]">
+                            <template x-for="(note, index) in interactiveChart.data[interactiveChart.instrument]?.notes[interactiveChart.selectedRange] || []">
                                 <button @click="interactiveChart.selectedNote = index; stopFingeringAudio();"
                                     :class="interactiveChart.selectedNote === index ? 'bg-gradient-to-b from-brass to-brassLight text-white shadow-[0_4px_10px_rgba(180,83,9,0.4)] scale-110 border-transparent z-10' : 'bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-900 border-slate-200 hover:border-slate-300 shadow-sm'"
                                     class="px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl font-bold text-[11px] sm:text-sm transition-all duration-300 border relative"
@@ -689,7 +689,7 @@
                                 <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest hidden sm:block"><span x-show="lang === 'en'">Play Pitch</span><span x-show="lang === 'ua'" x-cloak>Звук</span></span>
                             </button>
 
-                            <template x-if="interactiveChart.data[interactiveChart.instrument].type === 'valves'">
+                            <template x-if="interactiveChart.data[interactiveChart.instrument]?.type === 'valves'">
                                 <div class="flex gap-4 sm:gap-10 mt-4 sm:mt-0">
                                     <template x-for="(v, i) in interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].val">
                                         <div class="flex flex-col items-center gap-3 sm:gap-5">
@@ -701,7 +701,7 @@
                                 </div>
                             </template>
                             
-                            <template x-if="interactiveChart.data[interactiveChart.instrument].type === 'slide'">
+                            <template x-if="interactiveChart.data[interactiveChart.instrument]?.type === 'slide'">
                                 <div class="flex flex-col items-center w-full max-w-lg mt-4 sm:mt-0">
                                     <span class="text-4xl sm:text-8xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-brass to-yellow-500 mb-1 sm:mb-2 transition-all duration-300 drop-shadow-md" x-text="interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].pos"></span>
                                     <span class="text-[9px] sm:text-xs font-bold text-slate-300 uppercase tracking-[0.3em] mb-6 sm:mb-10">
@@ -719,7 +719,7 @@
                                 </div>
                             </template>
                             
-                            <template x-if="interactiveChart.data[interactiveChart.instrument].type === 'woodwind'">
+                            <template x-if="interactiveChart.data[interactiveChart.instrument]?.type === 'woodwind'">
                                 <div class="flex flex-col items-center w-full justify-center relative">
                                     <div class="bg-slate-50 p-4 sm:p-6 rounded-[2rem] border border-slate-200 shadow-inner flex flex-col gap-4 sm:gap-6 relative w-full sm:w-auto">
                                         
@@ -829,7 +829,11 @@
             const validInstruments = ['Flute', 'Oboe', 'Clarinet', 'Saxophone', 'Trumpet', 'French Horn', 'Tenor Horn', 'Baritone', 'Trombone', 'Tuba'];
             let initInstrument = localStorage.getItem('fubc_school_instrument');
             if (!validInstruments.includes(initInstrument)) {
-                initInstrument = 'Trumpet'; // Default safe instrument
+                if (initInstrument === 'Alto Saxophone') { 
+                    initInstrument = 'Saxophone'; // Auto-heals the broken cache from my previous code 
+                } else {
+                    initInstrument = 'Trumpet'; // Default safe instrument
+                }
             }
 
             // Safe parsing for logs to prevent any other cache crashes
@@ -913,14 +917,14 @@
                 getRankColor() { let hrs = (this.currentUser ? this.currentUser.total_minutes : this.totalMinutes) / 60; if(hrs < 5) return 'text-slate-500'; if(hrs < 20) return 'text-emerald-500'; if(hrs < 50) return 'text-blue-500'; return 'text-brass'; },
 
                 availableInstruments: validInstruments,
-                globalInstrument: initInstrument, // Fixed
+                globalInstrument: initInstrument, // Applied FIX 1
                 selectedGroup: 0,
                 instrumentGroups: [ { clef: 'treble' }, { clef: 'treble' }, { clef: 'treble' }, { clef: 'treble' }, { clef: 'bass' }, { clef: 'bass' } ],
 
                 streak: parseInt(localStorage.getItem('fubc_school_streak')) || 0,
                 lastPractice: localStorage.getItem('fubc_school_last_date') || '',
                 practicedToday: false,
-                practicedLog: initialLog, // Fixed
+                practicedLog: initialLog, // Applied safe JSON check
                 weekDays: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
                 get currentDayOfWeek() { return new Date().getDay(); },
                 hasPracticedOnDay(dayIndex) { const logToCheck = this.currentUser ? this.currentUser.log : this.practicedLog; if (!logToCheck) return false; const today = new Date(); const dayDiff = today.getDay() - dayIndex; const targetDate = new Date(today); targetDate.setDate(today.getDate() - dayDiff); return logToCheck.includes(targetDate.toDateString()); },
@@ -931,22 +935,22 @@
 
                 // FIX 3: Transposed down 1 octave for Trombone (Grp 4) and 2 octaves for Tuba (Grp 5)
                 exercises: [
-                    { title_en: '1. Long Tones', title_ua: '1. Довгі Ноти', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/4\nb a g f|e d c B|B4 z4|]','L:1/4\nc\' b a g|f e d c|c4 z4|]','L:1/4\ng f e d|c B A G|G4 z4|]','L:1/4\nf e d c|B A G F|F4 z4|]','L:1/4\nB A G F|E D C B,|B,4 z4|]','L:1/4\nB, A, G, F,|E, D, C, B,,|B,,4 z4|]'] },
-                    { title_en: '2. Flexibility', title_ua: '2. Гнучкість', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\n(B f B f B2) z2|(c g c g c2) z2|(d a d a d2) z2|(e b e b e2) z2|]','L:1/8\n(c g c g c2) z2|(d a d a d2) z2|(e b e b e2) z2|(f c\' f c\' f2) z2|]','L:1/8\n(G d G d G2) z2|(A e A e A2) z2|(B f B f B2) z2|(c g c g c2) z2|]','L:1/8\n(F c F c F2) z2|(G d G d G2) z2|(A e A e A2) z2|(B f B f B2) z2|]','L:1/8\n(B, F B, F B,2) z2|(C G C G C2) z2|(D A D A D2) z2|(E B E B E2) z2|]','L:1/8\n(B,, F, B,, F, B,,2) z2|(C, G, C, G, C,2) z2|(D, A, D, A, D,2) z2|(E, B, E, B, E,2) z2|]'] },
-                    { title_en: '3. Articulation', title_ua: '3. Артикуляція', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\n.B.B .B.B .B.B .B.B|B2 z2 B2 z2|.f.f .f.f .f.f .f.f|f2 z2 f2 z2|]','L:1/8\n.c.c .c.c .c.c .c.c|c2 z2 c2 z2|.g.g .g.g .g.g .g.g|g2 z2 g2 z2|]','L:1/8\n.G.G .G.G .G.G .G.G|G2 z2 G2 z2|.d.d .d.d .d.d .d.d|d2 z2 d2 z2|]','L:1/8\n.F.F .F.F .F.F .F.F|F2 z2 F2 z2|.c.c .c.c .c.c .c.c|c2 z2 c2 z2|]','L:1/8\n.B,.B, .B,.B, .B,.B, .B,.B,|B,2 z2 B,2 z2|.F.F .F.F .F.F .F.F|F2 z2 F2 z2|]','L:1/8\n.B,,.B,, .B,,.B,, .B,,.B,, .B,,.B,,|B,,2 z2 B,,2 z2|.F,.F, .F,.F, .F,.F, .F,.F,|F,2 z2 F,2 z2|]'] },
-                    { title_en: '4. Arpeggios', title_ua: '4. Арпеджіо', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\nB d f b b f d B|B8|c e g c\' c\' g e c|c8|]','L:1/8\nc e g c\' c\' g e c|c8|d f a d\' d\' a f d|d8|]','L:1/8\nG B d g g d B G|G8|A c e a a e c A|A8|]','L:1/8\nF A c f f c A F|F8|G B d g g d B G|G8|]','L:1/8\nB, D F B B F D B,|B,8|C E G c c G E C|C8|]','L:1/8\nB,, D, F, B, B, F, D, B,,|B,,8|C, E, G, C C G, E, C,|C,8|]'] }
+                    { title_en: '1. Long Tones', title_ua: '1. Довгі Ноти', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/4\nb a g f|e d c B|B4 z4|]','L:1/4\nc\' b a g|f e d c|c4 z4|]','L:1/4\ng f e d|c B A G|G4 z4|]','L:1/4\nf e d c|B A G F|F4 z4|]','L:1/4\nB, A, G, F,|E, D, C, B,,|B,,4 z4|]','L:1/4\nB,, A,, G,, F,,|E,, D,, C,, B,,,|B,,,4 z4|]'] },
+                    { title_en: '2. Flexibility', title_ua: '2. Гнучкість', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\n(B f B f B2) z2|(c g c g c2) z2|(d a d a d2) z2|(e b e b e2) z2|]','L:1/8\n(c g c g c2) z2|(d a d a d2) z2|(e b e b e2) z2|(f c\' f c\' f2) z2|]','L:1/8\n(G d G d G2) z2|(A e A e A2) z2|(B f B f B2) z2|(c g c g c2) z2|]','L:1/8\n(F c F c F2) z2|(G d G d G2) z2|(A e A e A2) z2|(B f B f B2) z2|]','L:1/8\n(B,, F, B,, F, B,,2) z2|(C, G, C, G, C,2) z2|(D, A, D, A, D,2) z2|(E, B, E, B, E,2) z2|]','L:1/8\n(B,,, F,, B,,, F,, B,,,2) z2|(C,, G,, C,, G,, C,,2) z2|(D,, A,, D,, A,, D,,2) z2|(E,, B,, E,, B,, E,,2) z2|]'] },
+                    { title_en: '3. Articulation', title_ua: '3. Артикуляція', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\n.B.B .B.B .B.B .B.B|B2 z2 B2 z2|.f.f .f.f .f.f .f.f|f2 z2 f2 z2|]','L:1/8\n.c.c .c.c .c.c .c.c|c2 z2 c2 z2|.g.g .g.g .g.g .g.g|g2 z2 g2 z2|]','L:1/8\n.G.G .G.G .G.G .G.G|G2 z2 G2 z2|.d.d .d.d .d.d .d.d|d2 z2 d2 z2|]','L:1/8\n.F.F .F.F .F.F .F.F|F2 z2 F2 z2|.c.c .c.c .c.c .c.c|c2 z2 c2 z2|]','L:1/8\n.B,,.B,, .B,,.B,, .B,,.B,, .B,,.B,,|B,,2 z2 B,,2 z2|.F,.F, .F,.F, .F,.F, .F,.F,|F,2 z2 F,2 z2|]','L:1/8\n.B,,,.B,,, .B,,,.B,,, .B,,,.B,,, .B,,,.B,,,|B,,,2 z2 B,,,2 z2|.F,,.F,, .F,,.F,, .F,,.F,, .F,,.F,,|F,,2 z2 F,,2 z2|]'] },
+                    { title_en: '4. Arpeggios', title_ua: '4. Арпеджіо', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\nB d f b b f d B|B8|c e g c\' c\' g e c|c8|]','L:1/8\nc e g c\' c\' g e c|c8|d f a d\' d\' a f d|d8|]','L:1/8\nG B d g g d B G|G8|A c e a a e c A|A8|]','L:1/8\nF A c f f c A F|F8|G B d g g d B G|G8|]','L:1/8\nB,, D, F, B, B, F, D, B,,|B,,8|C, E, G, C C G, E, C,|C,8|]','L:1/8\nB,,, D,, F,, B,, B,, F,, D,, B,,,|B,,,8|C,, E,, G,, C, C, G,, E,, C,,|C,,8|]'] }
                 ],
                 scales: [
-                    { title_en: 'Concert C Major', title_ua: 'До мажор (C)', keys: ['C','D','A','G','C','C'], abc: [`L:1/8\nc d e f g a b c'|c' b a g f e d c|c8|]`,`L:1/8\nd e f g a b c' d'|d' c' b a g f e d|d8|]`,`L:1/8\nA B c d e f g a|a g f e d c B A|A8|]`,`L:1/8\nG A B c d e f g|g f e d c B A G|G8|]`,`L:1/8\nC D E F G A B c|c B A G F E D C|C8|]`,`L:1/8\nC, D, E, F, G, A, B, C|C B, A, G, F, E, D, C,|C,8|]`]},
-                    { title_en: 'Concert F Major', title_ua: 'Фа мажор (F)', keys: ['F','G','D','C','F','F'], abc: [`L:1/8\nf g a b c' d' e' f'|f' e' d' c' b a g f|f8|]`,`L:1/8\ng a b c' d' e' f' g'|g' f' e' d' c' b a g|g8|]`,`L:1/8\nd e f g a b c' d'|d' c' b a g f e d|d8|]`,`L:1/8\nc d e f g a b c'|c' b a g f e d c|c8|]`,`L:1/8\nF, G, A, B, C D E F|F E D C B, A, G, F,|F,8|]`,`L:1/8\nF,, G,, A,, B,, C, D, E, F,|F, E, D, C, B,, A,, G,, F,,|F,,8|]`]},
-                    { title_en: 'Concert Bb Major', title_ua: 'Сі-бемоль мажор (Bb)', keys: ['Bb','C','G','F','Bb','Bb'], abc: [`L:1/8\nb c' d' e' f' g' a' b'|b' a' g' f' e' d' c' b|b8|]`,`L:1/8\nc d e f g a b c'|c' b a g f e d c|c8|]`,`L:1/8\nG A B c d e f g|g f e d c B A G|G8|]`,`L:1/8\nF G A B c d e f|f e d c B A G F|F8|]`,`L:1/8\nB, C D E F G A B|B A G F E D C B,|B,8|]`,`L:1/8\nB,, C, D, E, F, G, A, B,|B, A, G, F, E, D, C, B,,|B,,8|]`]},
-                    { title_en: 'Concert Eb Major', title_ua: 'Мі-бемоль мажор (Eb)', keys: ['Eb','F','C','Bb','Eb','Eb'], abc: [`L:1/8\ne f g a b c' d' e'|e' d' c' b a g f e|e8|]`,`L:1/8\nf g a b c' d' e' f'|f' e' d' c' b a g f|f8|]`,`L:1/8\nc d e f g a b c'|c' b a g f e d c|c8|]`,`L:1/8\nB c d e f g a b|b a g f e d c B|B8|]`,`L:1/8\nE, F, G, A, B, C D E|E D C B, A, G, F, E,|E,8|]`,`L:1/8\nE,, F,, G,, A,, B,, C, D, E,|E, D, C, B,, A,, G,, F,, E,,|E,,8|]`]},
-                    { title_en: 'Concert Ab Major', title_ua: 'Ля-бемоль мажор (Ab)', keys: ['Ab','Bb','F','Eb','Ab','Ab'], abc: [`L:1/8\na b c' d' e' f' g' a'|a' g' f' e' d' c' b a|a8|]`,`L:1/8\nb c' d' e' f' g' a' b'|b' a' g' f' e' d' c' b|b8|]`,`L:1/8\nf g a b c' d' e' f'|f' e' d' c' b a g f|f8|]`,`L:1/8\ne f g a b c' d' e'|e' d' c' b a g f e|e8|]`,`L:1/8\nA, B, C D E F G A|A G F E D C B, A,|A,8|]`,`L:1/8\nA,, B,, C, D, E, F, G, A,|A, G, F, E, D, C, B,, A,,|A,,8|]`]},
-                    { title_en: 'Concert Db Major', title_ua: 'Ре-бемоль мажор (Db)', keys: ['Db','Eb','Bb','Ab','Db','Db'], abc: [`L:1/8\nd e f g a b c' d'|d' c' b a g f e d|d8|]`,`L:1/8\ne f g a b c' d' e'|e' d' c' b a g f e|e8|]`,`L:1/8\nB c d e f g a b|b a g f e d c B|B8|]`,`L:1/8\nA B c d e f g a|a g f e d c B A|A8|]`,`L:1/8\nD, E, F, G, A, B, C D|D C B, A, G, F, E, D,|D,8|]`,`L:1/8\nD,, E,, F,, G,, A,, B,, C, D,|D, C, B,, A,, G,, F,, E,, D,,|D,,8|]`]},
-                    { title_en: 'Concert Gb Major', title_ua: 'Соль-бемоль мажор (Gb)', keys: ['Gb','Ab','Eb','Db','Gb','Gb'], abc: [`L:1/8\ng a b c' d' e' f' g'|g' f' e' d' c' b a g|g8|]`,`L:1/8\na b c' d' e' f' g' a'|a' g' f' e' d' c' b a|a8|]`,`L:1/8\ne f g a b c' d' e'|e' d' c' b a g f e|e8|]`,`L:1/8\nd e f g a b c' d'|d' c' b a g f e d|d8|]`,`L:1/8\nG, A, B, C D E F G|G F E D C B, A, G,|G,8|]`,`L:1/8\nG,, A,, B,, C, D, E, F, G,|G, F, E, D, C, B,, A,, G,,|G,,8|]`]},
-                    { title_en: 'Concert B Major', title_ua: 'Сі мажор (B)', keys: ['B','Db','Ab','Gb','B','B'], abc: [`L:1/8\nb c' d' e' f' g' a' b'|b' a' g' f' e' d' c' b|b8|]`,`L:1/8\nd e f g a b c' d'|d' c' b a g f e d|d8|]`,`L:1/8\na b c' d' e' f' g' a'|a' g' f' e' d' c' b a|a8|]`,`L:1/8\ng a b c' d' e' f' g'|g' f' e' d' c' b a g|g8|]`,`L:1/8\nB, C D E F G A B|B A G F E D C B,|B,8|]`,`L:1/8\nB,, C, D, E, F, G, A, B,|B, A, G, F, E, D, C, B,,|B,,8|]`]},
-                    { title_en: 'Concert E Major', title_ua: 'Мі мажор (E)', keys: ['E','Gb','Db','B','E','E'], abc: [`L:1/8\ne f g a b c' d' e'|e' d' c' b a g f e|e8|]`,`L:1/8\ng a b c' d' e' f' g'|g' f' e' d' c' b a g|g8|]`,`L:1/8\nd e f g a b c' d'|d' c' b a g f e d|d8|]`,`L:1/8\nB c d e f g a b|b a g f e d c B|B8|]`,`L:1/8\nE, F, G, A, B, C D E|E D C B, A, G, F, E,|E,8|]`,`L:1/8\nE,, F,, G,, A,, B,, C, D, E,|E, D, C, B,, A,, G,, F,, E,,|E,,8|]`]},
-                    { title_en: 'Concert A Major', title_ua: 'Ля мажор (A)', keys: ['A','B','Gb','E','A','A'], abc: [`L:1/8\na b c' d' e' f' g' a'|a' g' f' e' d' c' b a|a8|]`,`L:1/8\nb c' d' e' f' g' a' b'|b' a' g' f' e' d' c' b|b8|]`,`L:1/8\ng a b c' d' e' f' g'|g' f' e' d' c' b a g|g8|]`,`L:1/8\ne f g a b c' d' e'|e' d' c' b a g f e|e8|]`,`L:1/8\nA, B, C D E F G A|A G F E D C B, A,|A,8|]`,`L:1/8\nA,, B,, C, D, E, F, G, A,|A, G, F, E, D, C, B,, A,,|A,,8|]`}
+                    { title_en: 'Concert C Major', title_ua: 'До мажор (C)', keys: ['C','D','A','G','C','C'], abc: ['L:1/8\nc d e f g a b c\'|c\' b a g f e d c|c8|]','L:1/8\nd e f g a b c\' d\'|d\' c\' b a g f e d|d8|]','L:1/8\nA B c d e f g a|a g f e d c B A|A8|]','L:1/8\nG A B c d e f g|g f e d c B A G|G8|]','L:1/8\nC, D, E, F, G, A, B, C|C B, A, G, F, E, D, C,|C,8|]','L:1/8\nC,, D,, E,, F,, G,, A,, B,, C,|C, B,, A,, G,, F,, E,, D,, C,,|C,,8|]']},
+                    { title_en: 'Concert F Major', title_ua: 'Фа мажор (F)', keys: ['F','G','D','C','F','F'], abc: ['L:1/8\nf g a b c\' d\' e\' f\'|f\' e\' d\' c\' b a g f|f8|]','L:1/8\ng a b c\' d\' e\' f\' g\'|g\' f\' e\' d\' c\' b a g|g8|]','L:1/8\nd e f g a b c\' d\'|d\' c\' b a g f e d|d8|]','L:1/8\nc d e f g a b c\'|c\' b a g f e d c|c8|]','L:1/8\nF,, G,, A,, B,, C, D, E, F,|F, E, D, C, B,, A,, G,, F,,|F,,8|]','L:1/8\nF,,, G,,, A,,, B,,, C,, D,, E,, F,,|F,, E,, D,, C,, B,,, A,,, G,,, F,,,|F,,,8|]']},
+                    { title_en: 'Concert Bb Major', title_ua: 'Сі-бемоль мажор (Bb)', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\nb c\' d\' e\' f\' g\' a\' b\'|b\' a\' g\' f\' e\' d\' c\' b|b8|]','L:1/8\nc d e f g a b c\'|c\' b a g f e d c|c8|]','L:1/8\nG A B c d e f g|g f e d c B A G|G8|]','L:1/8\nF G A B c d e f|f e d c B A G F|F8|]','L:1/8\nB,, C, D, E, F, G, A, B,|B, A, G, F, E, D, C, B,,|B,,8|]','L:1/8\nB,,, C,, D,, E,, F,, G,, A,, B,,|B,, A,, G,, F,, E,, D,, C,, B,,,|B,,,8|]']},
+                    { title_en: 'Concert Eb Major', title_ua: 'Мі-бемоль мажор (Eb)', keys: ['Eb','F','C','Bb','Eb','Eb'], abc: ['L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\nf g a b c\' d\' e\' f\'|f\' e\' d\' c\' b a g f|f8|]','L:1/8\nc d e f g a b c\'|c\' b a g f e d c|c8|]','L:1/8\nB c d e f g a b|b a g f e d c B|B8|]','L:1/8\nE,, F,, G,, A,, B,, C, D, E,|E, D, C, B,, A,, G,, F,, E,,|E,,8|]','L:1/8\nE,,, F,,, G,,, A,,, B,,, C,, D,, E,,|E,, D,, C,, B,,, A,,, G,,, F,,, E,,,|E,,,8|]']},
+                    { title_en: 'Concert Ab Major', title_ua: 'Ля-бемоль мажор (Ab)', keys: ['Ab','Bb','F','Eb','Ab','Ab'], abc: ['L:1/8\na b c\' d\' e\' f\' g\' a\'|a\' g\' f\' e\' d\' c\' b a|a8|]','L:1/8\nb c\' d\' e\' f\' g\' a\' b\'|b\' a\' g\' f\' e\' d\' c\' b|b8|]','L:1/8\nf g a b c\' d\' e\' f\'|f\' e\' d\' c\' b a g f|f8|]','L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\nA,, B,, C, D, E, F, G, A,|A, G, F, E, D, C, B,, A,,|A,,8|]','L:1/8\nA,,, B,,, C,, D,, E,, F,, G,, A,,|A,, G,, F,, E,, D,, C,, B,,, A,,,|A,,,8|]']},
+                    { title_en: 'Concert Db Major', title_ua: 'Ре-бемоль мажор (Db)', keys: ['Db','Eb','Bb','Ab','Db','Db'], abc: ['L:1/8\nd e f g a b c\' d\'|d\' c\' b a g f e d|d8|]','L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\nB c d e f g a b|b a g f e d c B|B8|]','L:1/8\nA B c d e f g a|a g f e d c B A|A8|]','L:1/8\nD,, E,, F,, G,, A,, B,, C, D,|D, C, B,, A,, G,, F,, E,, D,,|D,,8|]','L:1/8\nD,,, E,,, F,,, G,,, A,,, B,,, C,, D,,|D,, C,, B,,, A,,, G,,, F,,, E,,, D,,,|D,,,8|]']},
+                    { title_en: 'Concert Gb Major', title_ua: 'Соль-бемоль мажор (Gb)', keys: ['Gb','Ab','Eb','Db','Gb','Gb'], abc: ['L:1/8\ng a b c\' d\' e\' f\' g\'|g\' f\' e\' d\' c\' b a g|g8|]','L:1/8\na b c\' d\' e\' f\' g\' a\'|a\' g\' f\' e\' d\' c\' b a|a8|]','L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\nd e f g a b c\' d\'|d\' c\' b a g f e d|d8|]','L:1/8\nG,, A,, B,, C, D, E, F, G,|G, F, E, D, C, B,, A,, G,,|G,,8|]','L:1/8\nG,,, A,,, B,,, C,, D,, E,, F,, G,,|G,, F,, E,, D,, C,, B,,, A,,, G,,,|G,,,8|]']},
+                    { title_en: 'Concert B Major', title_ua: 'Сі мажор (B)', keys: ['B','Db','Ab','Gb','B','B'], abc: ['L:1/8\nb c\' d\' e\' f\' g\' a\' b\'|b\' a\' g\' f\' e\' d\' c\' b|b8|]','L:1/8\nd e f g a b c\' d\'|d\' c\' b a g f e d|d8|]','L:1/8\na b c\' d\' e\' f\' g\' a\'|a\' g\' f\' e\' d\' c\' b a|a8|]','L:1/8\ng a b c\' d\' e\' f\' g\'|g\' f\' e\' d\' c\' b a g|g8|]','L:1/8\nB,, C, D, E, F, G, A, B,|B, A, G, F, E, D, C, B,,|B,,8|]','L:1/8\nB,,, C,, D,, E,, F,, G,, A,, B,,|B,, A,, G,, F,, E,, D,, C,, B,,,|B,,,8|]']},
+                    { title_en: 'Concert E Major', title_ua: 'Мі мажор (E)', keys: ['E','Gb','Db','B','E','E'], abc: ['L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\ng a b c\' d\' e\' f\' g\'|g\' f\' e\' d\' c\' b a g|g8|]','L:1/8\nd e f g a b c\' d\'|d\' c\' b a g f e d|d8|]','L:1/8\nB c d e f g a b|b a g f e d c B|B8|]','L:1/8\nE,, F,, G,, A,, B,, C, D, E,|E, D, C, B,, A,, G,, F,, E,,|E,,8|]','L:1/8\nE,,, F,,, G,,, A,,, B,,, C,, D,, E,,|E,, D,, C,, B,,, A,,, G,,, F,,, E,,,|E,,,8|]']},
+                    { title_en: 'Concert A Major', title_ua: 'Ля мажор (A)', keys: ['A','B','Gb','E','A','A'], abc: ['L:1/8\na b c\' d\' e\' f\' g\' a\'|a\' g\' f\' e\' d\' c\' b a|a8|]','L:1/8\nb c\' d\' e\' f\' g\' a\' b\'|b\' a\' g\' f\' e\' d\' c\' b|b8|]','L:1/8\ng a b c\' d\' e\' f\' g\'|g\' f\' e\' d\' c\' b a g|g8|]','L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\nA,, B,, C, D, E, F, G, A,|A, G, F, E, D, C, B,, A,,|A,,8|]','L:1/8\nA,,, B,,, C,, D,, E,, F,, G,, A,,|A,, G,, F,, E,, D,, C,, B,,, A,,,|A,,,8|]']}
                 ],
 
                 async init() {
@@ -1028,7 +1032,7 @@
                 updateGlobalInstrument(inst, silent=false) {
                     this.globalInstrument = inst; localStorage.setItem('fubc_school_instrument', inst);
                     this.interactiveChart.instrument = inst; 
-                    this.interactiveChart.selectedRange = 'Mid'; // Added to prevent bounds crash
+                    this.interactiveChart.selectedRange = 'Mid'; // Added to prevent out-of-bounds crash
                     this.interactiveChart.selectedNote = 0; 
                     this.stopFingeringAudio();
                     let groupIdx = 0;
@@ -1086,7 +1090,7 @@
                 updatePitch() { if (!this.tunerActive) return; const buffer = new Float32Array(this.analyser.fftSize); this.analyser.getFloatTimeDomainData(buffer); const acFreq = this.autoCorrelate(buffer, this.audioContext.sampleRate); if (acFreq !== -1) { const noteNum = 12 * (Math.log(acFreq / 440) / Math.log(2)); const noteIndex = Math.round(noteNum) + 69; const notes = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B']; this.tunerNote = notes[noteIndex % 12]; const expectedFreq = 440 * Math.pow(2, (noteIndex - 69) / 12); this.tunerCents = Math.floor(1200 * Math.log2(acFreq / expectedFreq)); } this.animationId = requestAnimationFrame(() => this.updatePitch()); },
                 autoCorrelate(buf, sampleRate) { let SIZE = buf.length; let rms = 0; for (let i=0;i<SIZE;i++) rms += buf[i]*buf[i]; rms = Math.sqrt(rms/SIZE); if (rms<0.01) return -1; let r1=0, r2=SIZE-1, thres=0.2; for(let i=0; i<SIZE/2; i++) if (Math.abs(buf[i])<thres) { r1=i; break; } for(let i=1; i<SIZE/2; i++) if (Math.abs(buf[SIZE-i])<thres) { r2=SIZE-i; break; } buf = buf.slice(r1,r2); SIZE = buf.length; let c = new Array(SIZE).fill(0); for (let i=0; i<SIZE; i++) { for (let j=0; j<SIZE-i; j++) { c[i] = c[i] + buf[j]*buf[j+i]; } } let d=0; while (c[d]>c[d+1]) d++; let maxval=-1, maxpos=-1; for (let i=d; i<SIZE; i++) { if (c[i] > maxval) { maxval = c[i]; maxpos = i; } } let T0 = maxpos; let x1=c[T0-1], x2=c[T0], x3=c[T0+1]; let a = (x1 + x3 - 2*x2)/2; let b = (x3 - x1)/2; if (a) T0 = T0 - b/(2*a); return sampleRate/T0; },
 
-                // FIX 4: The Metronome variables perfectly matching the HTML
+                // FIX 4: The Metronome variables perfectly matching the HTML elements
                 bpm: 100, isMetronomePlaying: false, timer: null, audioCtx: null, lastTap: 0,
                 playClick() { if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); const osc = this.audioCtx.createOscillator(); const gain = this.audioCtx.createGain(); osc.connect(gain); gain.connect(this.audioCtx.destination); osc.frequency.value = 1000; gain.gain.value = 1; osc.start(); gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.1); osc.stop(this.audioCtx.currentTime + 0.1); }, 
                 toggleMetronome() { if (this.isMetronomePlaying) { clearInterval(this.timer); this.isMetronomePlaying = false; } else { this.isMetronomePlaying = true; this.playClick(); this.timer = setInterval(() => this.playClick(), (60 / this.bpm) * 1000); } }, 
