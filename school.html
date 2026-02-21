@@ -16,6 +16,7 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/abcjs@6.2.2/abcjs-audio.min.css">
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <link rel="icon" type="image/png" href="/social-logo.png?v=2">
@@ -26,8 +27,12 @@
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'], heading: ['Montserrat', 'sans-serif'] },
                     colors: { pageBg: '#f8fafc', textMain: '#0f172a', textMuted: '#64748b', brass: '#b45309', brassLight: '#d97706', surface: '#ffffff' },
-                    animation: { 'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards' },
-                    keyframes: { fadeInUp: { '0%': { opacity: '0', transform: 'translateY(30px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } } }
+                    animation: { 
+                        'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                    },
+                    keyframes: {
+                        fadeInUp: { '0%': { opacity: '0', transform: 'translateY(30px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } }
+                    }
                 }
             }
         }
@@ -35,6 +40,7 @@
     <style>
         [x-cloak] { display: none !important; }
         
+        /* Premium Custom Range Slider */
         input[type=range] { -webkit-appearance: none; background: transparent; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 28px; width: 28px; border-radius: 50%; background: linear-gradient(135deg, #d97706 0%, #b45309 100%); margin-top: -12px; cursor: pointer; border: 3px solid white; box-shadow: 0 4px 10px rgba(180, 83, 9, 0.4); transition: transform 0.1s; }
         input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.1); }
@@ -45,6 +51,7 @@
         
         .abcjs-container svg { max-width: 100%; height: auto; border-radius: 0.5rem; }
         
+        /* Sleek Audio Player Customization */
         .abcjs-inline-audio { background: linear-gradient(145deg, #0f172a, #1e293b) !important; border-radius: 16px !important; padding: 12px 24px !important; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important; margin: 0 auto !important; max-width: 100%; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1) !important; }
         .abcjs-btn { color: white !important; fill: white !important; background-color: rgba(255,255,255,0.1) !important; border-radius: 50% !important; transition: all 0.2s ease !important; }
         .abcjs-btn:hover { background-color: #b45309 !important; transform: scale(1.1); box-shadow: 0 0 15px rgba(180, 83, 9, 0.6); }
@@ -56,7 +63,7 @@
 
 <body class="text-textMain antialiased bg-pageBg overflow-x-hidden" x-data="schoolApp" @scroll.window="scrollY = window.pageYOffset; scrollProgress = (window.pageYOffset / (document.documentElement.scrollHeight - window.innerHeight)) * 100">
 
-    <div class="fixed top-0 left-0 h-1.5 bg-gradient-to-r from-yellow-400 via-brassLight to-brass z-[100] shadow-[0_0_10px_rgba(180,83,9,0.5)] transition-all duration-150 ease-linear" :style="'width: ' + scrollProgress + '%'"></div>
+    <div class="fixed top-0 left-0 h-1.5 bg-gradient-to-r from-brass to-brassLight z-[100] shadow-[0_0_10px_rgba(180,83,9,0.5)] transition-all duration-150 ease-linear" :style="'width: ' + scrollProgress + '%'"></div>
     <div id="print-staves"></div>
 
     <div x-show="profileModalOpen" x-transition.opacity class="fixed inset-0 z-[120] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-4 w-full h-full" x-cloak>
@@ -154,23 +161,21 @@
                 <div id="audio-control" class="w-full"></div>
             </div>
 
-            <div class="p-4 sm:p-10 flex-grow overflow-auto bg-white flex flex-col items-center justify-start w-full">
+            <div class="p-4 sm:p-10 flex-grow overflow-auto bg-white flex flex-col items-center justify-start w-full custom-scrollbar">
                 <div id="abc-fullscreen" class="w-full max-w-5xl flex justify-center"></div>
             </div>
         </div>
     </div>
 
-    <nav class="sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-slate-200/80 shadow-sm transition-colors duration-300 w-full max-w-[100vw]" :class="mobileMenuOpen ? 'bg-white border-transparent' : ''">
+    <nav class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm transition-colors duration-300 w-full max-w-[100vw]" :class="mobileMenuOpen ? 'bg-white border-transparent' : ''">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative w-full">
             <div class="flex justify-between items-center h-16 w-full">
-                <a href="#" @click.prevent="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex items-center gap-2 hover:opacity-80 transition-opacity group z-50 relative shrink-0">
-                    <div class="font-heading font-black text-lg sm:text-2xl tracking-[0.1em] text-slate-900 leading-none">
-                        FUBC <span class="text-brass block text-[9px] sm:text-[11px] font-bold tracking-[0.3em] mt-0.5 uppercase group-hover:text-brassLight transition-colors">Music School</span>
-                    </div>
+                <a href="#" @click.prevent="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex items-center gap-3 hover:opacity-80 transition-opacity group z-50 relative shrink-0">
+                    <div class="font-heading font-bold text-xl sm:text-2xl tracking-[0.15em] text-slate-900 leading-none">FUBC <span class="text-brass block text-[10px] sm:text-xs font-semibold tracking-[0.35em] mt-0.5 uppercase group-hover:text-brassLight transition-colors">MUSIC SCHOOL</span></div>
                 </a>
                 
                 <div class="md:hidden flex items-center gap-2 sm:gap-4 relative z-50 shrink-0">
-                    <button @click="openProfile()" class="text-[10px] font-black text-slate-600 hover:text-slate-900 transition-colors uppercase tracking-widest border border-slate-200 px-3 py-1.5 rounded-full bg-slate-50 shadow-sm flex items-center gap-1.5">
+                    <button @click="openProfile()" class="text-[10px] font-bold text-slate-600 hover:text-slate-900 transition-colors uppercase tracking-widest border border-slate-200 px-3 py-1.5 rounded-full bg-slate-50 shadow-sm flex items-center gap-1.5">
                         <span class="w-2 h-2 rounded-full" :class="currentUser ? 'bg-emerald-500 shadow-[0_0_8px_rgba(52,211,153,0.8)]' : 'bg-rose-500'"></span>
                         <span x-text="currentUser ? 'Profile' : 'Login'"></span>
                     </button>
@@ -200,7 +205,7 @@
                         <span x-show="lang === 'en'">Main Band</span><span x-show="lang === 'ua'" x-cloak>Оркестр</span>
                         <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-full"></span>
                     </a>
-                    <button @click="openProfile()" class="text-[10px] font-black text-slate-600 bg-white border border-slate-200 px-3 py-2 rounded-full hover:bg-slate-50 hover:text-slate-900 transition-all shadow-sm uppercase tracking-widest flex items-center gap-1.5 transform hover:-translate-y-0.5">
+                    <button @click="openProfile()" class="text-[10px] font-bold text-slate-600 bg-white border border-slate-200 px-3 py-2 rounded-full hover:bg-slate-50 hover:text-slate-900 transition-all shadow-sm uppercase tracking-widest flex items-center gap-1.5 transform hover:-translate-y-0.5">
                         <span class="w-2 h-2 rounded-full" :class="currentUser ? 'bg-emerald-500 shadow-[0_0_8px_rgba(52,211,153,0.8)]' : 'bg-rose-500'"></span>
                         <span x-text="currentUser ? (lang==='en'?'Profile':'Профіль') : (lang==='en'?'Student Login':'Вхід для учнів')"></span>
                     </button>
@@ -209,9 +214,9 @@
             
             <div class="absolute top-full left-0 w-full h-auto bg-white border-b-4 border-brass shadow-2xl md:hidden flex flex-col px-6 pb-6 transition-all duration-300 origin-top z-30" x-show="mobileMenuOpen" x-transition:enter="opacity-0 scale-y-0" x-transition:enter-end="opacity-100 scale-y-100" x-transition:leave="opacity-100 scale-y-100" x-transition:leave-end="opacity-0 scale-y-0" x-cloak>
                 <div class="flex flex-col items-center justify-center space-y-6 mt-8">
-                    <a href="#warmups" @click="mobileMenuOpen = false" class="text-xl font-heading font-black text-slate-800 hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Warm-Ups</span><span x-show="lang === 'ua'" x-cloak>Розминка</span></a>
-                    <a href="#scales" @click="mobileMenuOpen = false" class="text-xl font-heading font-black text-slate-800 hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Scales</span><span x-show="lang === 'ua'" x-cloak>Гамми</span></a>
-                    <a href="#setlist" @click="mobileMenuOpen = false" class="text-xl font-heading font-black text-slate-800 hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Practice</span><span x-show="lang === 'ua'" x-cloak>Заняття</span></a>
+                    <a href="#warmups" @click="mobileMenuOpen = false" class="text-xl font-heading font-bold text-slate-800 hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Warm-Ups</span><span x-show="lang === 'ua'" x-cloak>Розминка</span></a>
+                    <a href="#scales" @click="mobileMenuOpen = false" class="text-xl font-heading font-bold text-slate-800 hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Scales</span><span x-show="lang === 'ua'" x-cloak>Гамми</span></a>
+                    <a href="#setlist" @click="mobileMenuOpen = false" class="text-xl font-heading font-bold text-slate-800 hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Practice</span><span x-show="lang === 'ua'" x-cloak>Заняття</span></a>
                     <div class="w-full h-px bg-slate-100 my-2"></div>
                     <a href="/" class="text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Return to Main Band</span><span x-show="lang === 'ua'" x-cloak>Головний сайт оркестру</span></a>
                 </div>
@@ -219,30 +224,30 @@
         </div>
     </nav>
 
-    <div class="relative w-full h-[320px] sm:h-[450px] overflow-hidden bg-slate-900">
-        <div class="absolute inset-0 opacity-40 mix-blend-overlay bg-[url('https://images.unsplash.com/photo-1573871669414-010dbf73ca84?q=80&w=2071&auto=format&fit=crop')] bg-cover bg-center will-change-transform" :style="'transform: translateY(' + (scrollY * 0.4) + 'px)'"></div>
-        <div class="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/60 to-pageBg"></div>
-        <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4 pt-4 sm:pt-10 z-10 animate-fade-in-up">
-            <span class="px-4 py-1.5 rounded-full border border-brass/30 bg-brass/10 text-brassLight text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] mb-4 sm:mb-6 backdrop-blur-sm shadow-lg">Instrumental Music School</span>
-            <h1 class="font-heading text-xl sm:text-4xl md:text-5xl font-black text-white tracking-tight mb-4 drop-shadow-2xl max-w-4xl mx-auto leading-snug px-2">
-                <span x-show="lang === 'en'">“Praise him with trumpet sound; <br>praise him with lute and harp!”<br><span class="text-sm sm:text-2xl font-bold mt-4 block text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-brass tracking-wider">– Psalm 150:3</span></span>
-                <span x-show="lang === 'ua'" x-cloak>“Хваліть Його звуком трубним, <br>хваліть Його на арфі та гуслах!”<br><span class="text-sm sm:text-2xl font-bold mt-4 block text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-brass tracking-wider">– Псалми 150:3</span></span>
+    <div class="relative w-full h-[450px] sm:h-[550px] overflow-hidden bg-slate-900">
+        <img src="https://images.unsplash.com/photo-1573871669414-010dbf73ca84?q=80&w=2071&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-40 will-change-transform" :style="'transform: translateY(' + (scrollY * 0.4) + 'px)'" alt="Brass Instruments">
+        <div class="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/40 to-pageBg"></div>
+        <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4 pt-10 z-10 animate-fade-in-up">
+            <h1 class="font-heading text-2xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight mb-6 drop-shadow-2xl max-w-4xl mx-auto leading-snug">
+                <span x-show="lang === 'en'">“Praise him with trumpet sound; praise him with lute and harp!”<br><span class="text-base sm:text-2xl font-medium mt-4 block text-brassLight tracking-wider">– Psalm 150:3</span></span>
+                <span x-show="lang === 'ua'" x-cloak>“Хваліть Його звуком трубним, хваліть Його на арфі та гуслах!”<br><span class="text-base sm:text-2xl font-medium mt-4 block text-brassLight tracking-wider">– Псалми 150:3</span></span>
             </h1>
+            <p class="text-slate-300 text-sm sm:text-lg max-w-2xl font-light tracking-wide uppercase"><span x-show="lang === 'en'">Instrumental Music School</span><span x-show="lang === 'ua'" x-cloak>Інструментальна Школа</span></p>
         </div>
         <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-[0] z-20 pointer-events-none">
-            <svg class="relative block w-full h-[30px] sm:h-[100px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M985.66,92.83C906.67,72,823.78,31,743.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z" class="fill-[#f8fafc]"></path></svg>
+            <svg class="relative block w-full h-[40px] sm:h-[100px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M985.66,92.83C906.67,72,823.78,31,743.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z" class="fill-[#f8fafc]"></path></svg>
         </div>
     </div>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12 space-y-8 sm:space-y-16 relative z-30 -mt-16 sm:-mt-32 pointer-events-auto w-full">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12 space-y-8 sm:space-y-16 relative z-30 -mt-16 sm:-mt-24 pointer-events-auto w-full">
 
-        <div class="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 p-5 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-5 sm:gap-8 relative z-20 animate-fade-in-up ring-1 ring-slate-900/5" style="animation-delay: 0.1s;">
+        <div class="bg-white/90 backdrop-blur-xl rounded-3xl shadow-xl border border-slate-200 p-5 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-5 sm:gap-8 relative z-20 animate-fade-in-up">
             <div class="flex items-center gap-4 sm:gap-5 text-center sm:text-left w-full sm:w-auto justify-center sm:justify-start">
-                <div class="p-3 sm:p-4 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl hidden md:flex shrink-0 shadow-inner border border-slate-200">
+                <div class="p-3 sm:p-4 bg-slate-50 rounded-2xl hidden md:flex shrink-0 shadow-inner border border-slate-200">
                     <svg class="w-8 h-8 sm:w-10 sm:h-10 text-brass" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
                 </div>
                 <div>
-                    <h2 class="text-slate-900 font-black text-lg sm:text-2xl font-heading tracking-tight">
+                    <h2 class="text-slate-900 font-bold text-lg sm:text-2xl font-heading tracking-tight">
                         <span x-show="lang === 'en'">What do you play?</span>
                         <span x-show="lang === 'ua'" x-cloak>На чому ви граєте?</span>
                     </h2>
@@ -253,25 +258,24 @@
                 </div>
             </div>
             <div class="relative w-full sm:w-80 shrink-0 group">
-                <div class="absolute -inset-1 bg-gradient-to-r from-brass to-yellow-400 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-500"></div>
                 <select x-model="globalInstrument" @change="updateGlobalInstrument($event.target.value)" class="relative w-full bg-slate-900 text-white border border-slate-700 rounded-xl px-4 sm:px-5 py-3.5 sm:py-4 text-sm sm:text-lg font-bold focus:outline-none focus:ring-2 focus:ring-brass transition-all cursor-pointer appearance-none shadow-xl">
                     <template x-for="inst in availableInstruments" :key="inst">
                         <option :value="inst" x-text="inst" class="bg-slate-800"></option>
                     </template>
                 </select>
                 <div class="absolute inset-y-0 right-0 flex items-center px-4 sm:px-5 pointer-events-none z-10">
-                    <svg class="w-4 h-4 sm:w-5 sm:h-5 text-brassLight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5 text-brassLight" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
                 </div>
             </div>
         </div>
 
-        <section id="leaderboard" class="bg-gradient-to-br from-white to-slate-50 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden relative transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] animate-fade-in-up" style="animation-delay: 0.15s;">
+        <section id="leaderboard" class="bg-gradient-to-br from-white to-slate-50 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden relative transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] animate-fade-in-up">
             <div class="px-5 sm:px-8 py-5 sm:py-8 border-b border-slate-100 flex items-center gap-3 sm:gap-4 bg-white relative z-10">
                 <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-yellow-400 to-brass rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg text-white shrink-0">
                     <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
                 </div>
                 <div>
-                    <h2 class="font-heading text-lg sm:text-2xl font-black text-slate-900 tracking-tight">
+                    <h2 class="font-heading text-lg sm:text-2xl font-bold text-slate-900 tracking-tight">
                         <span x-show="lang === 'en'">School Leaderboard</span><span x-show="lang === 'ua'" x-cloak>Дошка Лідерів</span>
                     </h2>
                     <p class="text-[10px] sm:text-sm font-medium text-slate-500 mt-0.5">
@@ -288,7 +292,7 @@
             <div x-show="leaderboard.length > 0" class="p-5 sm:p-8 grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-12 relative z-10" x-cloak>
                 <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 sm:p-6 relative overflow-hidden">
                     <div class="absolute -right-4 -top-4 w-20 h-20 sm:w-24 sm:h-24 bg-blue-50 rounded-full blur-2xl pointer-events-none"></div>
-                    <h3 class="font-black text-xs sm:text-sm uppercase tracking-widest text-slate-400 mb-4 sm:mb-6 flex items-center gap-2">
+                    <h3 class="font-bold text-xs sm:text-sm uppercase tracking-widest text-slate-400 mb-4 sm:mb-6 flex items-center gap-2">
                         <svg class="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                         <span x-show="lang === 'en'">Most Minutes</span><span x-show="lang === 'ua'" x-cloak>Топ За Часом</span>
                     </h3>
@@ -296,7 +300,7 @@
                         <template x-for="(student, idx) in topTime" :key="idx">
                             <div class="flex items-center justify-between group">
                                 <div class="flex items-center gap-3 sm:gap-4">
-                                    <div class="w-6 sm:w-8 text-center font-black text-base sm:text-lg" :class="idx === 0 ? 'text-yellow-400 drop-shadow-sm' : (idx === 1 ? 'text-slate-300' : (idx === 2 ? 'text-amber-600' : 'text-slate-200'))" x-text="idx + 1"></div>
+                                    <div class="w-6 sm:w-8 text-center font-bold text-base sm:text-lg" :class="idx === 0 ? 'text-yellow-400 drop-shadow-sm' : (idx === 1 ? 'text-slate-300' : (idx === 2 ? 'text-amber-600' : 'text-slate-200'))" x-text="idx + 1"></div>
                                     <div class="font-bold text-xs sm:text-sm text-slate-700 group-hover:text-slate-900 transition-colors" x-text="student.name"></div>
                                 </div>
                                 <div class="font-mono font-bold text-[10px] sm:text-xs text-slate-500 bg-slate-50 px-2 sm:px-3 py-1 rounded-lg border border-slate-100 group-hover:bg-blue-50 group-hover:text-blue-600 group-hover:border-blue-100 transition-colors">
@@ -309,7 +313,7 @@
 
                 <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 sm:p-6 relative overflow-hidden">
                     <div class="absolute -right-4 -top-4 w-20 h-20 sm:w-24 sm:h-24 bg-orange-50 rounded-full blur-2xl pointer-events-none"></div>
-                    <h3 class="font-black text-xs sm:text-sm uppercase tracking-widest text-slate-400 mb-4 sm:mb-6 flex items-center gap-2">
+                    <h3 class="font-bold text-xs sm:text-sm uppercase tracking-widest text-slate-400 mb-4 sm:mb-6 flex items-center gap-2">
                         <svg class="w-4 h-4 text-orange-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd" /></svg>
                         <span x-show="lang === 'en'">Longest Streaks</span><span x-show="lang === 'ua'" x-cloak>Найдовші Серії</span>
                     </h3>
@@ -317,7 +321,7 @@
                         <template x-for="(student, idx) in topStreak" :key="idx">
                             <div class="flex items-center justify-between group">
                                 <div class="flex items-center gap-3 sm:gap-4">
-                                    <div class="w-6 sm:w-8 text-center font-black text-base sm:text-lg" :class="idx === 0 ? 'text-yellow-400 drop-shadow-sm' : (idx === 1 ? 'text-slate-300' : (idx === 2 ? 'text-amber-600' : 'text-slate-200'))" x-text="idx + 1"></div>
+                                    <div class="w-6 sm:w-8 text-center font-bold text-base sm:text-lg" :class="idx === 0 ? 'text-yellow-400 drop-shadow-sm' : (idx === 1 ? 'text-slate-300' : (idx === 2 ? 'text-amber-600' : 'text-slate-200'))" x-text="idx + 1"></div>
                                     <div class="font-bold text-xs sm:text-sm text-slate-700 group-hover:text-slate-900 transition-colors" x-text="student.name"></div>
                                 </div>
                                 <div class="font-mono font-bold text-[10px] sm:text-xs text-slate-500 bg-slate-50 px-2 sm:px-3 py-1 rounded-lg border border-slate-100 group-hover:bg-orange-50 group-hover:text-orange-600 group-hover:border-orange-100 transition-colors">
@@ -330,7 +334,7 @@
             </div>
         </section>
 
-        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 sm:gap-8 animate-fade-in-up" style="animation-delay: 0.25s;">
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 sm:gap-8 animate-fade-in-up">
             
             <div class="lg:col-span-3 bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl shadow-2xl border border-slate-700 p-6 sm:p-8 flex flex-col justify-between relative overflow-hidden group">
                 <div class="absolute top-0 right-0 w-64 h-64 bg-brass/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none transition-all duration-700" :class="sessionActive ? 'bg-brass/20 scale-150' : ''"></div>
@@ -341,11 +345,11 @@
                             <span class="w-2 h-2 rounded-full animate-pulse" :class="sessionActive ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]' : 'bg-slate-500'"></span>
                             <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400" x-text="sessionActive ? 'Session Active' : 'Ready to Practice'"></span>
                         </div>
-                        <h3 class="font-heading font-black text-white text-xl sm:text-2xl tracking-tight">
+                        <h3 class="font-heading font-bold text-white text-xl sm:text-2xl tracking-tight">
                             <span x-show="lang === 'en'">Focus Timer</span><span x-show="lang === 'ua'" x-cloak>Таймер Занять</span>
                         </h3>
                     </div>
-                    <div class="text-5xl sm:text-7xl font-mono font-black tracking-tighter tabular-nums drop-shadow-lg" :class="sessionActive ? 'text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400' : 'text-slate-600'" x-text="formatTime(sessionTimeLeft)">00:00</div>
+                    <div class="text-5xl sm:text-7xl font-mono font-bold tracking-tighter tabular-nums drop-shadow-lg" :class="sessionActive ? 'text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400' : 'text-slate-600'" x-text="formatTime(sessionTimeLeft)">00:00</div>
                 </div>
 
                 <div class="grid grid-cols-3 gap-2 sm:gap-3 relative z-10 mb-8">
@@ -353,7 +357,7 @@
                         <button @click="startSessionPhase(idx)" 
                             class="flex flex-col items-center justify-center w-full p-2 sm:px-4 sm:py-4 rounded-xl sm:rounded-2xl border-2 transition-all duration-300 text-center relative overflow-hidden"
                             :class="sessionPhase === idx && sessionActive ? 'bg-brass/20 border-brass text-white shadow-[0_0_20px_rgba(180,83,9,0.3)] transform scale-105' : 'bg-slate-800/50 border-slate-700 hover:border-slate-500 hover:bg-slate-700 text-slate-400'">
-                            <span class="font-black text-[9px] sm:text-xs uppercase tracking-widest mb-1" :class="sessionPhase === idx && sessionActive ? 'text-brassLight' : ''" x-text="lang === 'en' ? phase.name_en : phase.name_ua"></span>
+                            <span class="font-bold text-[9px] sm:text-xs uppercase tracking-widest mb-1" :class="sessionPhase === idx && sessionActive ? 'text-brassLight' : ''" x-text="lang === 'en' ? phase.name_en : phase.name_ua"></span>
                             <span class="text-[10px] sm:text-xs font-mono font-bold opacity-70 hidden sm:block" x-text="formatTime(phase.duration)"></span>
                         </button>
                     </template>
@@ -365,14 +369,14 @@
                             <div class="absolute right-0 top-0 bottom-0 w-4 bg-white/30 blur-[2px]"></div>
                         </div>
                     </div>
-                    <button @click="toggleSession()" class="w-full sm:w-auto px-8 py-3.5 rounded-full font-black text-xs sm:text-sm uppercase tracking-widest transition-all duration-300 shadow-xl flex-shrink-0" :class="sessionActive ? 'bg-slate-700 text-white hover:bg-slate-600' : 'bg-white text-slate-900 hover:bg-brass hover:text-white hover:scale-105'" x-text="sessionActive ? (lang === 'en' ? 'Pause' : 'Пауза') : (lang === 'en' ? 'Start' : 'Старт')"></button>
+                    <button @click="toggleSession()" class="w-full sm:w-auto px-8 py-3.5 rounded-full font-bold text-xs sm:text-sm uppercase tracking-widest transition-all duration-300 shadow-xl flex-shrink-0" :class="sessionActive ? 'bg-slate-700 text-white hover:bg-slate-600' : 'bg-white text-slate-900 hover:bg-brass hover:text-white hover:scale-105'" x-text="sessionActive ? (lang === 'en' ? 'Pause' : 'Пауза') : (lang === 'en' ? 'Start' : 'Старт')"></button>
                 </div>
             </div>
 
             <div class="lg:col-span-2 bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 p-5 sm:p-8 flex flex-col justify-between relative overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
                 <div class="flex justify-between items-start mb-6">
                     <div>
-                        <h3 class="font-heading font-black text-slate-900 text-lg sm:text-xl tracking-tight">
+                        <h3 class="font-heading font-bold text-slate-900 text-lg sm:text-xl tracking-tight">
                             <span x-show="lang === 'en'">Weekly Goal</span><span x-show="lang === 'ua'" x-cloak>Прогрес</span>
                         </h3>
                         <p class="text-[10px] sm:text-xs font-medium text-slate-500 mt-1">
@@ -382,9 +386,9 @@
                     <div class="text-right bg-orange-50 px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl border border-orange-100">
                         <div class="flex items-center justify-end gap-1 mb-0.5">
                             <svg class="w-3 h-3 sm:w-4 sm:h-4 text-orange-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd" /></svg>
-                            <span class="text-xl sm:text-3xl font-black text-orange-600 leading-none" x-text="currentUser ? currentUser.streak : streak"></span>
+                            <span class="text-xl sm:text-3xl font-bold text-orange-600 leading-none" x-text="currentUser ? currentUser.streak : streak"></span>
                         </div>
-                        <span class="text-[8px] sm:text-[9px] text-orange-800/60 font-black uppercase tracking-widest">Day Streak</span>
+                        <span class="text-[8px] sm:text-[9px] text-orange-800/60 font-bold uppercase tracking-widest">Day Streak</span>
                     </div>
                 </div>
                 
@@ -400,7 +404,7 @@
                     </template>
                 </div>
                 
-                <button @click="logPractice()" class="w-full py-3.5 sm:py-4 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all duration-300 shadow-md border transform hover:scale-[1.02]"
+                <button @click="logPractice()" class="w-full py-3.5 sm:py-4 rounded-xl font-bold text-[10px] sm:text-xs uppercase tracking-widest transition-all duration-300 shadow-md border transform hover:scale-[1.02]"
                     :class="practicedToday ? 'bg-emerald-50 text-emerald-700 border-emerald-200 cursor-default shadow-none' : 'bg-slate-900 border-transparent text-white hover:bg-brass'">
                     <span x-show="!practicedToday" class="flex items-center justify-center gap-2">
                         <span x-show="lang === 'en'">Mark as Practiced</span><span x-show="lang === 'ua'" x-cloak>Я займався сьогодні</span>
@@ -414,19 +418,19 @@
         </div>
 
         <div class="space-y-10 sm:space-y-12">
-            <section id="warmups" class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden scroll-mt-24 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] animate-fade-in-up" style="animation-delay: 0.3s;">
+            <section id="warmups" class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden scroll-mt-24 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
                 <div class="px-5 sm:px-8 py-5 sm:py-8 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50">
                     <div class="flex items-center gap-3 sm:gap-4">
                         <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl sm:rounded-2xl flex items-center justify-center shadow-sm border border-slate-200 text-brass shrink-0">
                             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
                         </div>
                         <div>
-                            <h2 class="font-heading text-lg sm:text-2xl font-black text-slate-900 tracking-tight">
+                            <h2 class="font-heading text-lg sm:text-2xl font-bold text-slate-900 tracking-tight">
                                 <span x-show="lang === 'en'">Daily Warm-Ups</span>
                                 <span x-show="lang === 'ua'" x-cloak>Щоденна Розминка</span>
                             </h2>
                             <p class="text-[10px] sm:text-sm font-medium text-slate-500 mt-0.5">
-                                <span x-show="lang === 'en'">Click any sheet to expand and open the auto-player.</span>
+                                <span x-show="lang === 'en'">Click any sheet to expand and auto-play.</span>
                                 <span x-show="lang === 'ua'" x-cloak>Натисніть на ноти для розгортання та авто-плеєра.</span>
                             </p>
                         </div>
@@ -454,14 +458,14 @@
                 </div>
             </section>
 
-            <section id="scales" class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden scroll-mt-24 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] animate-fade-in-up" style="animation-delay: 0.4s;">
+            <section id="scales" class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden scroll-mt-24 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
                 <div class="px-5 sm:px-8 py-5 sm:py-8 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50">
                     <div class="flex items-center gap-3 sm:gap-4">
                         <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl sm:rounded-2xl flex items-center justify-center shadow-sm border border-slate-200 text-brass shrink-0">
                             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
                         </div>
                         <div>
-                            <h2 class="font-heading text-lg sm:text-2xl font-black text-slate-900 tracking-tight">
+                            <h2 class="font-heading text-lg sm:text-2xl font-bold text-slate-900 tracking-tight">
                                 <span x-show="lang === 'en'">12 Major Scales</span>
                                 <span x-show="lang === 'ua'" x-cloak>12 Мажорних Гам</span>
                             </h2>
@@ -489,13 +493,13 @@
             </section>
         </div>
 
-        <section id="setlist" class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden scroll-mt-24 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] animate-fade-in-up" style="animation-delay: 0.5s;">
+        <section id="setlist" class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden scroll-mt-24 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] animate-fade-in-up">
             <div class="px-5 sm:px-8 py-5 sm:py-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                 <div class="flex items-center gap-3 sm:gap-4">
                     <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl sm:rounded-2xl flex items-center justify-center shadow-sm border border-slate-200 text-brass shrink-0">
                         <svg class="w-5 h-5 sm:w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
                     </div>
-                    <h2 class="font-heading text-lg sm:text-2xl font-black text-slate-900 tracking-tight">
+                    <h2 class="font-heading text-lg sm:text-2xl font-bold text-slate-900 tracking-tight">
                         <span x-show="lang === 'en'">Current Repertoire</span><span x-show="lang === 'ua'" x-cloak>Поточний Репертуар</span>
                     </h2>
                 </div>
@@ -508,11 +512,11 @@
                 <template x-for="song in schoolSongs" :key="song.title">
                     <div class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm hover:shadow-xl hover:border-brass/50 transition-all duration-300 transform hover:-translate-y-2 flex flex-col group relative overflow-hidden">
                         <div class="absolute top-0 right-0 w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-bl from-brass/10 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div class="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 relative z-10"><span x-show="lang === 'en'">Sheet Music</span><span x-show="lang === 'ua'" x-cloak>Ноти</span></div>
-                        <h3 class="font-heading text-base sm:text-lg font-black text-slate-900 mb-2 group-hover:text-brass transition-colors leading-snug relative z-10" x-text="song.title"></h3>
+                        <div class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 relative z-10"><span x-show="lang === 'en'">Sheet Music</span><span x-show="lang === 'ua'" x-cloak>Ноти</span></div>
+                        <h3 class="font-heading text-base sm:text-lg font-bold text-slate-900 mb-2 group-hover:text-brass transition-colors leading-snug relative z-10" x-text="song.title"></h3>
                         <p class="text-slate-500 text-[10px] sm:text-xs font-medium mb-5 sm:mb-6 flex-grow relative z-10" x-text="lang === 'en' ? song.desc_en : song.desc_ua"></p>
                         
-                        <a :href="song.link" target="_blank" class="mt-auto text-[10px] sm:text-xs font-black text-slate-700 bg-slate-50 hover:bg-brass hover:text-white border border-slate-200 hover:border-brass px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all relative z-10 group/btn shadow-sm">
+                        <a :href="song.link" target="_blank" class="mt-auto text-[10px] sm:text-xs font-bold text-slate-700 bg-slate-50 hover:bg-brass hover:text-white border border-slate-200 hover:border-brass px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all relative z-10 group/btn shadow-sm">
                             <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                             <span x-show="lang === 'en'">Open Music</span><span x-show="lang === 'ua'" x-cloak>Відкрити</span>
                         </a>
@@ -521,16 +525,16 @@
             </div>
         </section>
 
-        <section id="submission" class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl shadow-2xl border border-slate-700 overflow-hidden relative transition-all duration-500 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)] animate-fade-in-up" style="animation-delay: 0.6s;">
+        <section id="submission" class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl shadow-2xl border border-slate-700 overflow-hidden relative transition-all duration-500 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)] animate-fade-in-up">
             <div class="absolute top-0 right-0 p-32 bg-brass/10 blur-[100px] rounded-full pointer-events-none"></div>
             <div class="absolute bottom-0 left-0 p-32 bg-blue-500/10 blur-[100px] rounded-full pointer-events-none"></div>
             
-            <div x-show="submitStatus === 'success'" class="absolute inset-0 z-20 bg-gradient-to-br from-emerald-500 to-emerald-700 flex flex-col items-center justify-center text-center p-6 backdrop-blur-md" x-transition><svg class="w-16 sm:w-20 h-16 sm:h-20 text-white mb-4 drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><h3 class="text-2xl sm:text-3xl font-black text-white tracking-tight drop-shadow-sm"><span x-show="lang === 'en'">Submitted Successfully!</span><span x-show="lang === 'ua'" x-cloak>Успішно надіслано!</span></h3></div>
+            <div x-show="submitStatus === 'success'" class="absolute inset-0 z-20 bg-gradient-to-br from-emerald-500 to-emerald-700 flex flex-col items-center justify-center text-center p-6 backdrop-blur-md" x-transition><svg class="w-16 sm:w-20 h-16 sm:h-20 text-white mb-4 drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><h3 class="text-2xl sm:text-3xl font-bold text-white tracking-tight drop-shadow-sm"><span x-show="lang === 'en'">Submitted Successfully!</span><span x-show="lang === 'ua'" x-cloak>Успішно надіслано!</span></h3></div>
             
             <div class="p-6 sm:p-12 relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-16 items-center">
                 <div>
-                    <span class="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 bg-rose-500/20 border border-rose-500/30 text-rose-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-full mb-4 sm:mb-6 shadow-sm"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg> Conductor Feedback (BETA)</span>
-                    <h3 class="font-heading text-2xl sm:text-4xl font-black text-white mb-3 sm:mb-4 tracking-tight leading-tight"><span x-show="lang === 'en'">Playing Test Submissions</span><span x-show="lang === 'ua'" x-cloak>Здача Партій</span></h3>
+                    <span class="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 bg-rose-500/20 border border-rose-500/30 text-rose-400 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded-full mb-4 sm:mb-6 shadow-sm"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg> Conductor Feedback (BETA)</span>
+                    <h3 class="font-heading text-2xl sm:text-4xl font-bold text-white mb-3 sm:mb-4 tracking-tight leading-tight"><span x-show="lang === 'en'">Playing Test Submissions</span><span x-show="lang === 'ua'" x-cloak>Здача Партій</span></h3>
                     <p class="text-slate-400 text-xs sm:text-sm leading-relaxed mb-6 font-medium"><span x-show="lang === 'en'">Please do not use this feature unless specifically directed by the conductor. When assigned, record your piece and upload it directly for feedback.</span><span x-show="lang === 'ua'" x-cloak>Будь ласка, не використовуйте цю функцію, якщо немає завдання від диригента.</span></p>
                 </div>
                 
@@ -539,16 +543,16 @@
                     <input type="text" name="name" required :placeholder="lang === 'en' ? 'Student Name' : 'Ім\'я Учня'" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-3.5 sm:px-5 sm:py-4 text-xs sm:text-sm text-white placeholder-slate-500 focus:ring-2 focus:ring-brass focus:border-transparent outline-none transition-all shadow-inner">
                     <input type="text" name="song" required :placeholder="lang === 'en' ? 'Song / Scale Name' : 'Назва твору / гамми'" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-3.5 sm:px-5 sm:py-4 text-xs sm:text-sm text-white placeholder-slate-500 focus:ring-2 focus:ring-brass focus:border-transparent outline-none transition-all shadow-inner">
                     <div class="relative w-full">
-                        <input type="file" name="recording" accept="audio/*,video/*" required class="block w-full text-xs sm:text-sm text-slate-400 file:mr-3 sm:file:mr-4 file:py-2.5 sm:file:py-3 file:px-4 sm:file:px-5 file:rounded-xl file:border-0 file:text-[10px] sm:file:text-xs file:font-black file:uppercase file:tracking-widest file:bg-slate-700 file:text-white hover:file:bg-slate-600 focus:outline-none cursor-pointer bg-slate-900/80 border border-slate-700 rounded-xl pr-4 shadow-inner transition-all">
+                        <input type="file" name="recording" accept="audio/*,video/*" required class="block w-full text-xs sm:text-sm text-slate-400 file:mr-3 sm:file:mr-4 file:py-2.5 sm:file:py-3 file:px-4 sm:file:px-5 file:rounded-xl file:border-0 file:text-[10px] sm:file:text-xs file:font-bold file:uppercase file:tracking-widest file:bg-slate-700 file:text-white hover:file:bg-slate-600 focus:outline-none cursor-pointer bg-slate-900/80 border border-slate-700 rounded-xl pr-4 shadow-inner transition-all">
                     </div>
-                    <button type="submit" class="w-full bg-gradient-to-r from-brass to-brassLight hover:from-yellow-500 hover:to-brass text-white font-black text-[10px] sm:text-xs uppercase tracking-widest py-3.5 sm:py-4 rounded-xl transition-all shadow-[0_8px_20px_rgba(180,83,9,0.4)] hover:shadow-[0_8px_25px_rgba(180,83,9,0.6)] transform hover:-translate-y-0.5 disabled:opacity-50 mt-2" :disabled="submitStatus === 'submitting'"><span x-show="submitStatus === 'idle'"><span x-show="lang === 'en'">Upload Recording</span><span x-show="lang === 'ua'" x-cloak>Завантажити Запис</span></span><span x-show="submitStatus === 'submitting'">Uploading...</span></button>
+                    <button type="submit" class="w-full bg-gradient-to-r from-brass to-brassLight hover:from-yellow-500 hover:to-brass text-white font-bold text-[10px] sm:text-xs uppercase tracking-widest py-3.5 sm:py-4 rounded-xl transition-all shadow-[0_8px_20px_rgba(180,83,9,0.4)] hover:shadow-[0_8px_25px_rgba(180,83,9,0.6)] transform hover:-translate-y-0.5 disabled:opacity-50 mt-2" :disabled="submitStatus === 'submitting'"><span x-show="submitStatus === 'idle'"><span x-show="lang === 'en'">Upload Recording</span><span x-show="lang === 'ua'" x-cloak>Завантажити Запис</span></span><span x-show="submitStatus === 'submitting'">Uploading...</span></button>
                 </form>
             </div>
         </section>
 
-        <section id="tools-resources" class="scroll-mt-24 transition-all duration-300 animate-fade-in-up" style="animation-delay: 0.7s;">
+        <section id="tools-resources" class="scroll-mt-24 transition-all duration-300 animate-fade-in-up">
             <div class="px-2 py-4 sm:py-6 border-b border-slate-200 mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <h2 class="font-heading text-xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                <h2 class="font-heading text-xl sm:text-3xl font-bold text-slate-900 tracking-tight">
                     <span x-show="lang === 'en'">Tools & Resources</span>
                     <span x-show="lang === 'ua'" x-cloak>Інструменти та Матеріали</span>
                 </h2>
@@ -562,9 +566,9 @@
                         <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4 relative z-10">
                             <div class="flex items-center gap-2">
                                 <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
-                                <span class="text-[10px] sm:text-xs font-black text-slate-300 uppercase tracking-widest"><span x-show="lang === 'en'">Live Tuner</span><span x-show="lang === 'ua'" x-cloak>Тюнер</span></span>
+                                <span class="text-[10px] sm:text-xs font-bold text-slate-300 uppercase tracking-widest"><span x-show="lang === 'en'">Live Tuner</span><span x-show="lang === 'ua'" x-cloak>Тюнер</span></span>
                             </div>
-                            <button @click="toggleTuner()" class="text-[9px] sm:text-[10px] font-black uppercase tracking-widest px-3 sm:px-4 py-1.5 rounded-full border transition-all focus:outline-none" :class="tunerActive ? 'bg-rose-500/20 text-rose-400 border-rose-500/50 shadow-[0_0_15px_rgba(244,63,94,0.3)]' : 'bg-transparent text-brass border-brass hover:bg-brass hover:text-white hover:shadow-[0_0_15px_rgba(180,83,9,0.4)]'" x-text="tunerActive ? (lang === 'en' ? 'Stop' : 'Вимк') : (lang === 'en' ? 'Mic Access' : 'Мікрофон')"></button>
+                            <button @click="toggleTuner()" class="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest px-3 sm:px-4 py-1.5 rounded-full border transition-all focus:outline-none" :class="tunerActive ? 'bg-rose-500/20 text-rose-400 border-rose-500/50 shadow-[0_0_15px_rgba(244,63,94,0.3)]' : 'bg-transparent text-brass border-brass hover:bg-brass hover:text-white hover:shadow-[0_0_15px_rgba(180,83,9,0.4)]'" x-text="tunerActive ? (lang === 'en' ? 'Stop' : 'Вимк') : (lang === 'en' ? 'Mic Access' : 'Мікрофон')"></button>
                         </div>
                         
                         <div class="flex flex-col items-center justify-center flex-grow min-h-[140px] sm:min-h-[160px] relative z-10">
@@ -572,7 +576,7 @@
                                 <span x-show="lang === 'en'">Click "Mic Access" to enable live tuner.</span><span x-show="lang === 'ua'" x-cloak>Натисніть "Мікрофон" для активації.</span>
                             </div>
                             <div x-show="tunerActive" class="flex flex-col items-center w-full" x-cloak>
-                                <div class="text-5xl sm:text-6xl font-black text-white mb-2 drop-shadow-md" x-text="tunerNote">--</div>
+                                <div class="text-5xl sm:text-6xl font-bold text-white mb-2 drop-shadow-md" x-text="tunerNote">--</div>
                                 <div class="text-[10px] sm:text-xs font-mono font-bold tracking-widest uppercase bg-slate-800/80 px-3 sm:px-4 py-1 rounded-full border border-slate-700" :class="Math.abs(tunerCents) < 10 ? 'text-emerald-400 border-emerald-500/30' : (tunerCents > 0 ? 'text-rose-400' : 'text-amber-400')" x-text="tunerCents === 0 ? 'In Tune' : (tunerCents > 0 ? '+' + tunerCents + ' Sharp' : tunerCents + ' Flat')"></div>
                                 <div class="w-full max-w-[200px] h-2.5 sm:h-3 bg-slate-800 rounded-full mt-6 sm:mt-8 relative shadow-inner border border-slate-700/50 overflow-visible">
                                     <div class="absolute top-1/2 left-1/2 w-0.5 h-5 sm:h-6 bg-slate-500 -translate-x-1/2 -translate-y-1/2 rounded-full"></div>
@@ -584,49 +588,49 @@
                         </div>
                     </div>
 
-                    <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 relative overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
-                        <div class="flex justify-between items-center mb-8 border-b border-slate-100 pb-4">
+                    <div class="bg-white p-5 sm:p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 relative overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+                        <div class="flex justify-between items-center mb-6 sm:mb-8 border-b border-slate-100 pb-4">
                             <div class="flex items-center gap-2">
-                                <svg class="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                <span class="text-xs font-black text-slate-900 uppercase tracking-widest"><span x-show="lang === 'en'">Metronome</span><span x-show="lang === 'ua'" x-cloak>Метроном</span></span>
+                                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                <span class="text-[10px] sm:text-xs font-bold text-slate-900 uppercase tracking-widest"><span x-show="lang === 'en'">Metronome</span><span x-show="lang === 'ua'" x-cloak>Метроном</span></span>
                             </div>
-                            <div class="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-xl shadow-inner border border-slate-200">
-                                <div class="h-3 w-3 rounded-full bg-slate-300 transition-colors duration-75" :class="isMetronomePlaying ? 'bg-rose-500 scale-110 shadow-[0_0_12px_rgba(244,63,94,0.6)]' : ''"></div>
-                                <span class="text-2xl font-mono font-black text-slate-900" x-text="bpm"></span>
-                                <span class="text-[10px] text-slate-500 font-bold mt-1 uppercase tracking-widest">BPM</span>
+                            <div class="flex items-center gap-2 bg-slate-50 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl shadow-inner border border-slate-200">
+                                <div class="h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full bg-slate-300 transition-colors duration-75" :class="isMetronomePlaying ? 'bg-rose-500 scale-110 shadow-[0_0_12px_rgba(244,63,94,0.6)]' : ''"></div>
+                                <span class="text-xl sm:text-2xl font-mono font-bold text-slate-900" x-text="bpm"></span>
+                                <span class="text-[9px] sm:text-[10px] text-slate-500 font-bold mt-1 uppercase tracking-widest">BPM</span>
                             </div>
                         </div>
-                        <input type="range" min="40" max="240" x-model="bpm" @input="updateMetronomeSpeed()" class="w-full mb-8">
-                        <div class="grid grid-cols-2 gap-4">
-                            <button @click="toggleMetronome()" class="py-4 rounded-2xl font-black transition-all duration-300 text-xs uppercase tracking-widest shadow-md border transform hover:-translate-y-1" :class="isMetronomePlaying ? 'bg-white border-slate-200 text-slate-900 hover:bg-slate-50' : 'bg-slate-900 border-transparent text-white hover:bg-brass hover:shadow-[0_8px_20px_rgba(180,83,9,0.3)]'">
+                        <input type="range" min="40" max="240" x-model="bpm" @input="updateMetronomeSpeed()" class="w-full mb-6 sm:mb-8">
+                        <div class="grid grid-cols-2 gap-3 sm:gap-4">
+                            <button @click="toggleMetronome()" class="py-3 sm:py-4 rounded-2xl font-bold transition-all duration-300 text-[10px] sm:text-xs uppercase tracking-widest shadow-md border transform hover:-translate-y-1" :class="isMetronomePlaying ? 'bg-white border-slate-200 text-slate-900 hover:bg-slate-50' : 'bg-slate-900 border-transparent text-white hover:bg-brass hover:shadow-[0_8px_20px_rgba(180,83,9,0.3)]'">
                                 <span x-text="isMetronomePlaying ? (lang === 'en' ? 'Stop' : 'Стоп') : (lang === 'en' ? 'Start' : 'Старт')"></span>
                             </button>
-                            <button @click="tapTempo()" class="py-4 rounded-2xl font-black transition-all duration-300 text-xs uppercase tracking-widest bg-slate-50 text-slate-600 border border-slate-200 hover:border-brass hover:bg-brass/5 hover:text-brass transform hover:-translate-y-1 shadow-sm">
+                            <button @click="tapTempo()" class="py-3 sm:py-4 rounded-2xl font-bold transition-all duration-300 text-[10px] sm:text-xs uppercase tracking-widest bg-slate-50 text-slate-600 border border-slate-200 hover:border-brass hover:bg-brass/5 hover:text-brass transform hover:-translate-y-1 shadow-sm">
                                 <span x-show="lang === 'en'">Tap Tempo</span><span x-show="lang === 'ua'" x-cloak>Тап Темп</span>
                             </button>
                         </div>
                     </div>
 
-                    <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 flex flex-col transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
-                        <div class="mb-5 border-b border-slate-100 pb-4">
+                    <div class="bg-white p-5 sm:p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 flex flex-col transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+                        <div class="mb-4 sm:mb-5 border-b border-slate-100 pb-4">
                             <div class="flex items-center gap-2 mb-1">
-                                <svg class="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-                                <h3 class="font-heading text-xs font-black text-slate-900 uppercase tracking-widest">
+                                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                                <h3 class="font-heading text-[10px] sm:text-xs font-bold text-slate-900 uppercase tracking-widest">
                                     <span x-show="lang === 'en'">Blank Sheet Music</span><span x-show="lang === 'ua'" x-cloak>Чисті Ноти</span>
                                 </h3>
                             </div>
-                            <p class="text-[10px] text-slate-500 font-bold mt-2">
+                            <p class="text-[9px] sm:text-[10px] text-slate-500 font-bold mt-2">
                                 <span x-show="lang === 'en'">Print staff paper directly from your browser.</span><span x-show="lang === 'ua'" x-cloak>Друкуйте прямо з браузера.</span>
                             </p>
                         </div>
                         <div class="space-y-3 flex-grow">
-                            <button @click="printStaves(10)" class="w-full flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-200 hover:border-brass hover:bg-brass/5 transition-all duration-200 group">
-                                <span class="font-black text-xs text-slate-700 group-hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Print 10 Staves</span><span x-show="lang === 'ua'" x-cloak>Друк 10 рядків</span></span>
-                                <svg class="w-5 h-5 text-slate-400 group-hover:text-brass transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                            <button @click="printStaves(10)" class="w-full flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200 hover:border-brass hover:bg-brass/5 transition-all duration-200 group">
+                                <span class="font-bold text-[10px] sm:text-xs text-slate-700 group-hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Print 10 Staves</span><span x-show="lang === 'ua'" x-cloak>Друк 10 рядків</span></span>
+                                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 group-hover:text-brass transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
                             </button>
-                            <button @click="printStaves(12)" class="w-full flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-200 hover:border-brass hover:bg-brass/5 transition-all duration-200 group">
-                                <span class="font-black text-xs text-slate-700 group-hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Print 12 Staves</span><span x-show="lang === 'ua'" x-cloak>Друк 12 рядків</span></span>
-                                <svg class="w-5 h-5 text-slate-400 group-hover:text-brass transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                            <button @click="printStaves(12)" class="w-full flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200 hover:border-brass hover:bg-brass/5 transition-all duration-200 group">
+                                <span class="font-bold text-[10px] sm:text-xs text-slate-700 group-hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Print 12 Staves</span><span x-show="lang === 'ua'" x-cloak>Друк 12 рядків</span></span>
+                                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 group-hover:text-brass transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
                             </button>
                         </div>
                     </div>
@@ -639,7 +643,7 @@
                         <div class="text-left">
                             <div class="flex items-center gap-2 mb-1">
                                 <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
-                                <h3 class="font-heading text-[10px] sm:text-xs font-black text-slate-900 uppercase tracking-widest">
+                                <h3 class="font-heading text-[10px] sm:text-xs font-bold text-slate-900 uppercase tracking-widest">
                                     <span x-show="lang === 'en'">Interactive Fingering Chart</span><span x-show="lang === 'ua'" x-cloak>Інтерактивна Аплікатура</span>
                                 </h3>
                             </div>
@@ -647,14 +651,14 @@
                                 <span x-show="lang === 'en'">Click 'Play Pitch' to hear the correct tone.</span><span x-show="lang === 'ua'" x-cloak>Натисніть для прослуховування.</span>
                             </p>
                         </div>
-                        <div class="text-[10px] sm:text-xs font-black text-brass uppercase tracking-widest bg-brass/10 border border-brass/20 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl shadow-sm" x-text="globalInstrument"></div>
+                        <div class="text-[10px] sm:text-xs font-bold text-brass uppercase tracking-widest bg-brass/10 border border-brass/20 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl shadow-sm" x-text="globalInstrument"></div>
                     </div>
                     
                     <div class="p-4 sm:p-10 flex flex-col items-center flex-grow bg-slate-50/50 w-full relative z-10">
                         <div class="flex justify-center gap-1.5 sm:gap-2 mb-6 sm:mb-8 bg-white p-1.5 sm:p-2 rounded-2xl shadow-sm border border-slate-200 max-w-full overflow-x-auto w-full">
                             <template x-for="r in interactiveChart.ranges">
                                 <button @click="interactiveChart.selectedRange = r; interactiveChart.selectedNote = 0; stopFingeringAudio();"
-                                        class="px-3 sm:px-6 py-2 sm:py-2.5 text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-300 flex-1 sm:flex-none text-center"
+                                        class="px-3 sm:px-6 py-2 sm:py-2.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all duration-300 flex-1 sm:flex-none text-center"
                                         :class="interactiveChart.selectedRange === r ? 'bg-slate-900 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'"
                                         x-text="lang === 'en' ? r : (r === 'Low' ? 'Низька' : (r === 'Mid' ? 'Середня' : 'Висока'))"></button>
                             </template>
@@ -674,7 +678,7 @@
                             
                             <button @click="playFingeringAudio()" class="absolute top-3 sm:top-5 right-3 sm:right-5 bg-slate-50 border border-slate-200 hover:border-brass hover:bg-brass hover:text-white text-slate-500 rounded-xl sm:rounded-2xl p-2 sm:p-3 shadow-sm flex items-center gap-2 transition-all duration-300 z-10 focus:outline-none group-hover/viz:scale-105" :class="isFingeringPlaying ? 'text-white border-brass bg-brass shadow-[0_0_20px_rgba(180,83,9,0.5)]' : ''">
                                 <svg class="w-3.5 h-3.5 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                <span class="text-[9px] sm:text-[10px] font-black uppercase tracking-widest hidden sm:block"><span x-show="lang === 'en'">Play Pitch</span><span x-show="lang === 'ua'" x-cloak>Звук</span></span>
+                                <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest hidden sm:block"><span x-show="lang === 'en'">Play Pitch</span><span x-show="lang === 'ua'" x-cloak>Звук</span></span>
                             </button>
 
                             <template x-if="interactiveChart.data[interactiveChart.instrument].type === 'valves'">
@@ -683,7 +687,7 @@
                                         <div class="flex flex-col items-center gap-3 sm:gap-5">
                                             <div class="w-10 h-10 sm:w-20 sm:h-20 rounded-full border-[4px] sm:border-[8px] shadow-lg transition-all duration-500 ease-out"
                                                  :class="v ? 'bg-gradient-to-br from-brass to-yellow-500 border-brass scale-95 shadow-inner' : 'bg-slate-50 border-slate-200'"></div>
-                                            <span class="font-black text-slate-300 text-xs sm:text-base" x-text="i+1"></span>
+                                            <span class="font-bold text-slate-300 text-xs sm:text-base" x-text="i+1"></span>
                                         </div>
                                     </template>
                                 </div>
@@ -691,8 +695,8 @@
                             
                             <template x-if="interactiveChart.data[interactiveChart.instrument].type === 'slide'">
                                 <div class="flex flex-col items-center w-full max-w-lg mt-4 sm:mt-0">
-                                    <span class="text-4xl sm:text-8xl font-black bg-clip-text text-transparent bg-gradient-to-br from-brass to-yellow-500 mb-1 sm:mb-2 transition-all duration-300 drop-shadow-md" x-text="interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].pos"></span>
-                                    <span class="text-[9px] sm:text-xs font-black text-slate-300 uppercase tracking-[0.3em] mb-6 sm:mb-10">
+                                    <span class="text-4xl sm:text-8xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-brass to-yellow-500 mb-1 sm:mb-2 transition-all duration-300 drop-shadow-md" x-text="interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].pos"></span>
+                                    <span class="text-[9px] sm:text-xs font-bold text-slate-300 uppercase tracking-[0.3em] mb-6 sm:mb-10">
                                         <span x-show="lang === 'en'">Position</span><span x-show="lang === 'ua'" x-cloak>Позиція</span>
                                     </span>
                                     
@@ -701,7 +705,7 @@
                                              class="-ml-4 sm:-ml-6"
                                              :style="`left: ${ (interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].pos - 1) * (100 / 6) }%`"></div>
                                     </div>
-                                    <div class="w-full flex justify-between mt-1 sm:mt-2 text-[9px] sm:text-xs font-black text-slate-300 px-1 sm:px-1.5">
+                                    <div class="w-full flex justify-between mt-1 sm:mt-2 text-[9px] sm:text-xs font-bold text-slate-300 px-1 sm:px-1.5">
                                         <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span>
                                     </div>
                                 </div>
@@ -710,7 +714,7 @@
                             <template x-if="interactiveChart.data[interactiveChart.instrument].type === 'woodwind'">
                                 <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-12 mt-6 sm:mt-0 w-full justify-center">
                                     <div class="flex items-center gap-2 sm:gap-5 bg-slate-50 px-3 py-3 sm:px-6 sm:py-5 rounded-2xl sm:rounded-3xl border border-slate-200 shadow-inner">
-                                        <span class="text-[8px] sm:text-[10px] font-black text-slate-400 w-4 sm:w-8 text-right uppercase tracking-widest">LH</span>
+                                        <span class="text-[8px] sm:text-[10px] font-bold text-slate-400 w-4 sm:w-8 text-right uppercase tracking-widest">LH</span>
                                         <div class="w-6 h-6 sm:w-12 sm:h-12 rounded-full border-[3px] sm:border-[5px] shadow-sm transition-all duration-500 ease-out flex-shrink-0"
                                              :class="interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].lh[0] ? 'bg-gradient-to-br from-brass to-yellow-500 border-brass scale-95 shadow-inner' : 'bg-white border-slate-300'"></div>
                                         <div class="w-px h-8 sm:h-16 bg-slate-300 mx-1 sm:mx-2 rounded-full"></div>
@@ -723,7 +727,7 @@
                                     </div>
                                     
                                     <div class="flex items-center gap-2 sm:gap-5 bg-slate-50 px-3 py-3 sm:px-6 sm:py-5 rounded-2xl sm:rounded-3xl border border-slate-200 shadow-inner">
-                                        <span class="text-[8px] sm:text-[10px] font-black text-slate-400 w-4 sm:w-8 text-right uppercase tracking-widest">RH</span>
+                                        <span class="text-[8px] sm:text-[10px] font-bold text-slate-400 w-4 sm:w-8 text-right uppercase tracking-widest">RH</span>
                                         <div class="flex gap-1.5 sm:gap-3">
                                             <template x-for="i in [0, 1, 2]">
                                                 <div class="w-6 h-6 sm:w-12 sm:h-12 rounded-full border-[3px] sm:border-[5px] shadow-sm transition-all duration-500 ease-out flex-shrink-0"
@@ -742,13 +746,13 @@
             </div>
         </section>
 
-        <section class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden flex flex-col transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] mt-8 sm:mt-12">
+        <section class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden flex flex-col transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
             <div class="p-5 sm:p-8 border-b border-slate-100 bg-slate-50 flex items-center gap-3 sm:gap-4">
                 <div class="w-8 h-8 sm:w-10 sm:h-10 bg-white border border-slate-200 rounded-lg sm:rounded-xl flex items-center justify-center shadow-sm text-brass shrink-0">
                     <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </div>
                 <div>
-                    <h3 class="font-heading text-base sm:text-xl font-black text-slate-900 tracking-tight">
+                    <h3 class="font-heading text-base sm:text-xl font-bold text-slate-900 tracking-tight">
                         <span x-show="lang === 'en'">Musicianship Tips</span><span x-show="lang === 'ua'" x-cloak>Поради Музиканту</span>
                     </h3>
                     <p class="text-[9px] sm:text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest">
@@ -758,7 +762,7 @@
             </div>
             <div class="p-4 sm:p-8 space-y-4 sm:space-y-6 flex-grow bg-white">
                 <details class="group bg-slate-50 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-slate-100 open:border-brass/30 open:shadow-md transition-all">
-                    <summary class="font-black text-xs sm:text-sm text-slate-800 cursor-pointer hover:text-brass transition-colors list-none flex justify-between items-center outline-none">
+                    <summary class="font-bold text-xs sm:text-sm text-slate-800 cursor-pointer hover:text-brass transition-colors list-none flex justify-between items-center outline-none">
                         <span x-show="lang === 'en'">1. Posture & Air Support</span><span x-show="lang === 'ua'" x-cloak>1. Постава та Дихання</span>
                         <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white flex items-center justify-center border border-slate-200 group-open:bg-brass group-open:text-white group-open:border-brass transition-all"><svg class="w-3 h-3 sm:w-4 sm:h-4 transform group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg></span>
                     </summary>
@@ -768,7 +772,7 @@
                     </p>
                 </details>
                 <details class="group bg-slate-50 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-slate-100 open:border-brass/30 open:shadow-md transition-all">
-                    <summary class="font-black text-xs sm:text-sm text-slate-800 cursor-pointer hover:text-brass transition-colors list-none flex justify-between items-center outline-none">
+                    <summary class="font-bold text-xs sm:text-sm text-slate-800 cursor-pointer hover:text-brass transition-colors list-none flex justify-between items-center outline-none">
                         <span x-show="lang === 'en'">2. Watching the Conductor</span><span x-show="lang === 'ua'" x-cloak>2. Увага на Диригента</span>
                         <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white flex items-center justify-center border border-slate-200 group-open:bg-brass group-open:text-white group-open:border-brass transition-all"><svg class="w-3 h-3 sm:w-4 sm:h-4 transform group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg></span>
                     </summary>
@@ -778,7 +782,7 @@
                     </p>
                 </details>
                 <details class="group bg-slate-50 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-slate-100 open:border-brass/30 open:shadow-md transition-all">
-                    <summary class="font-black text-xs sm:text-sm text-slate-800 cursor-pointer hover:text-brass transition-colors list-none flex justify-between items-center outline-none">
+                    <summary class="font-bold text-xs sm:text-sm text-slate-800 cursor-pointer hover:text-brass transition-colors list-none flex justify-between items-center outline-none">
                         <span x-show="lang === 'en'">3. Intonation (Tuning)</span><span x-show="lang === 'ua'" x-cloak>3. Інтонація (Строй)</span>
                         <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white flex items-center justify-center border border-slate-200 group-open:bg-brass group-open:text-white group-open:border-brass transition-all"><svg class="w-3 h-3 sm:w-4 sm:h-4 transform group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg></span>
                     </summary>
@@ -794,16 +798,13 @@
 
     <footer class="bg-white border-t border-slate-200 py-12 sm:py-16 text-center mt-auto">
         <div class="max-w-7xl mx-auto px-4 space-y-4 sm:space-y-6">
-            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-slate-900 rounded-xl mx-auto flex items-center justify-center shadow-lg border-b-2 border-brass">
-                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-brassLight" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
-            </div>
-            <div class="font-black text-slate-900 tracking-tight text-lg sm:text-xl font-heading">FUBC <span class="text-brass">MUSIC SCHOOL</span></div>
+            <div class="font-bold text-slate-900 tracking-tight text-lg sm:text-xl font-heading">FUBC <span class="text-brass">MUSIC SCHOOL</span></div>
             <p class="text-xs sm:text-sm font-medium text-slate-500">&copy; 2026 First Ukrainian Baptist Church Band.</p>
             <div class="flex flex-wrap justify-center gap-4 sm:gap-6 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-slate-400">
                 <a href="/privacy.html" class="hover:text-brass transition-colors">Privacy Policy</a>
                 <a href="https://ifob.su" target="_blank" class="hover:text-brass transition-colors">Sheet Music by IFOB</a>
             </div>
-            <p class="text-[8px] sm:text-[10px] text-slate-300 mt-2 sm:mt-4 uppercase tracking-[0.3em] font-black">Created and designed by Roman Kucheryavyy</p>
+            <p class="text-[8px] sm:text-[10px] text-slate-300 mt-2 sm:mt-4 uppercase tracking-[0.3em] font-bold">Created and designed by Roman Kucheryavyy</p>
         </div>
     </footer>
 
