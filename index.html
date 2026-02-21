@@ -62,175 +62,19 @@
     </script>
     <style>
         [x-cloak] { display: none !important; }
+        
         input[type=range] { -webkit-appearance: none; background: transparent; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: #b45309; margin-top: -10px; cursor: pointer; border: 2px solid white; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #e2e8f0; border-radius: 99px; }
+        
         .reveal-hidden { opacity: 0; transform: translateY(40px); transition: all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
         .reveal-visible { opacity: 1; transform: translateY(0); }
+        
         @media print { nav, footer, .bg-slate-900, #tools, section[class*="bg-slate-900"], button, .fixed { display: none !important; } body { background: white; color: black; } }
     </style>
 </head>
 
-<body class="text-textMain antialiased bg-pageBg overflow-x-hidden"
-    x-data="{ 
-        lang: 'en', 
-        showLibrary: false, 
-        searchQuery: '',
-        submitStatus: 'idle', 
-        verse: { en: 'Make a joyful noise unto the Lord...', ua: 'Викликніть Господу, уся земле...' },
-        mobileMenuOpen: false,
-        scrollY: 0, 
-        scrollProgress: 0,
-        isLoading: true, 
-
-        settings: { isRehearsalCanceled: false, conductorNote: '', nextRehearsalTime: '9:00 PM' },
-        events: [], 
-        currentSetlist: [],
-        allSongs: [],
-        program: { isVisible: false, date: '', items: [] },
-
-        init() {
-            fetch('/data.json?t=' + new Date().getTime())
-                .then(res => res.json())
-                .then(json => {
-                    if (json.settings) this.settings = { ...this.settings, ...json.settings };
-                    if (json.events) this.events = json.events;
-                    if (json.currentSetlist) this.currentSetlist = json.currentSetlist;
-                    if (json.allSongs) this.allSongs = json.allSongs;
-                    if (json.serviceProgram) this.program = json.serviceProgram;
-                    this.isLoading = false;
-                })
-                .catch(err => {
-                    console.error('Data Load Error:', err);
-                    this.isLoading = false;
-                });
-        },
-
-        get sortedSchedule() {
-            let mergedEvents = [];
-            const currentYear = new Date().getFullYear();
-
-            let d = new Date();
-            let day = d.getDay();
-            let hour = d.getHours();
-            let min = d.getMinutes();
-            let daysToAdd = 0;
-
-            if (day === 5) {
-                if (hour < 21 || (hour === 21 && min < 15)) {
-                    daysToAdd = 0; 
-                } else {
-                    daysToAdd = 7; 
-                }
-            } else {
-                daysToAdd = (5 - day + 7) % 7;
-            }
-            d.setDate(d.getDate() + daysToAdd);
-
-            for (let i = 0; i < 3; i++) {
-                let rehDate = new Date(d); 
-                rehDate.setHours(21, 0, 0, 0); 
-                
-                mergedEvents.push({
-                    type: 'rehearsal',
-                    dateObj: rehDate, 
-                    dateString: rehDate.toLocaleDateString(this.lang === 'en' ? 'en-US' : 'uk-UA', { month: 'short', day: 'numeric' }),
-                    title_en: 'Weekly Rehearsal',
-                    title_ua: 'Щотижнева Репетиція',
-                    time: this.settings.nextRehearsalTime,
-                    isTonight: (i === 0 && daysToAdd === 0)
-                });
-                d.setDate(d.getDate() + 7);
-            }
-
-            this.events.forEach(e => {
-                let evtDate = new Date(e.date + ' ' + currentYear);
-                let timeParts = e.time.match(/(\d+):(\d+)\s*(AM|PM)/i);
-                if (timeParts) {
-                    let h = parseInt(timeParts[1]);
-                    if (timeParts[3].toUpperCase() === 'PM' && h < 12) h += 12;
-                    if (timeParts[3].toUpperCase() === 'AM' && h === 12) h = 0;
-                    evtDate.setHours(h, parseInt(timeParts[2]), 0, 0);
-                } else {
-                    evtDate.setHours(9, 0, 0, 0);
-                }
-
-                mergedEvents.push({
-                    type: 'event',
-                    dateObj: evtDate,
-                    dateString: e.date,
-                    title_en: e.title_en,
-                    title_ua: e.title_ua,
-                    time: e.time,
-                    day: e.day, 
-                    isTonight: false
-                });
-            });
-
-            return mergedEvents.sort((a, b) => a.dateObj - b.dateObj);
-        },
-
-        get nextEvent() { return this.sortedSchedule[0] || {}; },
-        get nextPerformance() { return this.sortedSchedule.find(e => e.type === 'event') || {}; },
-        get futureEvents() { return this.sortedSchedule.slice(1); },
-
-        get availableDates() {
-            let dates = [];
-            const nextReh = this.sortedSchedule.find(e => e.type === 'rehearsal');
-            if (nextReh && !this.settings.isRehearsalCanceled) {
-                dates.push({ val: nextReh.dateString + ' (Rehearsal)', label: nextReh.dateString + (this.lang === 'en' ? ' - Rehearsal' : ' - Репетиція') });
-            }
-            this.events.forEach(e => {
-                dates.push({ val: e.date + ' (' + e.title_en + ')', label: e.date + ' - ' + (this.lang === 'en' ? e.title_en : e.title_ua) });
-            });
-            return dates;
-        },
-
-        copySetlist() {
-            let text = '🎵 Setlist:\n';
-            this.sortedSetlist.forEach(s => text += `- ${s.title}\n`);
-            navigator.clipboard.writeText(text);
-            alert('Setlist copied!');
-        },
-
-        submitForm() {
-            this.submitStatus = 'submitting';
-            const formData = new FormData(this.$refs.form);
-            fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(formData).toString() })
-            .then(() => {
-                this.submitStatus = 'success';
-                confetti({ particleCount: 150, spread: 70, origin: { y: 0.7 }, colors: ['#b45309', '#d97706', '#ffffff'] });
-                this.$refs.form.reset();
-                setTimeout(() => this.submitStatus = 'idle', 5000);
-            }).catch(() => { alert('Connection error.'); this.submitStatus = 'idle'; });
-        },
-
-        get sortedSetlist() {
-            return this.currentSetlist.map(song => {
-                const masterSong = this.allSongs.find(s => 
-                    (s.n && song.binderNumber && String(s.n) === String(song.binderNumber)) || 
-                    (s.u && song.title && String(s.u).toLowerCase() === String(song.title).toLowerCase())
-                );
-                return {
-                    ...song,
-                    link: song.link || (masterSong ? masterSong.link : ''),
-                    chords: song.chords || (masterSong ? masterSong.chords : '')
-                };
-            }).sort((a, b) => {
-                const scoreA = (a.link ? 2 : 0) + (a.chords ? 1 : 0);
-                const scoreB = (b.link ? 2 : 0) + (b.chords ? 1 : 0);
-                return scoreB - scoreA;
-            });
-        },
-
-        get filteredSongs() { 
-            if (this.searchQuery === '') return this.allSongs; 
-            const q = this.searchQuery.toLowerCase(); 
-            return this.allSongs.filter(s => (s.n && s.n.toString().includes(q)) || (s.u && s.u.toLowerCase().includes(q))); 
-        }
-    }"
-    @scroll.window="scrollY = window.pageYOffset; scrollProgress = (window.pageYOffset / (document.documentElement.scrollHeight - window.innerHeight)) * 100"
->
+<body class="text-textMain antialiased bg-pageBg overflow-x-hidden" x-data="fubcApp" @scroll.window="scrollY = window.pageYOffset; scrollProgress = (window.pageYOffset / (document.documentElement.scrollHeight - window.innerHeight)) * 100">
 
     <div class="fixed top-0 left-0 h-1.5 bg-gradient-to-r from-brass to-brassLight z-[100] transition-all duration-150 ease-linear shadow-md" :style="'width: ' + scrollProgress + '%'"></div>
 
@@ -318,11 +162,11 @@
     <div class="relative w-full h-[500px] sm:h-[600px] bg-slate-900 overflow-hidden">
         <img src="https://images.unsplash.com/photo-1573871669414-010dbf73ca84?q=80&w=2071&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-40 will-change-transform" :style="'transform: translateY(' + (scrollY * 0.4) + 'px)'" alt="Brass Instruments">
         <div class="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-slate-900/30 to-slate-900"></div>
-        <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4 pt-10 z-10 animate-fade-in-up">
+        <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4 pt-10 z-10">
             <h1 class="font-heading text-2xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight mb-6 drop-shadow-2xl max-w-4xl mx-auto leading-snug"><span x-show="lang === 'en'">“Praise him with trumpet sound; praise him with lute and harp!”<br><span class="text-base sm:text-2xl font-medium mt-4 block text-brassLight tracking-wider">– Psalm 150:3</span></span><span x-show="lang === 'ua'" x-cloak>“Хваліть Його звуком трубним, хваліть Його на арфі та гуслах!”<br><span class="text-base sm:text-2xl font-medium mt-4 block text-brassLight tracking-wider">– Псалми 150:3</span></span></h1>
             <p class="text-slate-300 text-sm sm:text-lg max-w-2xl font-light tracking-wide uppercase"><span x-show="lang === 'en'">First Ukrainian Baptist Church Band Ministry</span><span x-show="lang === 'ua'" x-cloak>Оркестр Першої Української Баптистської Церкви</span></p>
         </div>
-        <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-[0] z-20 pointer-events-none"><svg class="relative block w-full h-[60px] sm:h-[100px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M985.66,92.83C906.67,72,823.78,31,743.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z" class="fill-[#f8fafc]"></path></svg></div>
+        <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-[0] z-20"><svg class="relative block w-full h-[60px] sm:h-[100px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M985.66,92.83C906.67,72,823.78,31,743.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z" class="fill-[#f8fafc]"></path></svg></div>
     </div>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 relative z-10 pb-8 space-y-12">
@@ -427,17 +271,12 @@
         <section id="tools" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden scroll-mt-32 reveal-hidden" x-data="{ shown: false }" x-intersect.threshold.05.once="shown = true" :class="shown ? 'reveal-visible' : ''">
             <div class="px-6 py-6 border-b border-slate-100"><h2 class="font-heading text-xl font-bold text-slate-900 flex items-center gap-2"><svg class="w-5 h-5 text-brass" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span x-show="lang === 'en'">Musician Toolkit</span><span x-show="lang === 'ua'" x-cloak>Інструменти</span></h2></div>
             <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
-                
-                <div x-data="{ bpm: 100, isPlaying: false, timer: null, audioCtx: null, playClick() { if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); const osc = this.audioCtx.createOscillator(); const gain = this.audioCtx.createGain(); osc.connect(gain); gain.connect(this.audioCtx.destination); osc.frequency.value = 1000; gain.gain.value = 1; osc.start(); gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.1); osc.stop(this.audioCtx.currentTime + 0.1); }, toggle() { if (this.isPlaying) { clearInterval(this.timer); this.isPlaying = false; } else { this.isPlaying = true; this.playClick(); this.timer = setInterval(() => this.playClick(), (60 / this.bpm) * 1000); } }, updateSpeed() { if (this.isPlaying) { clearInterval(this.timer); this.timer = setInterval(() => this.playClick(), (60 / this.bpm) * 1000); } }, tapTempo() { const now = Date.now(); if (this.lastTap && (now - this.lastTap) < 2000) { this.bpm = Math.min(Math.max(Math.round(60000 / (now - this.lastTap)), 40), 240); this.updateSpeed(); } this.lastTap = now; } }">
+                <div x-data="metronomeWidget">
                     <div class="flex justify-between items-center mb-6"><span class="text-sm font-bold text-slate-500 uppercase tracking-wider"><span x-show="lang === 'en'">Metronome</span><span x-show="lang === 'ua'" x-cloak>Метроном</span></span><div class="flex items-center gap-2 bg-slate-100 px-3 py-1 rounded-full"><div class="h-2 w-2 rounded-full bg-slate-400" :class="isPlaying ? 'bg-red-500 animate-pulse' : ''"></div><span class="text-lg font-mono font-bold text-slate-900" x-text="bpm"></span><span class="text-[10px] text-slate-500 font-bold">BPM</span></div></div>
-                    <input type="range" min="40" max="240" x-model="bpm" @input="updateSpeed()" class="w-full mb-6">
-                    <div class="grid grid-cols-2 gap-4">
-                        <button @click="toggle()" class="w-full py-4 rounded-xl font-bold transition-all text-sm uppercase tracking-wide shadow-sm hover:shadow-md border" :class="isPlaying ? 'bg-white border-slate-200 text-slate-900' : 'bg-slate-900 border-transparent text-white hover:bg-slate-800'"><span x-text="isPlaying ? (lang === 'en' ? 'Stop' : 'Стоп') : (lang === 'en' ? 'Start' : 'Старт')"></span></button>
-                        <button @click="tapTempo()" class="w-full py-4 rounded-xl font-bold transition-all text-sm uppercase tracking-wide bg-brass/10 text-brass border border-brass/20 hover:bg-brass hover:text-white"><span x-show="lang === 'en'">Tap Tempo</span><span x-show="lang === 'ua'" x-cloak>Тап Темп</span></button>
-                    </div>
+                    <input type="range" min="40" max="200" x-model="bpm" @input="updateSpeed()" class="w-full mb-6">
+                    <button @click="toggle()" class="w-full py-4 rounded-xl font-bold transition-all text-sm uppercase tracking-wide shadow-sm hover:shadow-md border" :class="isPlaying ? 'bg-white border-slate-200 text-slate-900' : 'bg-slate-900 border-transparent text-white hover:bg-slate-800'"><span x-text="isPlaying ? (lang === 'en' ? 'Stop' : 'Стоп') : (lang === 'en' ? 'Start' : 'Старт')"></span></button>
                 </div>
-
-                <div x-data="{ activeNote: null, audioCtx: null, oscillator: null, playNote(freq, noteName) { if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (this.activeNote === noteName) { this.oscillator.stop(); this.activeNote = null; return; } if (this.oscillator) { this.oscillator.stop(); } this.oscillator = this.audioCtx.createOscillator(); const gain = this.audioCtx.createGain(); this.oscillator.type = 'triangle'; this.oscillator.frequency.setValueAtTime(freq, this.audioCtx.currentTime); this.oscillator.connect(gain); gain.connect(this.audioCtx.destination); this.oscillator.start(); this.activeNote = noteName; } }">
+                <div x-data="tuningWidget">
                     <div class="flex justify-between items-center mb-6"><span class="text-sm font-bold text-slate-500 uppercase tracking-wider"><span x-show="lang === 'en'">Tuning</span><span x-show="lang === 'ua'" x-cloak>Налаштування</span></span><span class="text-xs font-bold text-brass" x-text="activeNote ? (lang === 'en' ? 'Playing: ' : 'Грає: ') + activeNote : ''"></span></div>
                     <div class="grid grid-cols-3 gap-4">
                         <button @click="playNote(233.08, 'Low Bb')" class="py-4 rounded-xl border font-bold text-sm transition-all flex flex-col items-center gap-1" :class="activeNote === 'Low Bb' ? 'bg-brass text-white border-brass' : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-brass'"><span>Low Bb</span><span class="text-[9px] opacity-60 font-mono">233.08Hz</span></button>
@@ -450,7 +289,7 @@
 
         <section id="media" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden reveal-hidden" x-data="{ shown: false }" x-intersect.threshold.05.once="shown = true" :class="shown ? 'reveal-visible' : ''">
             <div class="px-6 py-6 border-b border-slate-100 flex justify-between items-center"><h2 class="font-heading text-xl font-bold text-slate-900"><span x-show="lang === 'en'">Media Gallery</span><span x-show="lang === 'ua'" x-cloak>Медіа Галерея</span></h2><a href="https://youtube.com/playlist?list=PLqmdWSP7QrZ5hK9MdbSxGiC9NlsI3vL7f&si=70N759E8fiG6dxQu" target="_blank" class="flex items-center gap-2 bg-[#FF0000] text-white px-4 py-2 rounded-full text-xs font-bold shadow hover:bg-red-700 transition-colors"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg><span x-show="lang === 'en'">Playlist</span><span x-show="lang === 'ua'" x-cloak>Плейлист</span></a></div>
-            <div class="p-2 bg-slate-50"><div class="relative w-full aspect-video rounded-xl overflow-hidden shadow-inner border border-slate-200"><iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/videoseries?si=JI14AJhU9wiD4Svw&amp;list=PLqmdWSP7QrZ5hK9MdbSxGiC9NlsI3vL7f" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div></div>
+            <div class="p-2 bg-slate-50"><div class="relative w-full aspect-video rounded-xl overflow-hidden shadow-inner border border-slate-200"><iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/videoseries?si=JI14AJhU9wiD4Svw&list=PLqmdWSP7QrZ5hK9MdbSxGiC9NlsI3vL7f" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div></div>
         </section>
     </main>
 
@@ -464,7 +303,7 @@
             </div>
             <div class="pt-6 border-t border-slate-100 flex flex-col gap-2">
                 <p class="text-xs text-slate-400">© 2026 First Ukrainian Baptist Church Band.</p>
-                <p class="text-xs text-slate-400">Designed and built by Roman Kucheryavyy</p>
+                <p class="text-[10px] sm:text-xs text-slate-400 mt-2 uppercase tracking-widest font-bold">Created and designed by Roman Kucheryavyy</p>
                 <a href="/privacy.html" class="text-xs text-slate-400 hover:text-brass transition-colors underline">Privacy Policy</a>
             </div>
         </div>
@@ -478,6 +317,238 @@
             <div class="overflow-y-auto p-2 flex-grow bg-white"><template x-for="song in filteredSongs" :key="song.u + song.n"><div class="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-lg transition-colors border-b border-slate-50 last:border-0"><span class="font-mono text-sm font-bold text-brass w-12 text-right" x-text="song.n && song.n !== 'New' ? '#' + song.n : ''"></span><span class="text-slate-700 font-medium" x-text="song.u"></span><span x-show="!song.n || song.n === 'New'" class="ml-auto text-xs font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded">New</span></div></template></div>
         </div>
     </div>
+    
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('fubcApp', () => ({
+                lang: 'en', 
+                showLibrary: false, 
+                searchQuery: '',
+                submitStatus: 'idle', 
+                verse: null,
+                mobileMenuOpen: false,
+                scrollY: 0, 
+                scrollProgress: 0,
+                isLoading: true, 
+
+                settings: { isRehearsalCanceled: false, conductorNote: '', nextRehearsalTime: '9:00 PM' },
+                events: [], 
+                currentSetlist: [],
+                allSongs: [],
+                program: { isVisible: false, date: '', items: [] },
+
+                verses: [
+                    { en: 'Make a joyful noise unto the Lord...', ua: 'Викликніть Господу, уся земле...' },
+                    { en: 'I will sing to the LORD as long as I live...', ua: 'Я буду співати Господеві за життя свого...' },
+                    { en: 'Praise him with the sounding of the trumpet...', ua: 'Хваліть Його звуком трубним...' }
+                ],
+
+                async init() {
+                    this.verse = this.verses[Math.floor(Math.random() * this.verses.length)];
+                    try {
+                        const response = await fetch('/data.json?t=' + new Date().getTime());
+                        if (response.ok) {
+                            const json = await response.json();
+                            if (json.settings) this.settings = { ...this.settings, ...json.settings };
+                            if (json.events) this.events = json.events;
+                            if (json.currentSetlist) this.currentSetlist = json.currentSetlist;
+                            if (json.allSongs) this.allSongs = json.allSongs;
+                            if (json.serviceProgram) this.program = json.serviceProgram;
+                        }
+                    } catch (e) { 
+                        console.log('Using built-in data or offline mode', e); 
+                    }
+                    
+                    setTimeout(() => { this.isLoading = false; }, 300);
+                },
+
+                get sortedSchedule() {
+                    let mergedEvents = [];
+                    const currentYear = new Date().getFullYear();
+
+                    let d = new Date();
+                    let day = d.getDay();
+                    let hour = d.getHours();
+                    let min = d.getMinutes();
+                    let daysToAdd = 0;
+
+                    if (day === 5) {
+                        if (hour < 21 || (hour === 21 && min < 15)) {
+                            daysToAdd = 0; 
+                        } else {
+                            daysToAdd = 7; 
+                        }
+                    } else {
+                        daysToAdd = (5 - day + 7) % 7;
+                    }
+                    d.setDate(d.getDate() + daysToAdd);
+
+                    for (let i = 0; i < 3; i++) {
+                        let rehDate = new Date(d); 
+                        rehDate.setHours(21, 0, 0, 0); 
+                        
+                        mergedEvents.push({
+                            type: 'rehearsal',
+                            dateObj: rehDate, 
+                            dateString: rehDate.toLocaleDateString(this.lang === 'en' ? 'en-US' : 'uk-UA', { month: 'short', day: 'numeric' }),
+                            title_en: 'Weekly Rehearsal',
+                            title_ua: 'Щотижнева Репетиція',
+                            time: this.settings.nextRehearsalTime,
+                            isTonight: (i === 0 && daysToAdd === 0)
+                        });
+                        d.setDate(d.getDate() + 7);
+                    }
+
+                    if(this.events && this.events.length > 0) {
+                        this.events.forEach(e => {
+                            let evtDate = new Date(e.date + ' ' + currentYear);
+                            
+                            let timeParts = e.time.match(/(\d+):(\d+)\s*(AM|PM)/i);
+                            if (timeParts) {
+                                let h = parseInt(timeParts[1]);
+                                if (timeParts[3].toUpperCase() === 'PM' && h < 12) h += 12;
+                                if (timeParts[3].toUpperCase() === 'AM' && h === 12) h = 0;
+                                evtDate.setHours(h, parseInt(timeParts[2]), 0, 0);
+                            } else {
+                                evtDate.setHours(9, 0, 0, 0);
+                            }
+
+                            mergedEvents.push({
+                                type: 'event',
+                                dateObj: evtDate,
+                                dateString: e.date,
+                                title_en: e.title_en,
+                                title_ua: e.title_ua,
+                                time: e.time,
+                                day: e.day, 
+                                isTonight: false
+                            });
+                        });
+                    }
+
+                    return mergedEvents.sort((a, b) => a.dateObj - b.dateObj);
+                },
+
+                get nextEvent() { return this.sortedSchedule[0] || {}; },
+                get nextPerformance() { return this.sortedSchedule.find(e => e.type === 'event') || {}; },
+                get futureEvents() { return this.sortedSchedule.slice(1); },
+
+                get availableDates() {
+                    let dates = [];
+                    const nextReh = this.sortedSchedule.find(e => e.type === 'rehearsal');
+                    if (nextReh && !this.settings.isRehearsalCanceled) {
+                        dates.push({ 
+                            val: nextReh.dateString + ' (Rehearsal)', 
+                            label: nextReh.dateString + (this.lang === 'en' ? ' - Rehearsal' : ' - Репетиція') 
+                        });
+                    }
+                    if(this.events) {
+                        this.events.forEach(e => {
+                            dates.push({ val: e.date + ' (' + e.title_en + ')', label: e.date + ' - ' + (this.lang === 'en' ? e.title_en : e.title_ua) });
+                        });
+                    }
+                    return dates;
+                },
+
+                copySetlist() {
+                    let text = '🎵 Setlist:\n';
+                    this.sortedSetlist.forEach(s => text += `- ${s.title}\n`);
+                    navigator.clipboard.writeText(text);
+                    alert('Setlist copied!');
+                },
+
+                submitForm() {
+                    this.submitStatus = 'submitting';
+                    const formData = new FormData(this.$refs.form);
+                    fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(formData).toString() })
+                    .then(() => {
+                        this.submitStatus = 'success';
+                        confetti({ particleCount: 150, spread: 70, origin: { y: 0.7 }, colors: ['#b45309', '#d97706', '#ffffff'] });
+                        this.$refs.form.reset();
+                        setTimeout(() => this.submitStatus = 'idle', 5000);
+                    })
+                    .catch(() => { alert('Connection error.'); this.submitStatus = 'idle'; });
+                },
+
+                get sortedSetlist() {
+                    if (!this.currentSetlist || !this.allSongs) return [];
+
+                    const smartSetlist = this.currentSetlist.map(song => {
+                        const masterSong = this.allSongs.find(s => 
+                            (s.n && song.binderNumber && String(s.n) === String(song.binderNumber)) || 
+                            (s.u && song.title && String(s.u).toLowerCase() === String(song.title).toLowerCase())
+                        );
+                        
+                        return {
+                            ...song,
+                            link: song.link || (masterSong ? masterSong.link : ''),
+                            chords: song.chords || (masterSong ? masterSong.chords : '')
+                        };
+                    });
+
+                    // Returning it exactly as entered in data.json (removing the arbitrary sort!)
+                    return smartSetlist;
+                },
+
+                get filteredSongs() { 
+                    if (this.searchQuery === '') return this.allSongs; 
+                    const q = this.searchQuery.toLowerCase(); 
+                    return this.allSongs.filter(s => (s.n && s.n.toString().includes(q)) || (s.u && s.u.toLowerCase().includes(q))); 
+                }
+            }));
+
+            // Isolated Metronome Logic
+            Alpine.data('metronomeWidget', () => ({
+                bpm: 100, 
+                isPlaying: false, 
+                timer: null, 
+                audioCtx: null, 
+                playClick() { 
+                    if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
+                    const osc = this.audioCtx.createOscillator(); 
+                    const gain = this.audioCtx.createGain(); 
+                    osc.connect(gain); gain.connect(this.audioCtx.destination); 
+                    osc.frequency.value = 1000; gain.gain.value = 1; 
+                    osc.start(); gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.1); 
+                    osc.stop(this.audioCtx.currentTime + 0.1); 
+                }, 
+                toggle() { 
+                    if (this.isPlaying) { clearInterval(this.timer); this.isPlaying = false; } 
+                    else { this.isPlaying = true; this.playClick(); this.timer = setInterval(() => this.playClick(), (60 / this.bpm) * 1000); } 
+                }, 
+                updateSpeed() { 
+                    if (this.isPlaying) { clearInterval(this.timer); this.timer = setInterval(() => this.playClick(), (60 / this.bpm) * 1000); } 
+                },
+                tapTempo() { 
+                    const now = Date.now(); 
+                    if (this.lastTap && (now - this.lastTap) < 2000) { 
+                        this.bpm = Math.min(Math.max(Math.round(60000 / (now - this.lastTap)), 40), 240); 
+                        this.updateSpeed(); 
+                    } 
+                    this.lastTap = now; 
+                }
+            }));
+
+            // Isolated Pitch Pipe Logic
+            Alpine.data('tuningWidget', () => ({
+                activeNote: null, 
+                audioCtx: null, 
+                oscillator: null, 
+                playNote(freq, noteName) { 
+                    if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
+                    if (this.activeNote === noteName) { this.oscillator.stop(); this.activeNote = null; return; } 
+                    if (this.oscillator) { this.oscillator.stop(); } 
+                    this.oscillator = this.audioCtx.createOscillator(); 
+                    const gain = this.audioCtx.createGain(); 
+                    this.oscillator.type = 'triangle'; 
+                    this.oscillator.frequency.setValueAtTime(freq, this.audioCtx.currentTime); 
+                    this.oscillator.connect(gain); gain.connect(this.audioCtx.destination); 
+                    this.oscillator.start(); 
+                    this.activeNote = noteName; 
+                }
+            }));
+        });
+    </script>
     
     <script>if (window.netlifyIdentity) { window.netlifyIdentity.on("init", user => { if (!user) { window.netlifyIdentity.on("login", () => { document.location.href = "/admin/"; }); } }); }</script>
     <script>if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js'); }); }</script>
