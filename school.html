@@ -29,7 +29,6 @@
                         'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
                         'marquee-mobile': 'marquee 25s linear infinite',
                         'marquee-desktop': 'marquee 45s linear infinite',
-                        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite'
                     },
                     keyframes: {
                         fadeInUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
@@ -51,10 +50,30 @@
         .hero-bg { background-image: url('https://images.unsplash.com/photo-1573871669414-010dbf73ca84?q=80&w=2071&auto=format&fit=crop'); background-size: cover; background-position: center; }
         .abcjs-container svg { max-width: 100%; height: auto; border-radius: 0.5rem; }
         
-        /* Custom ABCJS Audio Player Overrides */
-        .abcjs-inline-audio { background: transparent !important; border: none !important; padding: 0 !important; margin: 0 auto !important; max-width: 400px; display: flex; justify-content: center; }
-        .abcjs-audio-play, .abcjs-audio-stop { border-radius: 50% !important; background-color: #0f172a !important; color: white !important; }
-        .abcjs-audio-play:hover { background-color: #b45309 !important; }
+        /* OVERHAULED ABCJS AUDIO PLAYER UI */
+        .abcjs-inline-audio { 
+            background-color: #0f172a !important; /* Dark Slate */
+            border-radius: 12px !important;
+            padding: 12px 24px !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+            margin: 0 auto !important; 
+            max-width: 500px; 
+            display: flex; 
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #b45309 !important; /* Brass Border */
+        }
+        .abcjs-btn { 
+            color: white !important; 
+            fill: white !important; 
+            background-color: #1e293b !important;
+            border-radius: 50% !important;
+            transition: all 0.2s ease !important;
+        }
+        .abcjs-btn:hover { background-color: #b45309 !important; transform: scale(1.05); }
+        .abcjs-time-display { color: #f8fafc !important; font-family: ui-monospace, monospace !important; font-weight: bold !important; font-size: 14px !important;}
+        .abcjs-midi-progress-background { background-color: #334155 !important; border: none !important;}
+        .abcjs-midi-progress-indicator { background-color: #b45309 !important; }
     </style>
 </head>
 
@@ -62,6 +81,65 @@
 
     <div class="fixed top-0 left-0 h-1.5 bg-gradient-to-r from-brass to-brassLight z-[100] shadow-md transition-all duration-150 ease-linear" :style="'width: ' + scrollProgress + '%'"></div>
     <div id="print-staves"></div>
+
+    <div x-show="profileModalOpen" x-transition.opacity class="fixed inset-0 z-[120] flex items-center justify-center bg-slate-900/90 backdrop-blur-md p-4 w-full h-full" x-cloak>
+        <div @click.away="profileModalOpen = false" class="bg-white rounded-3xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl overflow-hidden relative">
+            <div class="p-6 border-b border-slate-100 bg-slate-50 flex justify-between items-center relative overflow-hidden">
+                <div class="absolute inset-0 bg-brass/10"></div>
+                <div class="flex items-center gap-4 relative z-10">
+                    <div class="w-16 h-16 bg-slate-900 rounded-full flex items-center justify-center text-white text-2xl font-black font-heading shadow-md" x-text="studentName ? studentName.charAt(0).toUpperCase() : '?'"></div>
+                    <div>
+                        <div x-show="!isEditingName" class="flex items-center gap-2">
+                            <h2 class="font-heading text-2xl font-bold text-slate-900" x-text="studentName || 'Student'"></h2>
+                            <button @click="isEditingName = true" class="text-slate-400 hover:text-brass"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg></button>
+                        </div>
+                        <div x-show="isEditingName" class="flex items-center gap-2">
+                            <input x-model="studentName" @keyup.enter="saveName()" type="text" class="border border-slate-300 rounded px-2 py-1 text-sm font-bold text-slate-900 focus:outline-none focus:border-brass">
+                            <button @click="saveName()" class="bg-brass text-white px-3 py-1 rounded text-xs font-bold uppercase">Save</button>
+                        </div>
+                        <p class="text-xs font-bold uppercase tracking-widest mt-1" :class="getRankColor()" x-text="getRankName()"></p>
+                    </div>
+                </div>
+                <button @click="profileModalOpen = false" class="text-slate-400 hover:text-brass transition-colors relative z-10"><svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+            </div>
+            
+            <div class="p-6 flex-grow overflow-y-auto bg-white space-y-8">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-50 border border-slate-100 p-4 rounded-2xl flex flex-col items-center justify-center text-center shadow-sm">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Time</span>
+                        <div class="text-3xl font-black text-slate-900 leading-none">
+                            <span x-text="Math.floor(totalMinutes / 60)"></span><span class="text-sm font-bold text-slate-500 ml-1">h</span>
+                            <span x-text="totalMinutes % 60"></span><span class="text-sm font-bold text-slate-500 ml-1">m</span>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-100 p-4 rounded-2xl flex flex-col items-center justify-center text-center shadow-sm">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Current Streak</span>
+                        <div class="text-3xl font-black text-brass leading-none">
+                            <span x-text="streak"></span><span class="text-sm font-bold text-slate-500 ml-1">days</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="font-heading text-sm font-bold text-slate-900 uppercase tracking-widest mb-3 border-b border-slate-100 pb-2">This Week's Activity</h3>
+                    <div class="flex justify-between items-center bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <template x-for="(day, index) in weekDays" :key="index">
+                            <div class="flex flex-col items-center gap-2">
+                                <span class="text-[10px] font-bold text-slate-400" x-text="day"></span>
+                                <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-300"
+                                     :class="hasPracticedOnDay(index) ? 'bg-emerald-100 text-emerald-600 border border-emerald-200 shadow-sm scale-110' : (index === currentDayOfWeek ? 'bg-white border-2 border-slate-300' : 'bg-white border border-slate-200')">
+                                    <svg x-show="hasPracticedOnDay(index)" class="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 bg-slate-50 border-t border-slate-100 text-center">
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Data saves locally to this device.</p>
+            </div>
+        </div>
+    </div>
 
     <div x-show="fullScreenModalOpen" x-transition.opacity class="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/95 backdrop-blur-md p-4 w-full h-full" x-cloak>
         <div @click.away="closeFullScreen()" class="bg-white rounded-2xl w-full max-w-5xl h-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden relative">
@@ -75,8 +153,9 @@
                 </button>
             </div>
             
-            <div class="bg-slate-100 border-b border-slate-200 p-4">
-                <div id="audio-control"></div>
+            <div class="bg-slate-100 border-b-2 border-slate-200 p-4 sticky top-0 z-20 shadow-sm flex flex-col items-center justify-center">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2"><span x-show="lang === 'en'">Auto-Play Synth</span><span x-show="lang === 'ua'" x-cloak>Авто-Плеєр</span></span>
+                <div id="audio-control" class="w-full"></div>
             </div>
 
             <div class="p-4 sm:p-8 flex-grow overflow-auto bg-white flex items-start sm:items-center justify-center relative w-full">
@@ -110,8 +189,8 @@
                 </a>
                 
                 <div class="md:hidden flex items-center gap-2 sm:gap-4 relative z-50 shrink-0">
-                    <button @click="lang = lang === 'en' ? 'ua' : 'en'; $nextTick(() => renderWarmups());" class="text-[10px] font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest border border-slate-200 px-2.5 py-1.5 rounded-full bg-slate-50 flex-shrink-0">
-                        <span :class="lang === 'en' ? 'text-brass font-extrabold' : ''">EN</span><span class="text-slate-300 px-1">/</span><span :class="lang === 'ua' ? 'text-brass font-extrabold' : ''">UA</span>
+                    <button @click="openProfile()" class="text-[10px] font-bold text-slate-700 hover:text-brass transition-colors uppercase tracking-widest border border-slate-200 px-2.5 py-1.5 rounded-full bg-white flex-shrink-0 flex items-center gap-1 shadow-sm">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                     </button>
                     <button @click="mobileMenuOpen = !mobileMenuOpen" class="p-2 text-slate-800 hover:text-brass transition-colors focus:outline-none flex-shrink-0">
                         <svg x-show="!mobileMenuOpen" class="w-6 h-6 sm:w-7 sm:h-7 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
@@ -120,12 +199,16 @@
                 </div>
 
                 <div class="hidden md:flex items-center gap-6 relative z-50 shrink-0">
-                    <button @click="lang = lang === 'en' ? 'ua' : 'en'; $nextTick(() => renderWarmups());" class="text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest border border-slate-200 px-4 py-1.5 rounded-full hover:border-brass/50 bg-slate-50 transition-all duration-200 hover:shadow-sm">
-                        <span :class="lang === 'en' ? 'text-brass font-extrabold' : ''">EN</span> <span class="text-slate-300 px-1">/</span> <span :class="lang === 'ua' ? 'text-brass font-extrabold' : ''">UA</span>
+                    <button @click="lang = lang === 'en' ? 'ua' : 'en'; $nextTick(() => renderWarmups());" class="text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest border border-slate-200 px-3 py-1.5 rounded-full hover:border-brass/50 bg-slate-50 transition-all duration-200 hover:shadow-sm">
+                        <span :class="lang === 'en' ? 'text-brass font-extrabold' : ''">EN</span><span class="text-slate-300 px-1">/</span><span :class="lang === 'ua' ? 'text-brass font-extrabold' : ''">UA</span>
                     </button>
                     <a href="#warmups" class="font-bold text-xs uppercase tracking-widest text-slate-500 hover:text-brass transition-colors"><span x-show="lang === 'en'">Warm-Ups</span><span x-show="lang === 'ua'" x-cloak>Розминка</span></a>
                     <a href="#setlist" class="font-bold text-xs uppercase tracking-widest text-slate-500 hover:text-brass transition-colors"><span x-show="lang === 'en'">Practice</span><span x-show="lang === 'ua'" x-cloak>Заняття</span></a>
-                    <a href="#tools-resources" class="font-bold text-xs uppercase tracking-widest text-slate-500 hover:text-brass transition-colors"><span x-show="lang === 'en'">Tools & Resources</span><span x-show="lang === 'ua'" x-cloak>Інструменти</span></a>
+                    <a href="#tools-resources" class="font-bold text-xs uppercase tracking-widest text-slate-500 hover:text-brass transition-colors"><span x-show="lang === 'en'">Tools</span><span x-show="lang === 'ua'" x-cloak>Інструменти</span></a>
+                    <button @click="openProfile()" class="text-xs font-bold text-slate-700 bg-white border border-slate-200 px-4 py-1.5 rounded-full hover:border-brass hover:text-brass transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-md uppercase tracking-widest flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                        <span x-show="lang === 'en'">Profile</span><span x-show="lang === 'ua'" x-cloak>Профіль</span>
+                    </button>
                     <a href="/" class="text-xs font-bold text-white bg-slate-900 px-5 py-2 rounded-full hover:bg-brass transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-md uppercase tracking-widest"><span x-show="lang === 'en'">Main Band</span><span x-show="lang === 'ua'" x-cloak>Оркестр</span></a>
                 </div>
             </div>
@@ -190,78 +273,39 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 animate-fade-in-up" style="animation-delay: 0.2s;">
-            
-            <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden transition-all duration-300 hover:shadow-lg">
-                <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <h3 class="font-heading font-bold text-slate-900 text-base sm:text-lg">
-                            <span x-show="lang === 'en'">Weekly Progress</span><span x-show="lang === 'ua'" x-cloak>Прогрес за тиждень</span>
-                        </h3>
-                        <p class="text-xs text-slate-500 mt-1">
-                            <span x-show="lang === 'en'">Build your habit!</span><span x-show="lang === 'ua'" x-cloak>Формуйте звичку!</span>
-                        </p>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-2xl sm:text-3xl font-black text-brass leading-none" x-text="streak"></div>
-                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest"><span x-show="lang === 'en'">Day Streak</span><span x-show="lang === 'ua'" x-cloak>Днів поспіль</span></span>
-                    </div>
+        <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 sm:p-8 flex flex-col relative overflow-hidden transition-all duration-300 hover:shadow-lg animate-fade-in-up" style="animation-delay: 0.2s;">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b border-slate-100 pb-4">
+                <div>
+                    <h3 class="font-heading font-bold text-slate-900 text-lg sm:text-2xl">
+                        <span x-show="lang === 'en'">Daily Practice Session</span><span x-show="lang === 'ua'" x-cloak>Таймер Занять</span>
+                    </h3>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                        <span x-show="lang === 'en'">Follow the 25-minute structure to build your rank!</span><span x-show="lang === 'ua'" x-cloak>Структура на 25 хв для підвищення рангу!</span>
+                    </p>
                 </div>
-                
-                <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100 mb-4">
-                    <template x-for="(day, index) in weekDays" :key="index">
-                        <div class="flex flex-col items-center gap-1.5">
-                            <span class="text-[10px] font-bold text-slate-400" x-text="day"></span>
-                            <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-colors duration-300"
-                                 :class="hasPracticedOnDay(index) ? 'bg-emerald-100 text-emerald-600 border border-emerald-200' : (index === currentDayOfWeek ? 'bg-white border-2 border-slate-300' : 'bg-white border border-slate-200')">
-                                <svg x-show="hasPracticedOnDay(index)" class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
-                            </div>
-                        </div>
-                    </template>
-                </div>
-                
-                <button @click="logPractice()" class="w-full py-3 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-widest transition-all duration-300 shadow-sm border"
-                    :class="practicedToday ? 'bg-emerald-50 text-emerald-700 border-emerald-200 cursor-default' : 'bg-slate-900 border-transparent text-white hover:bg-brass hover:shadow-md'">
-                    <span x-show="!practicedToday">
-                        <span x-show="lang === 'en'">Mark as Practiced ✓</span><span x-show="lang === 'ua'" x-cloak>Я займався сьогодні ✓</span>
-                    </span>
-                    <span x-show="practicedToday">
-                        <span x-show="lang === 'en'">Done for today!</span><span x-show="lang === 'ua'" x-cloak>Готово на сьогодні!</span>
-                    </span>
-                </button>
+                <div class="text-4xl sm:text-5xl font-mono font-black text-slate-900 tracking-tight" x-text="formatTime(sessionTimeLeft)">00:00</div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-5 sm:p-6 flex flex-col relative overflow-hidden transition-all duration-300 hover:shadow-lg">
-                <div class="flex justify-between items-center mb-4">
-                    <div>
-                        <h3 class="font-heading font-bold text-slate-900 text-base sm:text-lg">
-                            <span x-show="lang === 'en'">Practice Session</span><span x-show="lang === 'ua'" x-cloak>Таймер Занять</span>
-                        </h3>
-                        <p class="text-xs text-slate-500 mt-1">
-                            <span x-show="lang === 'en'">Structured 25-min guide.</span><span x-show="lang === 'ua'" x-cloak>Структура на 25 хв.</span>
-                        </p>
-                    </div>
-                    <div class="text-3xl font-mono font-black text-slate-900 tracking-tight" x-text="formatTime(sessionTimeLeft)">00:00</div>
-                </div>
-
-                <div class="flex flex-col gap-2.5 flex-grow justify-center">
-                    <template x-for="(phase, idx) in sessionPhases" :key="idx">
-                        <button @click="startSessionPhase(idx)" 
-                            class="flex items-center justify-between w-full px-4 py-3 rounded-xl border transition-all duration-200 text-left group"
-                            :class="sessionPhase === idx && sessionActive ? 'bg-brass text-white border-brass shadow-md scale-[1.02]' : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-brass hover:bg-white'">
-                            <div class="flex items-center gap-3">
-                                <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
-                                     :class="sessionPhase === idx && sessionActive ? 'bg-white text-brass' : 'bg-slate-200 text-slate-500 group-hover:bg-brass/20 group-hover:text-brass'" x-text="idx + 1"></div>
-                                <span class="font-bold text-sm" x-text="lang === 'en' ? phase.name_en : phase.name_ua"></span>
-                            </div>
-                            <span class="text-xs font-mono font-bold opacity-70" x-text="formatTime(phase.duration)"></span>
-                        </button>
-                    </template>
-                </div>
-                
-                <div class="w-full bg-slate-100 h-1.5 rounded-full mt-5 overflow-hidden hidden sm:block">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <template x-for="(phase, idx) in sessionPhases" :key="idx">
+                    <button @click="startSessionPhase(idx)" 
+                        class="flex flex-col items-start w-full px-5 py-4 rounded-xl border-2 transition-all duration-200 text-left group"
+                        :class="sessionPhase === idx && sessionActive ? 'bg-brass border-brass text-white shadow-md transform scale-[1.02]' : 'bg-slate-50 border-slate-200 hover:border-brass hover:bg-white text-slate-600'">
+                        <div class="flex items-center gap-3 w-full mb-2">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shadow-inner"
+                                 :class="sessionPhase === idx && sessionActive ? 'bg-white text-brass' : 'bg-slate-200 text-slate-500 group-hover:bg-brass/20 group-hover:text-brass'" x-text="idx + 1"></div>
+                            <span class="font-bold text-base uppercase tracking-widest" :class="sessionPhase === idx && sessionActive ? 'text-white' : 'text-slate-900'" x-text="lang === 'en' ? phase.name_en : phase.name_ua"></span>
+                        </div>
+                        <span class="text-sm font-mono font-bold opacity-80" x-text="formatTime(phase.duration) + (lang === 'en' ? ' min' : ' хв')"></span>
+                    </button>
+                </template>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
+                <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden shadow-inner">
                     <div class="bg-brass h-full transition-all duration-1000 ease-linear" :style="sessionActive ? `width: ${(1 - sessionTimeLeft / sessionPhases[sessionPhase].duration) * 100}%` : 'width: 0%'"></div>
                 </div>
+                <button @click="toggleSession()" class="w-full sm:w-auto bg-slate-900 text-white px-8 py-3 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-brass transition-all duration-300 shadow-md flex-shrink-0" x-text="sessionActive ? (lang === 'en' ? 'Pause Session' : 'Пауза') : (lang === 'en' ? 'Start Timer' : 'Старт')"></button>
             </div>
         </div>
 
@@ -274,7 +318,7 @@
                     </h2>
                     <p class="text-xs text-slate-500 mt-1">
                         <span x-show="lang === 'en'">Click any sheet to expand and open the auto-player.</span>
-                        <span x-show="lang === 'ua'" x-cloak>Натисніть на ноти для відкриття плеєра.</span>
+                        <span x-show="lang === 'ua'" x-cloak>Натисніть на ноти для розгортання та авто-плеєра.</span>
                     </p>
                 </div>
                 <div class="flex items-center justify-center gap-2 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
@@ -336,9 +380,9 @@
             
             <div class="p-6 sm:p-8 relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
                 <div>
-                    <span class="inline-block px-3 py-1 bg-brass/20 text-brassLight text-[10px] font-extrabold uppercase tracking-widest rounded-full mb-4">Beta Feature</span>
+                    <span class="inline-block px-3 py-1 bg-brass/20 text-brassLight text-[10px] font-extrabold uppercase tracking-widest rounded-full mb-4">Feedback Tool</span>
                     <h3 class="font-heading text-2xl sm:text-3xl font-bold text-white mb-2"><span x-show="lang === 'en'">Playing Test Submissions</span><span x-show="lang === 'ua'" x-cloak>Здача Партій</span></h3>
-                    <p class="text-slate-400 text-sm leading-relaxed mb-6"><span x-show="lang === 'en'">Record your assigned piece or scale and upload it directly for feedback from the conductor. Please include your instrument and song name.</span><span x-show="lang === 'ua'" x-cloak>Запишіть задану п'єсу або гамму та завантажте сюди для перевірки диригентом.</span></p>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-6"><span x-show="lang === 'en'">Record your assigned piece or scale and upload it directly for feedback from the conductor.</span><span x-show="lang === 'ua'" x-cloak>Запишіть задану п'єсу або гамму та завантажте сюди для перевірки диригентом.</span></p>
                 </div>
                 
                 <form x-ref="testForm" @submit.prevent="submitTest" name="playing_test" method="POST" data-netlify="true" enctype="multipart/form-data" class="bg-slate-800/50 border border-slate-700 p-5 rounded-xl space-y-4">
@@ -418,11 +462,11 @@
                         <div class="space-y-3 flex-grow">
                             <button @click="printStaves(10)" class="w-full flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 hover:border-brass transition-all duration-200 group">
                                 <span class="font-bold text-xs sm:text-sm text-slate-700 group-hover:text-brass transition-colors"><span x-show="lang === 'en'">Print 10 Staves</span><span x-show="lang === 'ua'" x-cloak>Друк 10 рядків</span></span>
-                                <svg class="w-4 h-4 text-slate-400 group-hover:text-brass transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                                <svg class="w-4 h-4 text-slate-400 group-hover:text-brass transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
                             </button>
                             <button @click="printStaves(12)" class="w-full flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 hover:border-brass transition-all duration-200 group">
                                 <span class="font-bold text-xs sm:text-sm text-slate-700 group-hover:text-brass transition-colors"><span x-show="lang === 'en'">Print 12 Staves</span><span x-show="lang === 'ua'" x-cloak>Друк 12 рядків</span></span>
-                                <svg class="w-4 h-4 text-slate-400 group-hover:text-brass transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                                <svg class="w-4 h-4 text-slate-400 group-hover:text-brass transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
                             </button>
                         </div>
                     </div>
@@ -465,13 +509,8 @@
 
                         <div class="w-full max-w-lg bg-slate-50 border border-slate-200 shadow-inner rounded-2xl p-6 sm:p-10 flex flex-col justify-center items-center min-h-[200px] sm:min-h-[260px] overflow-hidden relative">
                             
-                            <button @click="playFingeringAudio()" class="absolute top-4 right-4 bg-white border border-slate-200 hover:border-brass hover:text-brass text-slate-500 rounded-full p-2 sm:px-4 sm:py-2 shadow-sm flex items-center gap-2 transition-all duration-200 z-10 focus:outline-none" :class="isFingeringPlaying ? 'text-brass border-brass bg-brass/5 shadow-inner' : ''">
-                                <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                <span class="text-[10px] sm:text-xs font-bold uppercase tracking-widest hidden sm:block"><span x-show="lang === 'en'">Play Pitch</span><span x-show="lang === 'ua'" x-cloak>Звук</span></span>
-                            </button>
-
                             <template x-if="interactiveChart.data[interactiveChart.instrument].type === 'valves'">
-                                <div class="flex gap-4 sm:gap-8 mt-4 sm:mt-0">
+                                <div class="flex gap-4 sm:gap-8 mt-2 mb-6">
                                     <template x-for="(v, i) in interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].val">
                                         <div class="flex flex-col items-center gap-3 sm:gap-4">
                                             <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full border-[4px] sm:border-[5px] shadow-md transition-all duration-300"
@@ -483,11 +522,12 @@
                             </template>
                             
                             <template x-if="interactiveChart.data[interactiveChart.instrument].type === 'slide'">
-                                <div class="flex flex-col items-center w-full max-w-md mt-4 sm:mt-0">
+                                <div class="flex flex-col items-center w-full max-w-md mt-2 mb-6">
                                     <span class="text-5xl sm:text-6xl font-black text-brass mb-2 transition-all duration-300" x-text="interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].pos"></span>
                                     <span class="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-widest mb-6 sm:mb-8">
                                         <span x-show="lang === 'en'">Position</span><span x-show="lang === 'ua'" x-cloak>Позиція</span>
                                     </span>
+                                    
                                     <div class="w-full h-4 sm:h-5 bg-slate-200 rounded-full relative flex items-center mt-2 mb-3 shadow-inner">
                                         <div class="absolute h-8 w-8 sm:h-10 sm:w-10 bg-brass rounded-full shadow-lg transition-all duration-500 ease-in-out border-[3px] sm:border-4 border-white"
                                              class="-ml-4 sm:-ml-5"
@@ -500,32 +540,88 @@
                             </template>
                             
                             <template x-if="interactiveChart.data[interactiveChart.instrument].type === 'woodwind'">
-                                <div class="flex flex-col sm:flex-row items-center gap-6 sm:gap-10 mt-6 sm:mt-0">
+                                <div class="flex flex-col sm:flex-row items-center gap-6 sm:gap-10 mt-2 mb-6">
                                     <div class="flex items-center gap-2 sm:gap-4 bg-white px-3 py-3 sm:px-5 sm:py-4 rounded-2xl border border-slate-200 shadow-sm">
                                         <span class="text-xs sm:text-sm font-bold text-slate-400 w-6 sm:w-8 text-right">LH</span>
-                                        <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-[3px] sm:border-[4px] shadow-sm transition-all duration-300 flex-shrink-0" :class="interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].lh[0] ? 'bg-brass border-brass scale-95 shadow-inner' : 'bg-slate-50 border-slate-300'"></div>
+                                        <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-[3px] sm:border-[4px] shadow-sm transition-all duration-300 flex-shrink-0"
+                                             :class="interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].lh[0] ? 'bg-brass border-brass scale-95 shadow-inner' : 'bg-slate-50 border-slate-300'"></div>
                                         <div class="w-px h-10 sm:h-12 bg-slate-200 mx-1 sm:mx-2"></div>
                                         <div class="flex gap-1.5 sm:gap-3">
                                             <template x-for="i in [1, 2, 3]">
-                                                <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-[3px] sm:border-[4px] shadow-sm transition-all duration-300 flex-shrink-0" :class="interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].lh[i] ? 'bg-brass border-brass scale-95 shadow-inner' : 'bg-slate-50 border-slate-300'"></div>
+                                                <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-[3px] sm:border-[4px] shadow-sm transition-all duration-300 flex-shrink-0"
+                                                     :class="interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].lh[i] ? 'bg-brass border-brass scale-95 shadow-inner' : 'bg-slate-50 border-slate-300'"></div>
                                             </template>
                                         </div>
                                     </div>
+                                    
                                     <div class="flex items-center gap-2 sm:gap-4 bg-white px-3 py-3 sm:px-5 sm:py-4 rounded-2xl border border-slate-200 shadow-sm">
                                         <span class="text-xs sm:text-sm font-bold text-slate-400 w-6 sm:w-8 text-right">RH</span>
                                         <div class="flex gap-1.5 sm:gap-3">
                                             <template x-for="i in [0, 1, 2]">
-                                                <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-[3px] sm:border-[4px] shadow-sm transition-all duration-300 flex-shrink-0" :class="interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].rh[i] ? 'bg-brass border-brass scale-95 shadow-inner' : 'bg-slate-50 border-slate-300'"></div>
+                                                <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-[3px] sm:border-[4px] shadow-sm transition-all duration-300 flex-shrink-0"
+                                                     :class="interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].rh[i] ? 'bg-brass border-brass scale-95 shadow-inner' : 'bg-slate-50 border-slate-300'"></div>
                                             </template>
                                         </div>
                                         <div class="w-px h-10 sm:h-12 bg-slate-200 mx-1 sm:mx-2"></div>
-                                        <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-[3px] sm:border-[4px] shadow-sm transition-all duration-300 flex-shrink-0" :class="interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].rh[3] ? 'bg-brass border-brass scale-95 shadow-inner' : 'bg-slate-50 border-slate-300'"></div>
+                                        <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-[3px] sm:border-[4px] shadow-sm transition-all duration-300 flex-shrink-0"
+                                             :class="interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].rh[3] ? 'bg-brass border-brass scale-95 shadow-inner' : 'bg-slate-50 border-slate-300'"></div>
                                     </div>
                                 </div>
                             </template>
+
+                            <button @click="playFingeringAudio()" class="mt-auto bg-white border-2 hover:border-brass text-slate-500 hover:text-brass rounded-full px-6 py-2.5 shadow-sm flex items-center gap-2 transition-all duration-200 z-10 font-bold uppercase tracking-widest text-xs" :class="isFingeringPlaying ? 'text-brass border-brass bg-brass/10 scale-95' : 'border-slate-200'">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                <span><span x-show="lang === 'en'">Play Pitch</span><span x-show="lang === 'ua'" x-cloak>Звук</span></span>
+                            </button>
+                            
                         </div>
                     </div>
                 </div>
+            </div>
+        </section>
+
+        <section class="bg-slate-900 rounded-2xl shadow-sm border border-slate-800 overflow-hidden flex flex-col transition-all duration-300 hover:shadow-lg mt-8">
+            <div class="p-5 sm:p-6 border-b border-slate-800 bg-slate-800/50">
+                <h3 class="font-heading text-base sm:text-lg font-bold text-white">
+                    <span x-show="lang === 'en'">Musicianship Tips</span><span x-show="lang === 'ua'" x-cloak>Поради Музиканту</span>
+                </h3>
+                <p class="text-[10px] sm:text-xs text-slate-400 mt-1">
+                    <span x-show="lang === 'en'">Preparing for the main band.</span><span x-show="lang === 'ua'" x-cloak>Підготовка до гри в оркестрі.</span>
+                </p>
+            </div>
+            <div class="p-5 sm:p-6 space-y-4 flex-grow text-white">
+                <details class="group">
+                    <summary class="font-bold text-xs sm:text-sm cursor-pointer hover:text-brassLight transition-colors list-none flex justify-between items-center">
+                        <span x-show="lang === 'en'">1. Posture & Air Support</span><span x-show="lang === 'ua'" x-cloak>1. Постава та Дихання</span>
+                        <span class="transition-transform duration-300 group-open:rotate-180">▾</span>
+                    </summary>
+                    <p class="text-[10px] sm:text-xs text-slate-400 mt-2 leading-relaxed animate-fade-in-up">
+                        <span x-show="lang === 'en'">Sit on the front half of your chair with feet flat. Good tone comes from deep, relaxed breathing from the diaphragm, not your chest.</span>
+                        <span x-show="lang === 'ua'" x-cloak>Сидіть на передній половині стільця. Хороший звук вимагає глибокого, розслабленого дихання діафрагмою.</span>
+                    </p>
+                </details>
+                <hr class="border-slate-800">
+                <details class="group">
+                    <summary class="font-bold text-xs sm:text-sm cursor-pointer hover:text-brassLight transition-colors list-none flex justify-between items-center">
+                        <span x-show="lang === 'en'">2. Watching the Conductor</span><span x-show="lang === 'ua'" x-cloak>2. Увага на Диригента</span>
+                        <span class="transition-transform duration-300 group-open:rotate-180">▾</span>
+                    </summary>
+                    <p class="text-[10px] sm:text-xs text-slate-400 mt-2 leading-relaxed animate-fade-in-up">
+                        <span x-show="lang === 'en'">Adjust your music stand so you can see your sheet music AND the conductor out of your peripheral vision without moving your head.</span>
+                        <span x-show="lang === 'ua'" x-cloak>Налаштуйте пульт так, щоб бачити ноти та диригента периферійним зором, не піднімаючи голови.</span>
+                    </p>
+                </details>
+                <hr class="border-slate-800">
+                <details class="group">
+                    <summary class="font-bold text-xs sm:text-sm cursor-pointer hover:text-brassLight transition-colors list-none flex justify-between items-center">
+                        <span x-show="lang === 'en'">3. Intonation (Tuning)</span><span x-show="lang === 'ua'" x-cloak>3. Інтонація (Строй)</span>
+                        <span class="transition-transform duration-300 group-open:rotate-180">▾</span>
+                    </summary>
+                    <p class="text-[10px] sm:text-xs text-slate-400 mt-2 leading-relaxed animate-fade-in-up">
+                        <span x-show="lang === 'en'">Listen to the players around you. If you hear "waves" or "beats" in the sound, you are out of tune. Adjust your tuning slide/mouthpiece until the sound is smooth.</span>
+                        <span x-show="lang === 'ua'" x-cloak>Слухайте інших. Якщо ви чуєте "хвилі" або вібрації в звуці, ви не строїте. Налаштуйте інструмент, поки звук не стане рівним.</span>
+                    </p>
+                </details>
             </div>
         </section>
 
@@ -554,6 +650,36 @@
                 scrollY: 0,
                 scrollProgress: 0,
                 
+                // Profile & User State
+                profileModalOpen: false,
+                studentName: localStorage.getItem('fubc_student_name') || '',
+                isEditingName: false,
+                totalMinutes: parseInt(localStorage.getItem('fubc_total_minutes')) || 0,
+                
+                openProfile() {
+                    this.profileModalOpen = true;
+                    if(!this.studentName) this.isEditingName = true;
+                },
+                saveName() {
+                    this.isEditingName = false;
+                    localStorage.setItem('fubc_student_name', this.studentName);
+                },
+                getRankName() {
+                    let hrs = this.totalMinutes / 60;
+                    if(hrs < 1) return this.lang === 'en' ? 'Beginner' : 'Початківець';
+                    if(hrs < 5) return this.lang === 'en' ? 'Apprentice' : 'Учень';
+                    if(hrs < 20) return this.lang === 'en' ? 'Musician' : 'Музикант';
+                    if(hrs < 50) return this.lang === 'en' ? 'Section Leader' : 'Лідер групи';
+                    return this.lang === 'en' ? 'Maestro' : 'Маестро';
+                },
+                getRankColor() {
+                    let hrs = this.totalMinutes / 60;
+                    if(hrs < 5) return 'text-slate-500';
+                    if(hrs < 20) return 'text-emerald-500';
+                    if(hrs < 50) return 'text-blue-500';
+                    return 'text-brass';
+                },
+
                 // --- GLOBAL INSTRUMENT STATE ---
                 availableInstruments: ['Flute', 'Oboe', 'Clarinet', 'Saxophone', 'Trumpet', 'French Horn', 'Tenor Horn', 'Baritone', 'Trombone', 'Tuba'],
                 globalInstrument: localStorage.getItem('fubc_school_instrument') || 'Trumpet',
@@ -566,12 +692,9 @@
                 practicedLog: JSON.parse(localStorage.getItem('fubc_school_weekly_log')) || [],
                 weekDays: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
                 
-                get currentDayOfWeek() {
-                    return new Date().getDay();
-                },
+                get currentDayOfWeek() { return new Date().getDay(); },
 
                 hasPracticedOnDay(dayIndex) {
-                    // Check if current week's specific day index has been logged
                     const today = new Date();
                     const dayDiff = today.getDay() - dayIndex;
                     const targetDate = new Date(today);
@@ -628,14 +751,11 @@
                     const today = new Date();
                     today.setHours(0,0,0,0);
 
-                    // Logic to clean out log array if it's a new week (resetting on Sunday)
                     const lastPracticedStr = this.practicedLog[this.practicedLog.length - 1];
                     if (lastPracticedStr) {
                         const last = new Date(lastPracticedStr);
                         const diffTime = today.getTime() - last.getTime();
                         const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-                        
-                        // Check if it's a new week (Sunday start)
                         if (today.getDay() < last.getDay() || diffDays > 6) {
                             this.practicedLog = [];
                             localStorage.setItem('fubc_school_weekly_log', JSON.stringify([]));
@@ -651,7 +771,6 @@
                         else if (diffDays > 1) { this.streak = 0; localStorage.setItem('fubc_school_streak', 0); }
                     }
                     
-                    // Fetch dynamic setlist
                     try {
                         const response = await fetch('/data.json?t=' + new Date().getTime());
                         if (response.ok) {
@@ -680,22 +799,36 @@
                             } else {
                                 clearInterval(this.sessionTimer);
                                 this.sessionActive = false;
-                                // Auto move to next phase or finish
+                                
+                                // Add elapsed time to profile
+                                this.totalMinutes += Math.round(this.sessionPhases[this.sessionPhase].duration / 60);
+                                localStorage.setItem('fubc_total_minutes', this.totalMinutes);
+
                                 if (this.sessionPhase < 2) {
                                     alert("Phase complete! Ready for the next one?");
                                 } else {
-                                    this.logPractice(); // Log when all phases done
+                                    this.logPractice(); 
                                 }
                             }
                         }, 1000);
                     }
                 },
 
-                resetSession() {
-                    clearInterval(this.sessionTimer);
-                    this.sessionActive = false;
-                    this.sessionPhase = 0;
-                    this.sessionTimeLeft = this.sessionPhases[0].duration;
+                toggleSession() {
+                    if (this.sessionActive) {
+                        clearInterval(this.sessionTimer);
+                        this.sessionActive = false;
+                        
+                        // Add elapsed time to profile when paused/stopped
+                        let elapsedSeconds = this.sessionPhases[this.sessionPhase].duration - this.sessionTimeLeft;
+                        if(elapsedSeconds > 60) {
+                            this.totalMinutes += Math.floor(elapsedSeconds / 60);
+                            localStorage.setItem('fubc_total_minutes', this.totalMinutes);
+                            this.sessionTimeLeft = this.sessionPhases[this.sessionPhase].duration; // reset phase
+                        }
+                    } else {
+                        this.startSessionPhase(this.sessionPhase);
+                    }
                 },
 
                 updateGlobalInstrument(inst) {
@@ -779,6 +912,10 @@
                         this.practicedLog.push(todayStr);
                         localStorage.setItem('fubc_school_weekly_log', JSON.stringify(this.practicedLog));
                     }
+
+                    // Add 30 mins as a baseline if they clicked the button directly without the timer
+                    this.totalMinutes += 30;
+                    localStorage.setItem('fubc_total_minutes', this.totalMinutes);
 
                     localStorage.setItem('fubc_school_streak', this.streak);
                     localStorage.setItem('fubc_school_last_date', this.lastPractice);
@@ -990,14 +1127,12 @@
                     let noteName = noteObj.name.split('/')[0].replace('↑', '');
                     
                     const matchingFreqObj = this.notes.find(n => n.name === noteName);
-                    const baseFreq = matchingFreqObj ? matchingFreqObj.freq : 261.63; // Default C
+                    const baseFreq = matchingFreqObj ? matchingFreqObj.freq : 261.63;
 
-                    // Calculate octave based on range (very basic approximation for pitch pipe)
                     let pitchOctave = 4;
                     if(this.interactiveChart.selectedRange === 'Low') pitchOctave = 3;
                     if(this.interactiveChart.selectedRange === 'High') pitchOctave = 5;
                     
-                    // Bass clef instruments sound an octave lower
                     if (['Trombone', 'Baritone', 'Tuba'].includes(this.interactiveChart.instrument)) pitchOctave -= 1;
 
                     const actualFreq = baseFreq * Math.pow(2, pitchOctave - 4);
@@ -1019,7 +1154,6 @@
                     this.filterNode.connect(this.gainNode);
                     this.gainNode.connect(this.audioCtx.destination);
                     
-                    // Synthesizer Envelope
                     this.gainNode.gain.setValueAtTime(0, this.audioCtx.currentTime);
                     this.gainNode.gain.linearRampToValueAtTime(0.5, this.audioCtx.currentTime + 0.1);
                     this.gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioCtx.currentTime + 1.5);
@@ -1027,10 +1161,7 @@
                     this.oscillator.start(); 
                     this.isFingeringPlaying = true;
                     
-                    // Auto stop after 1.5 seconds
-                    setTimeout(() => {
-                        this.stopFingeringAudio();
-                    }, 1500);
+                    setTimeout(() => { this.stopFingeringAudio(); }, 1500);
                 },
 
                 stopFingeringAudio() {
