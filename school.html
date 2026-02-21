@@ -40,7 +40,6 @@
     <style>
         [x-cloak] { display: none !important; }
         
-        /* Premium Custom Range Slider */
         input[type=range] { -webkit-appearance: none; background: transparent; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 28px; width: 28px; border-radius: 50%; background: linear-gradient(135deg, #d97706 0%, #b45309 100%); margin-top: -12px; cursor: pointer; border: 3px solid white; box-shadow: 0 4px 10px rgba(180, 83, 9, 0.4); transition: transform 0.1s; }
         input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.1); }
@@ -63,6 +62,11 @@
 
 <body class="text-textMain antialiased bg-pageBg overflow-x-hidden" x-data="schoolApp" @scroll.window="scrollY = window.pageYOffset; scrollProgress = (window.pageYOffset / (document.documentElement.scrollHeight - window.innerHeight)) * 100">
 
+    <div x-show="showToast" x-transition.opacity.duration.300ms class="fixed bottom-6 right-6 bg-slate-900 text-white px-5 py-3.5 rounded-xl shadow-2xl flex items-center gap-3 z-[200]" x-cloak>
+        <svg class="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+        <span class="text-sm font-bold tracking-wide" x-text="toastMessage"></span>
+    </div>
+
     <div class="fixed top-0 left-0 h-1.5 bg-gradient-to-r from-brass to-brassLight z-[100] shadow-[0_0_10px_rgba(180,83,9,0.5)] transition-all duration-150 ease-linear" :style="'width: ' + scrollProgress + '%'"></div>
     <div id="print-staves"></div>
 
@@ -77,11 +81,11 @@
                 <p class="text-xs sm:text-sm text-slate-500 mb-8 font-medium" x-text="authMode === 'login' ? 'Enter your name and 4-digit PIN.' : 'Use the Access Code provided by the conductor.'"></p>
                 
                 <div class="w-full max-w-xs space-y-4">
-                    <input x-model="authForm.name" type="text" placeholder="First Name" class="w-full bg-white/80 border-2 border-slate-100 rounded-xl px-5 py-4 text-sm font-bold text-slate-700 focus:border-brass focus:ring-4 focus:ring-brass/10 focus:outline-none transition-all shadow-sm">
+                    <input x-model="authForm.name" type="text" placeholder="First & Last Name" class="w-full bg-white/80 border-2 border-slate-100 rounded-xl px-5 py-4 text-sm font-bold text-slate-700 focus:border-brass focus:ring-4 focus:ring-brass/10 focus:outline-none transition-all shadow-sm">
                     <input x-model="authForm.pin" type="password" placeholder="4-Digit PIN" pattern="\d{4}" maxlength="4" class="w-full bg-white/80 border-2 border-slate-100 rounded-xl px-5 py-4 text-xl focus:border-brass focus:ring-4 focus:ring-brass/10 focus:outline-none text-center tracking-[0.75em] font-mono text-slate-900 font-black shadow-sm transition-all">
                     
                     <div x-show="authMode === 'register'">
-                        <input x-model="authForm.code" type="text" placeholder="Class Access Code" class="w-full bg-white/80 border-2 border-slate-100 rounded-xl px-5 py-4 text-sm font-bold text-slate-700 focus:border-brass focus:ring-4 focus:ring-brass/10 focus:outline-none uppercase tracking-widest text-center shadow-sm transition-all mt-4" x-cloak>
+                        <input x-model="authForm.code" type="text" placeholder="Class Access Code" class="w-full bg-white/80 border-2 border-slate-100 rounded-xl px-5 py-4 text-sm font-bold text-slate-700 focus:border-brass focus:ring-4 focus:ring-brass/10 focus:outline-none uppercase tracking-widest text-center shadow-sm transition-all mt-4">
                     </div>
                     
                     <button @click="handleAuth()" class="w-full bg-gradient-to-r from-slate-900 to-slate-800 text-white font-bold uppercase tracking-widest text-xs py-4 rounded-xl hover:from-brass hover:to-brassLight transition-all duration-300 shadow-[0_8px_20px_-6px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_20px_-6px_rgba(180,83,9,0.5)] transform hover:-translate-y-0.5 mt-6 relative disabled:opacity-50">
@@ -161,21 +165,23 @@
                 <div id="audio-control" class="w-full"></div>
             </div>
 
-            <div class="p-4 sm:p-10 flex-grow overflow-auto bg-white flex flex-col items-center justify-start w-full custom-scrollbar">
+            <div class="p-4 sm:p-10 flex-grow overflow-auto bg-white flex flex-col items-center justify-start w-full">
                 <div id="abc-fullscreen" class="w-full max-w-5xl flex justify-center"></div>
             </div>
         </div>
     </div>
 
-    <nav class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm transition-colors duration-300 w-full max-w-[100vw]" :class="mobileMenuOpen ? 'bg-white border-transparent' : ''">
+    <nav class="sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-slate-200/80 shadow-sm transition-colors duration-300 w-full max-w-[100vw]" :class="mobileMenuOpen ? 'bg-white border-transparent' : ''">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative w-full">
             <div class="flex justify-between items-center h-16 w-full">
-                <a href="#" @click.prevent="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex items-center gap-3 hover:opacity-80 transition-opacity group z-50 relative shrink-0">
-                    <div class="font-heading font-bold text-xl sm:text-2xl tracking-[0.15em] text-slate-900 leading-none">FUBC <span class="text-brass block text-[10px] sm:text-xs font-semibold tracking-[0.35em] mt-0.5 uppercase group-hover:text-brassLight transition-colors">MUSIC SCHOOL</span></div>
+                <a href="#" @click.prevent="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex items-center gap-2 hover:opacity-80 transition-opacity group z-50 relative shrink-0">
+                    <div class="font-heading font-black text-lg sm:text-2xl tracking-[0.1em] text-slate-900 leading-none">
+                        FUBC <span class="text-brass block text-[9px] sm:text-[11px] font-bold tracking-[0.3em] mt-0.5 uppercase group-hover:text-brassLight transition-colors">Music School</span>
+                    </div>
                 </a>
                 
                 <div class="md:hidden flex items-center gap-2 sm:gap-4 relative z-50 shrink-0">
-                    <button @click="openProfile()" class="text-[10px] font-bold text-slate-600 hover:text-slate-900 transition-colors uppercase tracking-widest border border-slate-200 px-3 py-1.5 rounded-full bg-slate-50 shadow-sm flex items-center gap-1.5">
+                    <button @click="openProfile()" class="text-[10px] font-black text-slate-600 hover:text-slate-900 transition-colors uppercase tracking-widest border border-slate-200 px-3 py-1.5 rounded-full bg-slate-50 shadow-sm flex items-center gap-1.5">
                         <span class="w-2 h-2 rounded-full" :class="currentUser ? 'bg-emerald-500 shadow-[0_0_8px_rgba(52,211,153,0.8)]' : 'bg-rose-500'"></span>
                         <span x-text="currentUser ? 'Profile' : 'Login'"></span>
                     </button>
@@ -205,18 +211,18 @@
                         <span x-show="lang === 'en'">Main Band</span><span x-show="lang === 'ua'" x-cloak>Оркестр</span>
                         <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-full"></span>
                     </a>
-                    <button @click="openProfile()" class="text-[10px] font-bold text-slate-600 bg-white border border-slate-200 px-3 py-2 rounded-full hover:bg-slate-50 hover:text-slate-900 transition-all shadow-sm uppercase tracking-widest flex items-center gap-1.5 transform hover:-translate-y-0.5">
+                    <button @click="openProfile()" class="text-[10px] font-black text-slate-600 bg-white border border-slate-200 px-3 py-2 rounded-full hover:bg-slate-50 hover:text-slate-900 transition-all shadow-sm uppercase tracking-widest flex items-center gap-1.5 transform hover:-translate-y-0.5">
                         <span class="w-2 h-2 rounded-full" :class="currentUser ? 'bg-emerald-500 shadow-[0_0_8px_rgba(52,211,153,0.8)]' : 'bg-rose-500'"></span>
-                        <span x-text="currentUser ? (lang==='en'?'Profile':'Профіль') : (lang==='en'?'Student Login':'Вхід для учнів')"></span>
+                        <span x-text="currentUser ? (lang==='en'?'Profile':'Профіль') : (lang==='en'?'Student Login':'Вхід')"></span>
                     </button>
                 </div>
             </div>
             
             <div class="absolute top-full left-0 w-full h-auto bg-white border-b-4 border-brass shadow-2xl md:hidden flex flex-col px-6 pb-6 transition-all duration-300 origin-top z-30" x-show="mobileMenuOpen" x-transition:enter="opacity-0 scale-y-0" x-transition:enter-end="opacity-100 scale-y-100" x-transition:leave="opacity-100 scale-y-100" x-transition:leave-end="opacity-0 scale-y-0" x-cloak>
                 <div class="flex flex-col items-center justify-center space-y-6 mt-8">
-                    <a href="#warmups" @click="mobileMenuOpen = false" class="text-xl font-heading font-bold text-slate-800 hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Warm-Ups</span><span x-show="lang === 'ua'" x-cloak>Розминка</span></a>
-                    <a href="#scales" @click="mobileMenuOpen = false" class="text-xl font-heading font-bold text-slate-800 hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Scales</span><span x-show="lang === 'ua'" x-cloak>Гамми</span></a>
-                    <a href="#setlist" @click="mobileMenuOpen = false" class="text-xl font-heading font-bold text-slate-800 hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Practice</span><span x-show="lang === 'ua'" x-cloak>Заняття</span></a>
+                    <a href="#warmups" @click="mobileMenuOpen = false" class="text-xl font-heading font-black text-slate-800 hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Warm-Ups</span><span x-show="lang === 'ua'" x-cloak>Розминка</span></a>
+                    <a href="#scales" @click="mobileMenuOpen = false" class="text-xl font-heading font-black text-slate-800 hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Scales</span><span x-show="lang === 'ua'" x-cloak>Гамми</span></a>
+                    <a href="#setlist" @click="mobileMenuOpen = false" class="text-xl font-heading font-black text-slate-800 hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Practice</span><span x-show="lang === 'ua'" x-cloak>Заняття</span></a>
                     <div class="w-full h-px bg-slate-100 my-2"></div>
                     <a href="/" class="text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Return to Main Band</span><span x-show="lang === 'ua'" x-cloak>Головний сайт оркестру</span></a>
                 </div>
@@ -224,7 +230,7 @@
         </div>
     </nav>
 
-    <div class="relative w-full h-[450px] sm:h-[550px] overflow-hidden bg-slate-900">
+    <div class="relative w-full h-[400px] sm:h-[500px] overflow-hidden bg-slate-900">
         <img src="https://images.unsplash.com/photo-1573871669414-010dbf73ca84?q=80&w=2071&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-40 will-change-transform" :style="'transform: translateY(' + (scrollY * 0.4) + 'px)'" alt="Brass Instruments">
         <div class="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/40 to-pageBg"></div>
         <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4 pt-10 z-10 animate-fade-in-up">
@@ -493,7 +499,7 @@
             </section>
         </div>
 
-        <section id="setlist" class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden scroll-mt-24 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] animate-fade-in-up">
+        <section id="setlist" class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden scroll-mt-24 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
             <div class="px-5 sm:px-8 py-5 sm:py-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                 <div class="flex items-center gap-3 sm:gap-4">
                     <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl sm:rounded-2xl flex items-center justify-center shadow-sm border border-slate-200 text-brass shrink-0">
@@ -540,7 +546,7 @@
                 
                 <form x-ref="testForm" @submit.prevent="submitTest" name="playing_test" method="POST" data-netlify="true" enctype="multipart/form-data" class="bg-white/5 backdrop-blur-md border border-white/10 p-5 sm:p-8 rounded-3xl space-y-4 sm:space-y-5 shadow-2xl">
                     <input type="hidden" name="form-name" value="playing_test" />
-                    <input type="text" name="name" required :placeholder="lang === 'en' ? 'Student Name' : 'Ім\'я Учня'" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-3.5 sm:px-5 sm:py-4 text-xs sm:text-sm text-white placeholder-slate-500 focus:ring-2 focus:ring-brass focus:border-transparent outline-none transition-all shadow-inner">
+                    <input type="text" name="name" required :placeholder="lang === 'en' ? 'First & Last Name' : 'Ім\'я та Прізвище'" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-3.5 sm:px-5 sm:py-4 text-xs sm:text-sm text-white placeholder-slate-500 focus:ring-2 focus:ring-brass focus:border-transparent outline-none transition-all shadow-inner">
                     <input type="text" name="song" required :placeholder="lang === 'en' ? 'Song / Scale Name' : 'Назва твору / гамми'" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-3.5 sm:px-5 sm:py-4 text-xs sm:text-sm text-white placeholder-slate-500 focus:ring-2 focus:ring-brass focus:border-transparent outline-none transition-all shadow-inner">
                     <div class="relative w-full">
                         <input type="file" name="recording" accept="audio/*,video/*" required class="block w-full text-xs sm:text-sm text-slate-400 file:mr-3 sm:file:mr-4 file:py-2.5 sm:file:py-3 file:px-4 sm:file:px-5 file:rounded-xl file:border-0 file:text-[10px] sm:file:text-xs file:font-bold file:uppercase file:tracking-widest file:bg-slate-700 file:text-white hover:file:bg-slate-600 focus:outline-none cursor-pointer bg-slate-900/80 border border-slate-700 rounded-xl pr-4 shadow-inner transition-all">
@@ -603,7 +609,8 @@
                         <input type="range" min="40" max="240" x-model="bpm" @input="updateMetronomeSpeed()" class="w-full mb-6 sm:mb-8">
                         <div class="grid grid-cols-2 gap-3 sm:gap-4">
                             <button @click="toggleMetronome()" class="py-3 sm:py-4 rounded-2xl font-bold transition-all duration-300 text-[10px] sm:text-xs uppercase tracking-widest shadow-md border transform hover:-translate-y-1" :class="isMetronomePlaying ? 'bg-white border-slate-200 text-slate-900 hover:bg-slate-50' : 'bg-slate-900 border-transparent text-white hover:bg-brass hover:shadow-[0_8px_20px_rgba(180,83,9,0.3)]'">
-                                <span x-text="isMetronomePlaying ? (lang === 'en' ? 'Stop' : 'Стоп') : (lang === 'en' ? 'Start' : 'Старт')"></span>
+                                <span x-show="!isMetronomePlaying" x-text="lang === 'en' ? 'Start' : 'Старт'"></span>
+                                <span x-show="isMetronomePlaying" x-text="lang === 'en' ? 'Stop' : 'Стоп'" x-cloak></span>
                             </button>
                             <button @click="tapTempo()" class="py-3 sm:py-4 rounded-2xl font-bold transition-all duration-300 text-[10px] sm:text-xs uppercase tracking-widest bg-slate-50 text-slate-600 border border-slate-200 hover:border-brass hover:bg-brass/5 hover:text-brass transform hover:-translate-y-1 shadow-sm">
                                 <span x-show="lang === 'en'">Tap Tempo</span><span x-show="lang === 'ua'" x-cloak>Тап Темп</span>
@@ -746,7 +753,7 @@
             </div>
         </section>
 
-        <section class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden flex flex-col transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+        <section class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden flex flex-col transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] mt-8 sm:mt-12">
             <div class="p-5 sm:p-8 border-b border-slate-100 bg-slate-50 flex items-center gap-3 sm:gap-4">
                 <div class="w-8 h-8 sm:w-10 sm:h-10 bg-white border border-slate-200 rounded-lg sm:rounded-xl flex items-center justify-center shadow-sm text-brass shrink-0">
                     <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -819,6 +826,8 @@
                 currentFullScreenType: 'exercises', 
                 scrollY: 0,
                 scrollProgress: 0,
+                showToast: false,
+                toastMessage: '',
                 
                 profileModalOpen: false,
                 authMode: 'login',
@@ -827,10 +836,18 @@
                 currentUser: null,
                 leaderboard: [],
                 
+                triggerToast(msg) {
+                    this.toastMessage = msg;
+                    this.showToast = true;
+                    setTimeout(() => this.showToast = false, 3000);
+                },
+
                 async handleAuth() {
                     if(!this.authForm.name || !this.authForm.pin) return alert("Please enter name and PIN.");
-                    if(!this.supabase) { alert("Database not connected yet!"); return; }
+                    if(!this.authForm.name.trim().includes(' ')) return alert("Please enter both your First and Last Name (e.g. John Doe).");
+                    if(!this.supabase) return alert("Database not connected yet!");
                     this.authLoading = true;
+                    
                     if(this.authMode === 'register') {
                         if(btoa(this.authForm.code.trim().toUpperCase()) !== 'RlVCQzI2') { this.authLoading = false; return alert("Invalid Access Code"); }
                         const { data: existing } = await this.supabase.from('students').select('*').eq('name', this.authForm.name);
@@ -897,18 +914,18 @@
                     { title_en: '4. Arpeggios', title_ua: '4. Арпеджіо', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\nB d f b b f d B|B8|c e g c\' c\' g e c|c8|]','L:1/8\nC E G c c G E C|C8|D F A d d A F D|D8|]','L:1/8\nG B d g g d B G|G8|A c e a a e c A|A8|]','L:1/8\nF A c f f c A F|F8|G B d g g d B G|G8|]','L:1/8\nB,, D, F, B, B, F, D, B,,|B,,8|C, E, G, C C G, E, C,|C,8|]','L:1/8\nB,,, D,, F,, B,, B,, F,, D,, B,,,|B,,,8|C,, E,, G,, C, C, G,, E,, C,,|C,,8|]'] }
                 ],
                 scales: [
-                    { title_en: 'Concert C Major', title_ua: 'До мажор (C)', keys: ['C','D','A','G','C','C'], abc: ['L:1/8\nc d e f g a b c\'|c\' b a g f e d c|c8|]','L:1/8\nd e f g a b c\' d\'|d\' c\' b a g f e d|d8|]','L:1/8\nA B c d e f g a|a g f e d c B A|A8|]','L:1/8\nG A B c d e f g|g f e d c B A G|G8|]','L:1/8\nC, D, E, F, G, A, B, C|C B, A, G, F, E, D, C,|C,8|]','L:1/8\nC,, D,, E,, F,, G,, A,, B,, C,|C, B,, A,, G,, F,, E,, D,, C,,|C,,8|]']},
-                    { title_en: 'Concert F Major', title_ua: 'Фа мажор (F)', keys: ['F','G','D','C','F','F'], abc: ['L:1/8\nf g a b c\' d\' e\' f\'|f\' e\' d\' c\' b a g f|f8|]','L:1/8\nG A B c d e f g|g f e d c B A G|G8|]','L:1/8\nd e f g a b c\' d\'|d\' c\' b a g f e d|d8|]','L:1/8\nc d e f g a b c\'|c\' b a g f e d c|c8|]','L:1/8\nF, G, A, B, C D E F|F E D C B, A, G, F,|F,8|]','L:1/8\nF,, G,, A,, B,, C, D, E, F,|F, E, D, C, B,, A,, G,, F,,|F,,8|]']},
-                    { title_en: 'Concert Bb Major', title_ua: 'Сі-бемоль мажор (Bb)', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\nb c\' d\' e\' f\' g\' a\' b\'|b\' a\' g\' f\' e\' d\' c\' b|b8|]','L:1/8\nc d e f g a b c\'|c\' b a g f e d c|c8|]','L:1/8\nG A B c d e f g|g f e d c B A G|G8|]','L:1/8\nF G A B c d e f|f e d c B A G F|F8|]','L:1/8\nB,, C, D, E, F, G, A, B,|B, A, G, F, E, D, C, B,,|B,,8|]','L:1/8\nB,,, C,, D,, E,, F,, G,, A,, B,,|B,, A,, G,, F,, E,, D,, C,, B,,,|B,,,8|]']},
-                    { title_en: 'Concert Eb Major', title_ua: 'Мі-бемоль мажор (Eb)', keys: ['Eb','F','C','Bb','Eb','Eb'], abc: ['L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\nf g a b c\' d\' e\' f\'|f\' e\' d\' c\' b a g f|f8|]','L:1/8\nc d e f g a b c\'|c\' b a g f e d c|c8|]','L:1/8\nB c d e f g a b|b a g f e d c B|B8|]','L:1/8\nE, F, G, A, B, C D E|E D C B, A, G, F, E,|E,8|]','L:1/8\nE,, F,, G,, A,, B,, C, D, E,|E, D, C, B,, A,, G,, F,, E,,|E,,8|]']},
-                    { title_en: 'Concert Ab Major', title_ua: 'Ля-бемоль мажор (Ab)', keys: ['Ab','Bb','F','Eb','Ab','Ab'], abc: ['L:1/8\na b c\' d\' e\' f\' g\' a\'|a\' g\' f\' e\' d\' c\' b a|a8|]','L:1/8\nB c d e f g a b|b a g f e d c B|B8|]','L:1/8\nf g a b c\' d\' e\' f\'|f\' e\' d\' c\' b a g f|f8|]','L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\nA, B, C D E F G A|A G F E D C B, A,|A,8|]','L:1/8\nA,, B,, C, D, E, F, G, A,|A, G, F, E, D, C, B,, A,,|A,,8|]']},
-                    { title_en: 'Concert Db Major', title_ua: 'Ре-бемоль мажор (Db)', keys: ['Db','Eb','Bb','Ab','Db','Db'], abc: ['L:1/8\nd e f g a b c\' d\'|d\' c\' b a g f e d|d8|]','L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\nB c d e f g a b|b a g f e d c B|B8|]','L:1/8\nA B c d e f g a|a g f e d c B A|A8|]','L:1/8\nD, E, F, G, A, B, C D|D C B, A, G, F, E, D,|D,8|]','L:1/8\nD,, E,, F,, G,, A,, B,, C, D,|D, C, B,, A,, G,, F,, E,, D,,|D,,8|]']},
-                    { title_en: 'Concert Gb Major', title_ua: 'Соль-бемоль мажор (Gb)', keys: ['Gb','Ab','Eb','Db','Gb','Gb'], abc: ['L:1/8\ng a b c\' d\' e\' f\' g\'|g\' f\' e\' d\' c\' b a g|g8|]','L:1/8\nA B c d e f g a|a g f e d c B A|A8|]','L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\nd e f g a b c\' d\'|d\' c\' b a g f e d|d8|]','L:1/8\nG, A, B, C D E F G|G F E D C B, A, G,|G,8|]','L:1/8\nG,, A,, B,, C, D, E, F, G,|G, F, E, D, C, B,, A,, G,,|G,,8|]']},
-                    { title_en: 'Concert B Major', title_ua: 'Сі мажор (B)', keys: ['B','Db','Ab','Gb','B','B'], abc: ['L:1/8\nb c\' d\' e\' f\' g\' a\' b\'|b\' a\' g\' f\' e\' d\' c\' b|b8|]','L:1/8\nd e f g a b c\' d\'|d\' c\' b a g f e d|d8|]','L:1/8\na b c\' d\' e\' f\' g\' a\'|a\' g\' f\' e\' d\' c\' b a|a8|]','L:1/8\ng a b c\' d\' e\' f\' g\'|g\' f\' e\' d\' c\' b a g|g8|]','L:1/8\nB, C D E F G A B|B A G F E D C B,|B,8|]','L:1/8\nB,, C, D, E, F, G, A, B,|B, A, G, F, E, D, C, B,,|B,,8|]']},
-                    { title_en: 'Concert E Major', title_ua: 'Мі мажор (E)', keys: ['E','Gb','Db','B','E','E'], abc: ['L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\ng a b c\' d\' e\' f\' g\'|g\' f\' e\' d\' c\' b a g|g8|]','L:1/8\nd e f g a b c\' d\'|d\' c\' b a g f e d|d8|]','L:1/8\nB c d e f g a b|b a g f e d c B|B8|]','L:1/8\nE, F, G, A, B, C D E|E D C B, A, G, F, E,|E,8|]','L:1/8\nE,, F,, G,, A,, B,, C, D, E,|E, D, C, B,, A,, G,, F,, E,,|E,,8|]']},
-                    { title_en: 'Concert A Major', title_ua: 'Ля мажор (A)', keys: ['A','B','Gb','E','A','A'], abc: ['L:1/8\na b c\' d\' e\' f\' g\' a\'|a\' g\' f\' e\' d\' c\' b a|a8|]','L:1/8\nB c d e f g a b|b a g f e d c B|B8|]','L:1/8\ng a b c\' d\' e\' f\' g\'|g\' f\' e\' d\' c\' b a g|g8|]','L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\nA, B, C D E F G A|A G F E D C B, A,|A,8|]','L:1/8\nA,, B,, C, D, E, F, G, A,|A, G, F, E, D, C, B,, A,,|A,,8|]']},
-                    { title_en: 'Concert D Major', title_ua: 'Ре мажор (D)', keys: ['D','E','B','A','D','D'], abc: ['L:1/8\nd e f g a b c\' d\'|d\' c\' b a g f e d|d8|]','L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\nB c d e f g a b|b a g f e d c B|B8|]','L:1/8\nA B c d e f g a|a g f e d c B A|A8|]','L:1/8\nD, E, F, G, A, B, C D|D C B, A, G, F, E, D,|D,8|]','L:1/8\nD,, E,, F,, G,, A,, B,, C, D,|D, C, B,, A,, G,, F,, E,, D,,|D,,8|]']},
-                    { title_en: 'Concert G Major', title_ua: 'Соль мажор (G)', keys: ['G','A','E','D','G','G'], abc: ['L:1/8\ng a b c\' d\' e\' f\' g\'|g\' f\' e\' d\' c\' b a g|g8|]','L:1/8\nA B c d e f g a|a g f e d c B A|A8|]','L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\nd e f g a b c\' d\'|d\' c\' b a g f e d|d8|]','L:1/8\nG, A, B, C D E F G|G F E D C B, A, G,|G,8|]','L:1/8\nG,, A,, B,, C, D, E, F, G,|G, F, E, D, C, B,, A,, G,,|G,,8|]']}
+                    { title_en: 'Concert C Major', title_ua: 'До мажор (C)', keys: ['C','D','A','G','C','C'], abc: ['L:1/8\nC D E F G A B c|c B A G F E D C|C8|]','L:1/8\nD E F G A B c d|d c B A G F E D|D8|]','L:1/8\nA, B, C D E F G A|A G F E D C B, A,|A,8|]','L:1/8\nG, A, B, C D E F G|G F E D C B, A, G,|G,8|]','L:1/8\nC, D, E, F, G, A, B, C|C B, A, G, F, E, D, C,|C,8|]','L:1/8\nC,, D,, E,, F,, G,, A,, B,, C,|C, B,, A,, G,, F,, E,, D,, C,,|C,,8|]']},
+                    { title_en: 'Concert F Major', title_ua: 'Фа мажор (F)', keys: ['F','G','D','C','F','F'], abc: ['L:1/8\nF G A B c d e f|f e d c B A G F|F8|]','L:1/8\nG A B c d e f g|g f e d c B A G|G8|]','L:1/8\nD E F G A B c d|d c B A G F E D|D8|]','L:1/8\nC D E F G A B c|c B A G F E D C|C8|]','L:1/8\nF,, G,, A,, B,, C, D, E, F,|F, E, D, C, B,, A,, G,, F,,|F,,8|]','L:1/8\nF,,, G,,, A,,, B,,, C,, D,, E,, F,,|F,, E,, D,, C,, B,,, A,,, G,,, F,,,|F,,,8|]']},
+                    { title_en: 'Concert Bb Major', title_ua: 'Сі-бемоль мажор (Bb)', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\nB, C D E F G A B|B A G F E D C B,|B,8|]','L:1/8\nC D E F G A B c|c B A G F E D C|C8|]','L:1/8\nG A B c d e f g|g f e d c B A G|G8|]','L:1/8\nF G A B c d e f|f e d c B A G F|F8|]','L:1/8\nB,, C, D, E, F, G, A, B,|B, A, G, F, E, D, C, B,,|B,,8|]','L:1/8\nB,,, C,, D,, E,, F,, G,, A,, B,,|B,, A,, G,, F,, E,, D,, C,, B,,,|B,,,8|]']},
+                    { title_en: 'Concert Eb Major', title_ua: 'Мі-бемоль мажор (Eb)', keys: ['Eb','F','C','Bb','Eb','Eb'], abc: ['L:1/8\nE F G A B c d e|e d c B A G F E|E8|]','L:1/8\nF G A B c d e f|f e d c B A G F|F8|]','L:1/8\nC D E F G A B c|c B A G F E D C|C8|]','L:1/8\nB, C D E F G A B|B A G F E D C B,|B,8|]','L:1/8\nE,, F,, G,, A,, B,, C, D, E,|E, D, C, B,, A,, G,, F,, E,,|E,,8|]','L:1/8\nE,,, F,,, G,,, A,,, B,,, C,, D,, E,,|E,, D,, C,, B,,, A,,, G,,, F,,, E,,,|E,,,8|]']},
+                    { title_en: 'Concert Ab Major', title_ua: 'Ля-бемоль мажор (Ab)', keys: ['Ab','Bb','F','Eb','Ab','Ab'], abc: ['L:1/8\nA B c d e f g a|a g f e d c B A|A8|]','L:1/8\nB, C D E F G A B|B A G F E D C B,|B,8|]','L:1/8\nF G A B c d e f|f e d c B A G F|F8|]','L:1/8\nE F G A B c d e|e d c B A G F E|E8|]','L:1/8\nA,, B,, C, D, E, F, G, A,|A, G, F, E, D, C, B,, A,,|A,,8|]','L:1/8\nA,,, B,,, C,, D,, E,, F,, G,, A,,|A,, G,, F,, E,, D,, C,, B,,, A,,,|A,,,8|]']},
+                    { title_en: 'Concert Db Major', title_ua: 'Ре-бемоль мажор (Db)', keys: ['Db','Eb','Bb','Ab','Db','Db'], abc: ['L:1/8\nD E F G A B c d|d c B A G F E D|D8|]','L:1/8\nE F G A B c d e|e d c B A G F E|E8|]','L:1/8\nB, C D E F G A B|B A G F E D C B,|B,8|]','L:1/8\nA, B, C D E F G A|A G F E D C B, A,|A,8|]','L:1/8\nD, E, F, G, A, B, C D|D C B, A, G, F, E, D,|D,8|]','L:1/8\nD,, E,, F,, G,, A,, B,, C, D,|D, C, B,, A,, G,, F,, E,, D,,|D,,8|]']},
+                    { title_en: 'Concert Gb Major', title_ua: 'Соль-бемоль мажор (Gb)', keys: ['Gb','Ab','Eb','Db','Gb','Gb'], abc: ['L:1/8\nG A B c d e f g|g f e d c B A G|G8|]','L:1/8\nA, B, C D E F G A|A G F E D C B, A,|A,8|]','L:1/8\nE F G A B c d e|e d c B A G F E|E8|]','L:1/8\nD E F G A B c d|d c B A G F E D|D8|]','L:1/8\nG,, A,, B,, C, D, E, F, G,|G, F, E, D, C, B,, A,, G,,|G,,8|]','L:1/8\nG,,, A,,, B,,, C,, D,, E,, F,, G,,|G,, F,, E,, D,, C,, B,,, A,,, G,,,|G,,,8|]']},
+                    { title_en: 'Concert B Major', title_ua: 'Сі мажор (B)', keys: ['B','Db','Ab','Gb','B','B'], abc: ['L:1/8\nB, C D E F G A B|B A G F E D C B,|B,8|]','L:1/8\nC D E F G A B c|c B A G F E D C|C8|]','L:1/8\nA, B, C D E F G A|A G F E D C B, A,|A,8|]','L:1/8\nF G A B c d e f|f e d c B A G F|F8|]','L:1/8\nB,, C, D, E, F, G, A, B,|B, A, G, F, E, D, C, B,,|B,,8|]','L:1/8\nB,,, C,, D,, E,, F,, G,, A,, B,,|B,, A,, G,, F,, E,, D,, C,, B,,,|B,,,8|]']},
+                    { title_en: 'Concert E Major', title_ua: 'Мі мажор (E)', keys: ['E','Gb','Db','B','E','E'], abc: ['L:1/8\nE F G A B c d e|e d c B A G F E|E8|]','L:1/8\nF G A B c d e f|f e d c B A G F|F8|]','L:1/8\nD E F G A B c d|d c B A G F E D|D8|]','L:1/8\nB, C D E F G A B|B A G F E D C B,|B,8|]','L:1/8\nE,, F,, G,, A,, B,, C, D, E,|E, D, C, B,, A,, G,, F,, E,,|E,,8|]','L:1/8\nE,,, F,,, G,,, A,,, B,,, C,, D,, E,,|E,, D,, C,, B,,, A,,, G,,, F,,, E,,,|E,,,8|]']},
+                    { title_en: 'Concert A Major', title_ua: 'Ля мажор (A)', keys: ['A','B','Gb','E','A','A'], abc: ['L:1/8\nA B c d e f g a|a g f e d c B A|A8|]','L:1/8\nB, C D E F G A B|B A G F E D C B,|B,8|]','L:1/8\nF G A B c d e f|f e d c B A G F|F8|]','L:1/8\nE F G A B c d e|e d c B A G F E|E8|]','L:1/8\nA,, B,, C, D, E, F, G, A,|A, G, F, E, D, C, B,, A,,|A,,8|]','L:1/8\nA,,, B,,, C,, D,, E,, F,, G,, A,,|A,, G,, F,, E,, D,, C,, B,,, A,,,|A,,,8|]']},
+                    { title_en: 'Concert D Major', title_ua: 'Ре мажор (D)', keys: ['D','E','B','A','D','D'], abc: ['L:1/8\nD E F G A B c d|d c B A G F E D|D8|]','L:1/8\nE F G A B c d e|e d c B A G F E|E8|]','L:1/8\nB, C D E F G A B|B A G F E D C B,|B,8|]','L:1/8\nA, B, C D E F G A|A G F E D C B, A,|A,8|]','L:1/8\nD, E, F, G, A, B, C D|D C B, A, G, F, E, D,|D,8|]','L:1/8\nD,, E,, F,, G,, A,, B,, C, D,|D, C, B,, A,, G,, F,, E,, D,,|D,,8|]']},
+                    { title_en: 'Concert G Major', title_ua: 'Соль мажор (G)', keys: ['G','A','E','D','G','G'], abc: ['L:1/8\nG A B c d e f g|g f e d c B A G|G8|]','L:1/8\nA, B, C D E F G A|A G F E D C B, A,|A,8|]','L:1/8\nE F G A B c d e|e d c B A G F E|E8|]','L:1/8\nD E F G A B c d|d c B A G F E D|D8|]','L:1/8\nG,, A,, B,, C, D, E, F, G,|G, F, E, D, C, B,, A,, G,,|G,,8|]','L:1/8\nG,,, A,,, B,,, C,, D,, E,, F,, G,,|G,, F,, E,, D,, C,, B,,, A,,, G,,,|G,,,8|]']}
                 ],
 
                 async init() {
@@ -951,7 +968,7 @@
                         }
                     } catch(e) {}
                     
-                    this.updateGlobalInstrument(this.globalInstrument);
+                    this.updateGlobalInstrument(this.globalInstrument, true);
                     this.fetchLeaderboard();
                 },
 
@@ -985,13 +1002,14 @@
                     } else { this.startSessionPhase(this.sessionPhase); }
                 },
 
-                updateGlobalInstrument(inst) {
+                updateGlobalInstrument(inst, silent=false) {
                     this.globalInstrument = inst; localStorage.setItem('fubc_school_instrument', inst);
                     this.interactiveChart.instrument = inst; this.interactiveChart.selectedNote = 0; this.stopFingeringAudio();
                     let groupIdx = 0;
                     if (['Flute', 'Oboe'].includes(inst)) groupIdx = 0; else if (['Clarinet', 'Trumpet'].includes(inst)) groupIdx = 1; else if (['Saxophone', 'Tenor Horn'].includes(inst)) groupIdx = 2; else if (['French Horn'].includes(inst)) groupIdx = 3; else if (['Trombone', 'Baritone'].includes(inst)) groupIdx = 4; else if (['Tuba'].includes(inst)) groupIdx = 5;
                     this.selectedGroup = groupIdx;
                     this.$nextTick(() => { this.renderWarmups(); this.renderScales(); });
+                    if(!silent) this.triggerToast(this.lang === 'en' ? `Instrument set to ${inst}` : `Інструмент: ${inst}`);
                 },
 
                 renderWarmups() {
