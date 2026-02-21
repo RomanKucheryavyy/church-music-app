@@ -62,11 +62,16 @@
     </script>
     <style>
         [x-cloak] { display: none !important; }
+        
+        /* Clean Input Styles */
         input[type=range] { -webkit-appearance: none; background: transparent; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: #b45309; margin-top: -10px; cursor: pointer; border: 2px solid white; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #e2e8f0; border-radius: 99px; }
+        
+        /* Smooth Scroll Animation */
         .reveal-hidden { opacity: 0; transform: translateY(40px); transition: all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
         .reveal-visible { opacity: 1; transform: translateY(0); }
+        
         @media print { nav, footer, .bg-slate-900, #tools, section[class*="bg-slate-900"], button, .fixed { display: none !important; } body { background: white; color: black; } }
     </style>
 </head>
@@ -79,7 +84,7 @@
         <div class="whitespace-nowrap animate-marquee-mobile md:animate-marquee-desktop flex items-center min-w-full shrink-0">
             <span class="px-8 flex items-center">
                 <span class="text-brassLight font-bold uppercase tracking-wider mr-2">Next Event:</span> 
-                <span x-show="nextEvent.isTonight" class="inline-flex items-center gap-1.5 bg-red-600/20 border border-red-500/50 text-red-400 px-2 py-0.5 rounded mr-2 animate-pulse">
+                <span x-show="nextEvent.isTonight" class="inline-flex items-center gap-1.5 bg-red-600/20 border border-red-500/50 text-red-400 px-2 py-0.5 rounded mr-2 animate-pulse" x-cloak>
                     <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span><span class="text-[10px] font-extrabold tracking-widest">TONIGHT</span>
                 </span>
                 <span x-text="nextEvent.dateString + ' @ ' + nextEvent.time"></span>
@@ -91,7 +96,7 @@
         <div class="whitespace-nowrap animate-marquee-mobile md:animate-marquee-desktop flex items-center min-w-full shrink-0">
             <span class="px-8 flex items-center">
                 <span class="text-brassLight font-bold uppercase tracking-wider mr-2">Next Event:</span> 
-                <span x-show="nextEvent.isTonight" class="inline-flex items-center gap-1.5 bg-red-600/20 border border-red-500/50 text-red-400 px-2 py-0.5 rounded mr-2 animate-pulse">
+                <span x-show="nextEvent.isTonight" class="inline-flex items-center gap-1.5 bg-red-600/20 border border-red-500/50 text-red-400 px-2 py-0.5 rounded mr-2 animate-pulse" x-cloak>
                     <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span><span class="text-[10px] font-extrabold tracking-widest">TONIGHT</span>
                 </span>
                 <span x-text="nextEvent.dateString + ' @ ' + nextEvent.time"></span>
@@ -217,13 +222,34 @@
                     <button @click="showLibrary = true" class="text-sm font-semibold text-brass hover:text-brassLight transition-colors flex items-center gap-2 group"><span x-show="lang === 'en'">View Full Library</span><span x-show="lang === 'ua'" x-cloak>Відкрити Архів</span><span class="group-hover:translate-x-1 transition-transform">→</span></button>
                 </div>
             </div>
+            
             <div x-show="isLoading" class="p-10 text-center text-slate-400 font-mono text-sm animate-pulse">Loading setlist...</div>
+            
             <div x-show="!isLoading" class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50/50">
-                <template x-for="song in sortedSetlist" :key="song.title">
+                <template x-for="song in mappedSetlist" :key="song.title">
                     <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
                         <div class="absolute left-0 top-0 bottom-0 w-1 bg-brass opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div class="flex justify-between items-start mb-6"><div><h3 class="font-heading text-lg font-bold text-slate-900 group-hover:text-brass transition-colors" x-text="song.title"></h3><p class="text-slate-500 text-sm mt-1" x-text="song.sub"></p></div><span class="px-3 py-1 rounded-md bg-slate-100 text-xs font-bold text-slate-600 border border-slate-200" x-text="song.binderNumber && song.binderNumber !== 'New' ? '#' + song.binderNumber : 'New'"></span></div>
-                        <div class="flex gap-3" x-show="song.link || song.chords"><template x-if="song.link"><a :href="song.link" target="_blank" class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-slate-900 hover:bg-brass text-white text-sm font-bold transition-all shadow-md"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span x-show="lang === 'en'">Listen</span><span x-show="lang === 'ua'" x-cloak>Слухати</span></a></template><template x-if="song.chords"><a :href="song.chords" target="_blank" class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-slate-900 text-sm font-bold transition-all"><svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><span x-show="lang === 'en'">Notes</span><span x-show="lang === 'ua'" x-cloak>Ноти</span></a></template></div>
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <h3 class="font-heading text-lg font-bold text-slate-900 group-hover:text-brass transition-colors" x-text="song.title"></h3>
+                                <p class="text-slate-500 text-sm mt-1" x-text="song.sub"></p>
+                            </div>
+                            <span class="px-3 py-1 rounded-md bg-slate-100 text-xs font-bold text-slate-600 border border-slate-200" x-text="song.binderNumber && song.binderNumber !== 'New' ? '#' + song.binderNumber : 'New'"></span>
+                        </div>
+                        <div class="flex gap-3" x-show="song.link || song.chords">
+                            <template x-if="song.link">
+                                <a :href="song.link" target="_blank" class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-slate-900 hover:bg-brass text-white text-sm font-bold transition-all shadow-md">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <span x-show="lang === 'en'">Listen</span><span x-show="lang === 'ua'" x-cloak>Слухати</span>
+                                </a>
+                            </template>
+                            <template x-if="song.chords">
+                                <a :href="song.chords" target="_blank" class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-slate-900 text-sm font-bold transition-all">
+                                    <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                    <span x-show="lang === 'en'">Notes</span><span x-show="lang === 'ua'" x-cloak>Ноти</span>
+                                </a>
+                            </template>
+                        </div>
                     </div>
                 </template>
             </div>
@@ -236,12 +262,12 @@
                     <div x-show="isLoading" class="p-4 text-center text-slate-400 font-mono text-xs">Syncing calendar...</div>
                     
                     <div x-show="!isLoading" class="flex items-center gap-5 p-4 rounded-xl border border-slate-100 bg-slate-50 relative overflow-hidden transition-all hover:shadow-md">
-                        <div x-show="nextEvent.type === 'rehearsal' && nextEvent.isTonight" class="absolute top-0 right-0 p-2"><span class="text-[9px] bg-red-100 text-red-600 px-2 py-1 rounded font-extrabold tracking-wider animate-pulse uppercase">Tonight</span></div>
+                        <div x-show="nextEvent.type === 'rehearsal' && nextEvent.isTonight" class="absolute top-0 right-0 p-2"><span class="text-[9px] bg-red-100 text-red-600 px-2 py-1 rounded font-extrabold tracking-wider animate-pulse uppercase" x-cloak>Tonight</span></div>
                         <div class="h-14 w-16 min-w-[4rem] rounded-lg bg-white flex flex-col items-center justify-center text-center border border-slate-200 shadow-sm"><span class="text-[9px] text-brass font-bold uppercase tracking-tight" x-text="nextEvent.dateString?.split(' ')[0]"></span><span class="text-lg text-slate-900 font-extrabold leading-none" x-text="nextEvent.dateString?.split(' ')[1]"></span></div>
                         <div>
                             <h3 class="font-bold text-slate-900" x-text="lang === 'en' ? nextEvent.title_en : nextEvent.title_ua"></h3>
                             <p class="text-slate-500 text-sm" x-text="(nextEvent.type === 'rehearsal' ? 'Friday' : (nextEvent.day || '')) + ' • ' + nextEvent.time"></p>
-                            <span x-show="nextEvent.type === 'rehearsal' && settings.isRehearsalCanceled" class="inline-block mt-1 px-2 py-0.5 bg-red-100 text-red-600 text-[10px] font-bold uppercase rounded">Canceled</span>
+                            <span x-show="nextEvent.type === 'rehearsal' && settings.isRehearsalCanceled" class="inline-block mt-1 px-2 py-0.5 bg-red-100 text-red-600 text-[10px] font-bold uppercase rounded" x-cloak>Canceled</span>
                         </div>
                     </div>
 
@@ -256,11 +282,11 @@
 
             <section class="bg-slate-900 rounded-2xl shadow-lg border border-slate-800 overflow-hidden relative reveal-hidden" x-data="{ shown: false }" x-intersect.threshold.05.once="shown = true" :class="shown ? 'reveal-visible' : ''">
                 <div class="absolute top-0 right-0 p-32 bg-brass/10 blur-3xl rounded-full pointer-events-none"></div>
-                <div x-show="submitStatus === 'success'" class="absolute inset-0 z-20 bg-emerald-600 flex flex-col items-center justify-center text-center p-6" x-transition><svg class="w-12 h-12 text-white mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><h3 class="text-xl font-bold text-white"><span x-show="lang === 'en'">Sent!</span><span x-show="lang === 'ua'" x-cloak>Надіслано!</span></h3></div>
+                <div x-show="submitStatus === 'success'" class="absolute inset-0 z-20 bg-emerald-600 flex flex-col items-center justify-center text-center p-6" x-transition x-cloak><svg class="w-12 h-12 text-white mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><h3 class="text-xl font-bold text-white"><span x-show="lang === 'en'">Sent!</span><span x-show="lang === 'ua'" x-cloak>Надіслано!</span></h3></div>
                 <div class="p-6 relative z-10">
                     <h3 class="font-heading text-lg font-bold text-white mb-1"><span x-show="lang === 'en'">Report Absence</span><span x-show="lang === 'ua'" x-cloak>Повідомити про відсутність</span></h3>
                     <p class="text-slate-400 text-sm mb-6"><span x-show="lang === 'en'">Let us know if you cannot attend.</span><span x-show="lang === 'ua'" x-cloak>Дайте знати, якщо вас не буде.</span></p>
-                    <form x-ref="form" @submit.prevent="submitForm" name="attendance" method="POST" data-netlify="true" class="space-y-4"><input type="hidden" name="form-name" value="attendance" /><input type="text" name="name" required :placeholder="lang === 'en' ? 'Your Name' : 'Ваше Ім\'я'" class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brass transition-colors"><select name="date" required class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-brass appearance-none"><option value="" disabled selected x-text="lang === 'en' ? 'Select Date' : 'Оберіть Дату'"></option><template x-for="opt in availableDates"><option :value="opt.val" x-text="opt.label"></option></template></select><button type="submit" class="w-full bg-brass hover:bg-brassLight text-white font-bold text-sm py-3 rounded-lg transition-colors shadow-lg disabled:opacity-50" :disabled="submitStatus === 'submitting'"><span x-show="submitStatus === 'idle'"><span x-show="lang === 'en'">Submit</span><span x-show="lang === 'ua'" x-cloak>Надіслати</span></span><span x-show="submitStatus === 'submitting'">...</span></button></form>
+                    <form x-ref="form" @submit.prevent="submitForm" name="attendance" method="POST" data-netlify="true" class="space-y-4"><input type="hidden" name="form-name" value="attendance" /><input type="text" name="name" required :placeholder="lang === 'en' ? 'Your Name' : 'Ваше Ім\'я'" class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brass transition-colors"><select name="date" required class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-brass appearance-none"><option value="" disabled selected x-text="lang === 'en' ? 'Select Date' : 'Оберіть Дату'"></option><template x-for="opt in availableDates"><option :value="opt.val" x-text="opt.label"></option></template></select><button type="submit" class="w-full bg-brass hover:bg-brassLight text-white font-bold text-sm py-3 rounded-lg transition-colors shadow-lg disabled:opacity-50" :disabled="submitStatus === 'submitting'"><span x-show="submitStatus === 'idle'"><span x-show="lang === 'en'">Submit</span><span x-show="lang === 'ua'" x-cloak>Надіслати</span></span><span x-show="submitStatus === 'submitting'" x-cloak>...</span></button></form>
                 </div>
             </section>
         </div>
@@ -305,7 +331,7 @@
             </div>
             <div class="pt-6 border-t border-slate-100 flex flex-col gap-2">
                 <p class="text-xs text-slate-400">© 2026 First Ukrainian Baptist Church Band.</p>
-                <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Designed and built by Roman Kucheryavyy</p>
+                <p class="text-[10px] sm:text-xs text-slate-400 mt-2 uppercase tracking-widest font-bold">Created and designed by Roman Kucheryavyy</p>
                 <a href="/privacy.html" class="text-xs text-slate-400 hover:text-brass transition-colors underline">Privacy Policy</a>
             </div>
         </div>
@@ -316,7 +342,7 @@
         <div class="relative w-full max-w-3xl bg-white rounded-xl shadow-2xl flex flex-col max-h-[80vh] overflow-hidden">
             <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50"><h3 class="font-heading text-lg font-bold text-slate-900"><span x-show="lang === 'en'">Song Library</span><span x-show="lang === 'ua'" x-cloak>Архів Пісень</span></h3><button @click="showLibrary = false" class="p-2 bg-white hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-900 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button></div>
             <div class="p-4 border-b border-slate-100"><input x-model="searchQuery" type="text" :placeholder="lang === 'en' ? 'Search songs...' : 'Пошук...'" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:border-brass transition-colors"></div>
-            <div class="overflow-y-auto p-2 flex-grow bg-white"><template x-for="song in filteredSongs" :key="song.u + song.n"><div class="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-lg transition-colors border-b border-slate-50 last:border-0"><span class="font-mono text-sm font-bold text-brass w-12 text-right" x-text="song.n && song.n !== 'New' ? '#' + song.n : ''"></span><span class="text-slate-700 font-medium" x-text="song.u"></span><span x-show="!song.n || song.n === 'New'" class="ml-auto text-xs font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded">New</span></div></template></div>
+            <div class="overflow-y-auto p-2 flex-grow bg-white"><template x-for="song in filteredSongs" :key="song.u + song.n"><div class="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-lg transition-colors border-b border-slate-50 last:border-0"><span class="font-mono text-sm font-bold text-brass w-12 text-right" x-text="song.n && song.n !== 'New' ? '#' + song.n : ''"></span><span class="text-slate-700 font-medium" x-text="song.u"></span><span x-show="!song.n || song.n === 'New'" class="ml-auto text-xs font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded" x-cloak>New</span></div></template></div>
         </div>
     </div>
     
@@ -334,25 +360,9 @@
                 isLoading: true, 
 
                 settings: { isRehearsalCanceled: false, conductorNote: '', nextRehearsalTime: '9:00 PM' },
-                
-                // --- DEFAULT FALLBACK DATA (For local testing without a server) ---
-                events: [
-                    { date: "Feb 22", title_en: "Sunday Service", title_ua: "Недільне Богослужіння", time: "10:00 AM", day: "Sunday" }
-                ], 
-                currentSetlist: [
-                    { title: "Я Иду Земньіми Битвами", sub: "Pay attention to dynamics", binderNumber: "New" },
-                    { title: "Ныне я Его дитя", sub: "Standard tempo", binderNumber: "New" },
-                    { title: "Юношу Иосифа", sub: "Rhythmic precision focus.", binderNumber: "45" },
-                    { title: "Пока огонь", sub: "Focus on breath support.", binderNumber: "12" },
-                    { title: "Господь благослови", sub: "Maintain steady tempo.", binderNumber: "34" }
-                ],
-                allSongs: [
-                    { n: "New", u: "Я Иду Земньіми Битвами", link: "https://ifob.su/band/instrumental/simple/ya-idu-zemnymi-bitvami/" },
-                    { n: "New", u: "Ныне я Его дитя", link: "https://ifob.su/band/instrumental/simple/nyne-ya-ego-ditya/" },
-                    { n: "45", u: "Юношу Иосифа", link: "https://ifob.su/band/instrumental/simple/yunoshu-iosifa/" },
-                    { n: "12", u: "Пока огонь", link: "https://ifob.su/band/instrumental/simple/poka-ogoni-af/" },
-                    { n: "34", u: "Господь благослови", link: "https://ifob.su/band/instrumental/simple/g-blagoslovi-af/" }
-                ],
+                events: [], 
+                currentSetlist: [],
+                allSongs: [],
                 program: { isVisible: false, date: '', items: [] },
 
                 verses: [
@@ -364,7 +374,6 @@
                 init() {
                     this.verse = this.verses[Math.floor(Math.random() * this.verses.length)];
                     
-                    // Try to fetch live data, but silently keep fallbacks if it fails (CORS block on local machine)
                     fetch('/data.json?t=' + new Date().getTime())
                         .then(res => res.json())
                         .then(json => {
@@ -376,7 +385,7 @@
                             this.isLoading = false;
                         })
                         .catch(err => {
-                            console.log('Running locally without a server. Using embedded fallback data.');
+                            console.error('Failed to load JSON data:', err);
                             this.isLoading = false;
                         });
                 },
@@ -463,7 +472,7 @@
 
                 copySetlist() {
                     let text = '🎵 Setlist:\n';
-                    this.sortedSetlist.forEach(s => text += `- ${s.title}\n`);
+                    this.mappedSetlist.forEach(s => text += `- ${s.title}\n`);
                     navigator.clipboard.writeText(text);
                     alert('Setlist copied!');
                 },
@@ -480,8 +489,8 @@
                     }).catch(() => { alert('Connection error.'); this.submitStatus = 'idle'; });
                 },
 
-                get sortedSetlist() {
-                    // Do NOT sort alphabetically, keep the exact order from data.json
+                // EXPLICIT FIX: Do not sort the setlist, only map the properties
+                get mappedSetlist() {
                     return this.currentSetlist.map(song => {
                         const masterSong = this.allSongs.find(s => 
                             (s.n && song.binderNumber && String(s.n) === String(song.binderNumber)) || 
@@ -502,7 +511,6 @@
                 }
             }));
 
-            // Isolated Metronome Logic
             Alpine.data('metronomeWidget', () => ({
                 bpm: 100, 
                 isPlaying: false, 
@@ -534,7 +542,6 @@
                 }
             }));
 
-            // Isolated Pitch Pipe Logic
             Alpine.data('tuningWidget', () => ({
                 activeNote: null, 
                 audioCtx: null, 
