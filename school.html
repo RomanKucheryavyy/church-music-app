@@ -11,7 +11,10 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/abcjs@6.2.2/dist/abcjs-basic-min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/abcjs@6.2.2/abcjs-audio.min.css">
+    
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <link rel="icon" type="image/png" href="/social-logo.png?v=2">
@@ -44,8 +47,14 @@
         
         #print-staves { display: none; }
         @media print { body > *:not(#print-staves) { display: none !important; } #print-staves { display: block !important; background: white; width: 100%; } .stave { border-bottom: 1px solid black; margin-bottom: 8px; height: 1px; width: 100%; } .stave-group { margin-bottom: 40px; } @page { margin: 0.5in; } }
+        
         .hero-bg { background-image: url('https://images.unsplash.com/photo-1573871669414-010dbf73ca84?q=80&w=2071&auto=format&fit=crop'); background-size: cover; background-position: center; }
         .abcjs-container svg { max-width: 100%; height: auto; border-radius: 0.5rem; }
+        
+        /* Custom ABCJS Audio Player Overrides */
+        .abcjs-inline-audio { background: transparent !important; border: none !important; padding: 0 !important; margin: 0 auto !important; max-width: 400px; display: flex; justify-content: center; }
+        .abcjs-audio-play, .abcjs-audio-stop { border-radius: 50% !important; background-color: #0f172a !important; color: white !important; }
+        .abcjs-audio-play:hover { background-color: #b45309 !important; }
     </style>
 </head>
 
@@ -54,17 +63,22 @@
     <div class="fixed top-0 left-0 h-1.5 bg-gradient-to-r from-brass to-brassLight z-[100] shadow-md transition-all duration-150 ease-linear" :style="'width: ' + scrollProgress + '%'"></div>
     <div id="print-staves"></div>
 
-    <div x-show="fullScreenModalOpen" x-transition.opacity class="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/90 backdrop-blur-md p-4 w-full h-full" x-cloak>
-        <div @click.away="fullScreenModalOpen = false" class="bg-white rounded-2xl w-full max-w-5xl h-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden relative">
+    <div x-show="fullScreenModalOpen" x-transition.opacity class="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/95 backdrop-blur-md p-4 w-full h-full" x-cloak>
+        <div @click.away="closeFullScreen()" class="bg-white rounded-2xl w-full max-w-5xl h-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden relative">
             <div class="flex justify-between items-center p-4 sm:p-6 border-b border-slate-100 bg-slate-50 flex-shrink-0">
                 <h3 class="font-heading text-lg sm:text-xl font-bold text-slate-900 uppercase tracking-widest truncate mr-4">
                     <span x-show="lang === 'en'" x-text="exercises[currentFullScreenIdx].title_en"></span>
                     <span x-show="lang === 'ua'" x-text="exercises[currentFullScreenIdx].title_ua"></span>
                 </h3>
-                <button @click="fullScreenModalOpen = false" class="text-slate-400 hover:text-brass transition-colors focus:outline-none p-2 rounded-full hover:bg-slate-200 flex-shrink-0">
+                <button @click="closeFullScreen()" class="text-slate-400 hover:text-brass transition-colors focus:outline-none p-2 rounded-full hover:bg-slate-200 flex-shrink-0">
                     <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
+            
+            <div class="bg-slate-100 border-b border-slate-200 p-4">
+                <div id="audio-control"></div>
+            </div>
+
             <div class="p-4 sm:p-8 flex-grow overflow-auto bg-white flex items-start sm:items-center justify-center relative w-full">
                 <div id="abc-fullscreen" class="w-full"></div>
             </div>
@@ -89,7 +103,7 @@
     <nav class="sticky top-0 z-40 bg-slate-100/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm transition-colors duration-300 w-full max-w-[100vw]" :class="mobileMenuOpen ? 'bg-slate-100 border-transparent' : ''">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative w-full">
             <div class="flex justify-between items-center h-16 w-full">
-                <a href="#" class="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity group z-50 relative shrink-0">
+                <a href="#" @click.prevent="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity group z-50 relative shrink-0">
                     <div class="font-heading font-bold text-lg sm:text-xl md:text-2xl tracking-[0.1em] sm:tracking-[0.15em] text-slate-900 leading-none">
                         FUBC <span class="text-brass block text-[9px] sm:text-[10px] md:text-xs font-semibold tracking-[0.2em] sm:tracking-[0.35em] mt-0.5 group-hover:text-brassLight transition-colors">MUSIC SCHOOL</span>
                     </div>
@@ -177,40 +191,76 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 animate-fade-in-up" style="animation-delay: 0.2s;">
-            <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-5 sm:p-6 flex flex-col md:flex-row items-center justify-between relative overflow-hidden transition-all duration-300 hover:shadow-lg">
-                <div class="flex items-center gap-4 sm:gap-6 relative z-10 w-full mb-4 md:mb-0 justify-center md:justify-start">
-                    <div class="w-12 h-12 sm:w-16 sm:h-16 bg-brass/10 rounded-full flex items-center justify-center flex-shrink-0">
-                        <svg class="w-6 h-6 sm:w-8 sm:h-8 text-brass" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" /><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z" /></svg>
-                    </div>
-                    <div class="text-center md:text-left">
+            
+            <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden transition-all duration-300 hover:shadow-lg">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
                         <h3 class="font-heading font-bold text-slate-900 text-base sm:text-lg">
-                            <span x-show="lang === 'en'">Practice Streak</span><span x-show="lang === 'ua'" x-cloak>Дні занять поспіль</span>
+                            <span x-show="lang === 'en'">Weekly Progress</span><span x-show="lang === 'ua'" x-cloak>Прогрес за тиждень</span>
                         </h3>
-                        <div class="text-2xl sm:text-3xl font-black text-slate-900 leading-tight">
-                            <span x-text="streak"></span> <span class="text-sm sm:text-base text-slate-400 font-medium"><span x-show="lang === 'en'">days</span><span x-show="lang === 'ua'" x-cloak>днів</span></span>
-                        </div>
+                        <p class="text-xs text-slate-500 mt-1">
+                            <span x-show="lang === 'en'">Build your habit!</span><span x-show="lang === 'ua'" x-cloak>Формуйте звичку!</span>
+                        </p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-2xl sm:text-3xl font-black text-brass leading-none" x-text="streak"></div>
+                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest"><span x-show="lang === 'en'">Day Streak</span><span x-show="lang === 'ua'" x-cloak>Днів поспіль</span></span>
                     </div>
                 </div>
+                
+                <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100 mb-4">
+                    <template x-for="(day, index) in weekDays" :key="index">
+                        <div class="flex flex-col items-center gap-1.5">
+                            <span class="text-[10px] font-bold text-slate-400" x-text="day"></span>
+                            <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-colors duration-300"
+                                 :class="hasPracticedOnDay(index) ? 'bg-emerald-100 text-emerald-600 border border-emerald-200' : (index === currentDayOfWeek ? 'bg-white border-2 border-slate-300' : 'bg-white border border-slate-200')">
+                                <svg x-show="hasPracticedOnDay(index)" class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                
+                <button @click="logPractice()" class="w-full py-3 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-widest transition-all duration-300 shadow-sm border"
+                    :class="practicedToday ? 'bg-emerald-50 text-emerald-700 border-emerald-200 cursor-default' : 'bg-slate-900 border-transparent text-white hover:bg-brass hover:shadow-md'">
+                    <span x-show="!practicedToday">
+                        <span x-show="lang === 'en'">Mark as Practiced ✓</span><span x-show="lang === 'ua'" x-cloak>Я займався сьогодні ✓</span>
+                    </span>
+                    <span x-show="practicedToday">
+                        <span x-show="lang === 'en'">Done for today!</span><span x-show="lang === 'ua'" x-cloak>Готово на сьогодні!</span>
+                    </span>
+                </button>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-5 sm:p-6 flex flex-col justify-center relative overflow-hidden transition-all duration-300 hover:shadow-lg">
-                <div class="flex justify-between items-center mb-2">
-                    <h3 class="font-heading font-bold text-slate-900 text-base sm:text-lg">
-                        <span x-show="lang === 'en'">Guided Session</span><span x-show="lang === 'ua'" x-cloak>Таймер Занять</span>
-                    </h3>
-                    <span class="text-[10px] font-bold text-brass bg-brass/10 px-2 py-1 rounded uppercase tracking-widest" x-text="sessionPhases[sessionPhase].name"></span>
-                </div>
-                <div class="flex items-center justify-between">
-                    <div class="text-4xl font-mono font-black text-slate-900 tracking-tight" x-text="formatTime(sessionTimeLeft)">25:00</div>
-                    <div class="flex gap-2">
-                        <button @click="toggleSession()" class="bg-slate-900 text-white px-6 py-2 rounded-lg font-bold text-sm uppercase tracking-widest hover:bg-brass transition-colors shadow-sm" x-text="sessionActive ? (lang === 'en' ? 'Pause' : 'Пауза') : (lang === 'en' ? 'Start' : 'Старт')"></button>
-                        <button @click="resetSession()" class="bg-slate-100 text-slate-500 px-4 py-2 rounded-lg font-bold text-sm hover:bg-slate-200 transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                        </button>
+            <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-5 sm:p-6 flex flex-col relative overflow-hidden transition-all duration-300 hover:shadow-lg">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h3 class="font-heading font-bold text-slate-900 text-base sm:text-lg">
+                            <span x-show="lang === 'en'">Practice Session</span><span x-show="lang === 'ua'" x-cloak>Таймер Занять</span>
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-1">
+                            <span x-show="lang === 'en'">Structured 25-min guide.</span><span x-show="lang === 'ua'" x-cloak>Структура на 25 хв.</span>
+                        </p>
                     </div>
+                    <div class="text-3xl font-mono font-black text-slate-900 tracking-tight" x-text="formatTime(sessionTimeLeft)">00:00</div>
                 </div>
-                <div class="w-full bg-slate-100 h-1.5 rounded-full mt-4 overflow-hidden">
-                    <div class="bg-brass h-full transition-all duration-1000" :style="`width: ${(1 - sessionTimeLeft / sessionPhases[sessionPhase].duration) * 100}%`"></div>
+
+                <div class="flex flex-col gap-2.5 flex-grow justify-center">
+                    <template x-for="(phase, idx) in sessionPhases" :key="idx">
+                        <button @click="startSessionPhase(idx)" 
+                            class="flex items-center justify-between w-full px-4 py-3 rounded-xl border transition-all duration-200 text-left group"
+                            :class="sessionPhase === idx && sessionActive ? 'bg-brass text-white border-brass shadow-md scale-[1.02]' : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-brass hover:bg-white'">
+                            <div class="flex items-center gap-3">
+                                <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
+                                     :class="sessionPhase === idx && sessionActive ? 'bg-white text-brass' : 'bg-slate-200 text-slate-500 group-hover:bg-brass/20 group-hover:text-brass'" x-text="idx + 1"></div>
+                                <span class="font-bold text-sm" x-text="lang === 'en' ? phase.name_en : phase.name_ua"></span>
+                            </div>
+                            <span class="text-xs font-mono font-bold opacity-70" x-text="formatTime(phase.duration)"></span>
+                        </button>
+                    </template>
+                </div>
+                
+                <div class="w-full bg-slate-100 h-1.5 rounded-full mt-5 overflow-hidden hidden sm:block">
+                    <div class="bg-brass h-full transition-all duration-1000 ease-linear" :style="sessionActive ? `width: ${(1 - sessionTimeLeft / sessionPhases[sessionPhase].duration) * 100}%` : 'width: 0%'"></div>
                 </div>
             </div>
         </div>
@@ -219,34 +269,37 @@
             <div class="px-5 sm:px-6 py-5 sm:py-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h2 class="font-heading text-xl font-bold text-slate-900">
-                        <span x-show="lang === 'en'">Daily Warm-Ups</span><span x-show="lang === 'ua'" x-cloak>Щоденна Розминка</span>
+                        <span x-show="lang === 'en'">Daily Warm-Ups</span>
+                        <span x-show="lang === 'ua'" x-cloak>Щоденна Розминка</span>
                     </h2>
                     <p class="text-xs text-slate-500 mt-1">
-                        <span x-show="lang === 'en'">Press play to hear the synth track, or click to expand.</span>
-                        <span x-show="lang === 'ua'" x-cloak>Натисніть Play щоб почути, або клікніть для розгортання.</span>
+                        <span x-show="lang === 'en'">Click any sheet to expand and open the auto-player.</span>
+                        <span x-show="lang === 'ua'" x-cloak>Натисніть на ноти для відкриття плеєра.</span>
                     </p>
                 </div>
                 <div class="flex items-center justify-center gap-2 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
-                    <span class="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-wider"><span x-show="lang === 'en'">Key:</span><span x-show="lang === 'ua'" x-cloak>Ключ:</span></span>
-                    <span class="text-xs sm:text-sm text-brass font-black uppercase tracking-wide" x-text="instrumentGroups[selectedGroup].key + ' Major'"></span>
+                    <span class="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-wider">
+                        <span x-show="lang === 'en'">Transposed for:</span>
+                        <span x-show="lang === 'ua'" x-cloak>Транспоновано для:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-brass font-black uppercase tracking-wide" x-text="globalInstrument"></span>
                 </div>
             </div>
             
             <div class="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 bg-slate-50/50">
                 <template x-for="(ex, index) in exercises" :key="index">
-                    <div class="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm transform transition-all hover:-translate-y-1 hover:border-brass hover:shadow-md relative flex flex-col overflow-hidden">
+                    <div @click="openFullScreen(index)" class="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm transform transition-all hover:-translate-y-1 hover:border-brass hover:shadow-md cursor-pointer group relative flex flex-col overflow-hidden">
                         <div class="flex justify-between items-center mb-3 border-b border-slate-100 pb-2">
-                            <h3 class="font-heading text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-widest truncate pr-2 cursor-pointer hover:text-brass" @click="openFullScreen(index)">
+                            <h3 class="font-heading text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-widest group-hover:text-brass transition-colors truncate pr-2">
                                 <span x-show="lang === 'en'" x-text="ex.title_en"></span>
                                 <span x-show="lang === 'ua'" x-cloak x-text="ex.title_ua"></span>
                             </h3>
-                            
-                            <button @click="playExerciseAudio(index)" class="bg-brass/10 hover:bg-brass text-brass hover:text-white p-1.5 rounded-lg transition-colors flex-shrink-0 focus:outline-none" :class="playingExerciseIdx === index ? 'bg-red-500 text-white animate-pulse' : ''">
-                                <svg x-show="playingExerciseIdx !== index" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                <svg x-show="playingExerciseIdx === index" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" x-cloak><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-                            </button>
+                            <div class="bg-slate-50 p-1.5 rounded-lg group-hover:bg-brass/10 transition-colors flex-shrink-0 text-slate-400 group-hover:text-brass flex items-center gap-1">
+                                <span class="text-[9px] font-bold uppercase tracking-widest hidden sm:block">Open</span>
+                                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
+                            </div>
                         </div>
-                        <div @click="openFullScreen(index)" class="w-full overflow-x-auto min-h-[60px] sm:min-h-[80px] pointer-events-none flex items-center justify-start sm:justify-center cursor-pointer">
+                        <div class="w-full overflow-x-auto min-h-[60px] sm:min-h-[80px] pointer-events-none flex items-center justify-start sm:justify-center opacity-80 group-hover:opacity-100 transition-opacity">
                             <div :id="'abc-warmup-' + index" class="w-full min-w-min"></div>
                         </div>
                     </div>
@@ -283,7 +336,7 @@
             
             <div class="p-6 sm:p-8 relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
                 <div>
-                    <span class="inline-block px-3 py-1 bg-brass/20 text-brassLight text-[10px] font-extrabold uppercase tracking-widest rounded-full mb-4">Beta</span>
+                    <span class="inline-block px-3 py-1 bg-brass/20 text-brassLight text-[10px] font-extrabold uppercase tracking-widest rounded-full mb-4">Beta Feature</span>
                     <h3 class="font-heading text-2xl sm:text-3xl font-bold text-white mb-2"><span x-show="lang === 'en'">Playing Test Submissions</span><span x-show="lang === 'ua'" x-cloak>Здача Партій</span></h3>
                     <p class="text-slate-400 text-sm leading-relaxed mb-6"><span x-show="lang === 'en'">Record your assigned piece or scale and upload it directly for feedback from the conductor. Please include your instrument and song name.</span><span x-show="lang === 'ua'" x-cloak>Запишіть задану п'єсу або гамму та завантажте сюди для перевірки диригентом.</span></p>
                 </div>
@@ -310,15 +363,15 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 w-full">
                 <div class="lg:col-span-1 space-y-6 sm:space-y-8 w-full flex flex-col">
                     
-                    <div class="bg-slate-900 p-5 sm:p-6 rounded-2xl shadow-lg border border-slate-800 relative overflow-hidden transition-all duration-300">
+                    <div class="bg-slate-900 p-5 sm:p-6 rounded-2xl shadow-lg border border-slate-800 relative overflow-hidden transition-all duration-300 flex flex-col flex-grow">
                         <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-3">
                             <span class="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-wider"><span x-show="lang === 'en'">Live Tuner</span><span x-show="lang === 'ua'" x-cloak>Тюнер</span></span>
                             <button @click="toggleTuner()" class="text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border transition-colors focus:outline-none" :class="tunerActive ? 'bg-red-500/20 text-red-400 border-red-500/50' : 'bg-transparent text-brass border-brass hover:bg-brass hover:text-white'" x-text="tunerActive ? (lang === 'en' ? 'Stop' : 'Вимк') : (lang === 'en' ? 'Mic Access' : 'Мікрофон')"></button>
                         </div>
                         
-                        <div class="flex flex-col items-center justify-center min-h-[140px]">
+                        <div class="flex flex-col items-center justify-center flex-grow min-h-[140px]">
                             <div x-show="!tunerActive" class="text-center text-slate-500 text-sm font-medium">
-                                <span x-show="lang === 'en'">Click "Mic Access" to enable tuner.</span><span x-show="lang === 'ua'" x-cloak>Натисніть "Мікрофон" для активації.</span>
+                                <span x-show="lang === 'en'">Click "Mic Access" to enable live tuner.</span><span x-show="lang === 'ua'" x-cloak>Натисніть "Мікрофон" для активації.</span>
                             </div>
                             <div x-show="tunerActive" class="flex flex-col items-center w-full" x-cloak>
                                 <div class="text-5xl font-black text-white mb-2" x-text="tunerNote">--</div>
@@ -333,40 +386,42 @@
                         </div>
                     </div>
 
-                    <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col transition-all duration-300 hover:shadow-md flex-grow">
-                        <div class="flex flex-wrap justify-between items-center mb-6 border-b border-slate-100 pb-3 gap-3">
-                            <span class="text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-wider"><span x-show="lang === 'en'">Pitch Pipe</span><span x-show="lang === 'ua'" x-cloak>Генератор Тону</span></span>
-                            <div class="flex items-center gap-2 sm:gap-3 bg-slate-50 px-2 py-1 sm:px-3 sm:py-1 rounded-lg border border-slate-200 shadow-inner">
-                                <button @click="octave = Math.max(2, octave - 1); stopNote();" class="text-slate-400 hover:text-brass font-bold px-2 transition-colors">-</button>
-                                <span class="text-[10px] sm:text-xs font-bold text-slate-700 font-mono"><span x-show="lang === 'en'">Octave</span><span x-show="lang === 'ua'" x-cloak>Октава</span> <span x-text="octave"></span></span>
-                                <button @click="octave = Math.min(6, octave + 1); stopNote();" class="text-slate-400 hover:text-brass font-bold px-2 transition-colors">+</button>
+                    <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-200 relative overflow-hidden transition-all duration-300 hover:shadow-md">
+                        <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-3">
+                            <span class="text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-wider"><span x-show="lang === 'en'">Metronome</span><span x-show="lang === 'ua'" x-cloak>Метроном</span></span>
+                            <div class="flex items-center gap-2 bg-slate-50 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full shadow-inner border border-slate-200">
+                                <div class="h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full bg-slate-300 transition-colors duration-75" :class="isMetronomePlaying ? 'bg-red-500 scale-110 shadow-[0_0_10px_rgba(239,68,68,0.5)]' : ''"></div>
+                                <span class="text-xl sm:text-2xl font-mono font-bold text-slate-900" x-text="bpm"></span>
+                                <span class="text-[10px] sm:text-xs text-slate-500 font-bold mt-1">BPM</span>
                             </div>
                         </div>
-                        <div class="grid grid-cols-4 sm:grid-cols-6 gap-1.5 sm:gap-2 mb-4">
-                            <template x-for="note in notes" :key="note.name">
-                                <button @click="playNote(note.freq, note.name)" 
-                                    class="py-2.5 sm:py-3 rounded-lg border font-bold text-xs sm:text-sm transition-all duration-150 shadow-sm"
-                                    :class="activeNote === (note.name.split('/')[0].replace('↑', '') + octave) ? 'bg-brass text-white border-brass scale-95 shadow-inner' : 'bg-slate-50 text-slate-700 border-slate-200 hover:border-brass hover:text-brass'">
-                                    <span x-text="note.name"></span>
-                                </button>
-                            </template>
+                        <input type="range" min="40" max="240" x-model="bpm" @input="updateMetronomeSpeed()" class="w-full mb-8">
+                        <div class="grid grid-cols-2 gap-3 sm:gap-4">
+                            <button @click="toggleMetronome()" class="py-3 sm:py-4 rounded-xl font-bold transition-all duration-300 text-xs sm:text-sm uppercase tracking-wide shadow-sm hover:shadow-md border transform hover:-translate-y-0.5" :class="isMetronomePlaying ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-900 border-transparent text-white hover:bg-slate-800'">
+                                <span x-text="isMetronomePlaying ? (lang === 'en' ? 'Stop' : 'Стоп') : (lang === 'en' ? 'Start' : 'Старт')"></span>
+                            </button>
+                            <button @click="tapTempo()" class="py-3 sm:py-4 rounded-xl font-bold transition-all duration-300 text-xs sm:text-sm uppercase tracking-wide bg-brass/10 text-brass border border-brass/20 hover:bg-brass hover:text-white transform hover:-translate-y-0.5 hover:shadow-md">
+                                <span x-show="lang === 'en'">Tap Tempo</span><span x-show="lang === 'ua'" x-cloak>Тап Темп</span>
+                            </button>
                         </div>
-                        <button @click="stopNote()" x-show="activeNote" class="mt-auto w-full py-2 bg-slate-100 text-slate-600 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-widest hover:bg-slate-200 transition-colors shadow-sm">
-                            <span x-show="lang === 'en'">Stop Tone</span><span x-show="lang === 'ua'" x-cloak>Зупинити Тон</span>
-                        </button>
                     </div>
 
                     <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col transition-all duration-300 hover:shadow-md">
                         <div class="mb-4 border-b border-slate-100 pb-3">
-                            <h3 class="font-heading text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-wider"><span x-show="lang === 'en'">Blank Sheet Music</span><span x-show="lang === 'ua'" x-cloak>Чисті Ноти</span></h3>
+                            <h3 class="font-heading text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-wider">
+                                <span x-show="lang === 'en'">Blank Sheet Music</span><span x-show="lang === 'ua'" x-cloak>Чисті Ноти</span>
+                            </h3>
+                            <p class="text-[9px] sm:text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">
+                                <span x-show="lang === 'en'">Print directly from your browser.</span><span x-show="lang === 'ua'" x-cloak>Друкуйте прямо з браузера.</span>
+                            </p>
                         </div>
                         <div class="space-y-3 flex-grow">
                             <button @click="printStaves(10)" class="w-full flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 hover:border-brass transition-all duration-200 group">
-                                <span class="font-bold text-xs sm:text-sm text-slate-700 group-hover:text-brass transition-colors">10 Staves</span>
+                                <span class="font-bold text-xs sm:text-sm text-slate-700 group-hover:text-brass transition-colors"><span x-show="lang === 'en'">Print 10 Staves</span><span x-show="lang === 'ua'" x-cloak>Друк 10 рядків</span></span>
                                 <svg class="w-4 h-4 text-slate-400 group-hover:text-brass transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
                             </button>
                             <button @click="printStaves(12)" class="w-full flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 hover:border-brass transition-all duration-200 group">
-                                <span class="font-bold text-xs sm:text-sm text-slate-700 group-hover:text-brass transition-colors">12 Staves</span>
+                                <span class="font-bold text-xs sm:text-sm text-slate-700 group-hover:text-brass transition-colors"><span x-show="lang === 'en'">Print 12 Staves</span><span x-show="lang === 'ua'" x-cloak>Друк 12 рядків</span></span>
                                 <svg class="w-4 h-4 text-slate-400 group-hover:text-brass transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
                             </button>
                         </div>
@@ -381,37 +436,42 @@
                                 <span x-show="lang === 'en'">Interactive Fingering Chart</span><span x-show="lang === 'ua'" x-cloak>Інтерактивна Аплікатура</span>
                             </h3>
                             <p class="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">
-                                <span x-show="lang === 'en'">Full Chromatic Scale Access.</span><span x-show="lang === 'ua'" x-cloak>Повний хроматичний доступ.</span>
+                                <span x-show="lang === 'en'">Click 'Play Pitch' to hear the note.</span><span x-show="lang === 'ua'" x-cloak>Натисніть для прослуховування.</span>
                             </p>
                         </div>
                         <div class="text-xs sm:text-sm font-black text-brass uppercase tracking-widest bg-white border border-slate-200 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg shadow-sm" x-text="globalInstrument"></div>
                     </div>
                     
-                    <div class="p-4 sm:p-8 flex flex-col items-center flex-grow bg-white w-full">
+                    <div class="p-4 sm:p-8 flex flex-col items-center flex-grow bg-white w-full relative">
                         
                         <div class="flex justify-center gap-1.5 sm:gap-2 mb-6 sm:mb-8 bg-slate-100 p-1.5 rounded-full shadow-inner max-w-full overflow-x-auto w-full">
                             <template x-for="r in interactiveChart.ranges">
-                                <button @click="interactiveChart.selectedRange = r; interactiveChart.selectedNote = 0"
+                                <button @click="interactiveChart.selectedRange = r; interactiveChart.selectedNote = 0; stopFingeringAudio();"
                                         class="px-4 py-1.5 sm:px-5 sm:py-2 text-[10px] sm:text-xs font-bold uppercase rounded-full transition-all duration-200 flex-1 sm:flex-none text-center"
                                         :class="interactiveChart.selectedRange === r ? 'bg-slate-800 text-white shadow-md' : 'text-slate-500 hover:bg-slate-200 hover:text-slate-900'"
                                         x-text="lang === 'en' ? r : (r === 'Low' ? 'Низька' : (r === 'Mid' ? 'Середня' : 'Висока'))"></button>
                             </template>
                         </div>
                         
-                        <div class="flex flex-wrap gap-1.5 sm:gap-2.5 justify-center mb-8 sm:mb-10 w-full max-w-2xl min-h-[40px]">
+                        <div class="flex flex-wrap gap-1.5 sm:gap-2.5 justify-center mb-6 sm:mb-8 w-full max-w-2xl min-h-[40px]">
                             <template x-for="(note, index) in interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange]">
-                                <button @click="interactiveChart.selectedNote = index"
-                                    :class="interactiveChart.selectedNote === index ? 'bg-brass text-white shadow-md scale-105' : 'bg-slate-50 text-slate-600 hover:bg-slate-200 hover:text-slate-900 border-slate-200'"
+                                <button @click="interactiveChart.selectedNote = index; stopFingeringAudio();"
+                                    :class="interactiveChart.selectedNote === index ? 'bg-brass text-white shadow-md scale-105 border-brass' : 'bg-slate-50 text-slate-600 hover:bg-slate-200 hover:text-slate-900 border-slate-200'"
                                     class="px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg font-bold text-xs sm:text-sm transition-all duration-200 border"
                                     x-text="note.name">
                                 </button>
                             </template>
                         </div>
 
-                        <div class="w-full max-w-lg bg-slate-50 border border-slate-200 shadow-inner rounded-2xl p-6 sm:p-10 flex justify-center items-center min-h-[160px] sm:min-h-[220px] overflow-hidden">
+                        <div class="w-full max-w-lg bg-slate-50 border border-slate-200 shadow-inner rounded-2xl p-6 sm:p-10 flex flex-col justify-center items-center min-h-[200px] sm:min-h-[260px] overflow-hidden relative">
                             
+                            <button @click="playFingeringAudio()" class="absolute top-4 right-4 bg-white border border-slate-200 hover:border-brass hover:text-brass text-slate-500 rounded-full p-2 sm:px-4 sm:py-2 shadow-sm flex items-center gap-2 transition-all duration-200 z-10 focus:outline-none" :class="isFingeringPlaying ? 'text-brass border-brass bg-brass/5 shadow-inner' : ''">
+                                <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                <span class="text-[10px] sm:text-xs font-bold uppercase tracking-widest hidden sm:block"><span x-show="lang === 'en'">Play Pitch</span><span x-show="lang === 'ua'" x-cloak>Звук</span></span>
+                            </button>
+
                             <template x-if="interactiveChart.data[interactiveChart.instrument].type === 'valves'">
-                                <div class="flex gap-4 sm:gap-8">
+                                <div class="flex gap-4 sm:gap-8 mt-4 sm:mt-0">
                                     <template x-for="(v, i) in interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].val">
                                         <div class="flex flex-col items-center gap-3 sm:gap-4">
                                             <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full border-[4px] sm:border-[5px] shadow-md transition-all duration-300"
@@ -423,7 +483,7 @@
                             </template>
                             
                             <template x-if="interactiveChart.data[interactiveChart.instrument].type === 'slide'">
-                                <div class="flex flex-col items-center w-full max-w-md">
+                                <div class="flex flex-col items-center w-full max-w-md mt-4 sm:mt-0">
                                     <span class="text-5xl sm:text-6xl font-black text-brass mb-2 transition-all duration-300" x-text="interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].pos"></span>
                                     <span class="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-widest mb-6 sm:mb-8">
                                         <span x-show="lang === 'en'">Position</span><span x-show="lang === 'ua'" x-cloak>Позиція</span>
@@ -440,7 +500,7 @@
                             </template>
                             
                             <template x-if="interactiveChart.data[interactiveChart.instrument].type === 'woodwind'">
-                                <div class="flex flex-col sm:flex-row items-center gap-6 sm:gap-10">
+                                <div class="flex flex-col sm:flex-row items-center gap-6 sm:gap-10 mt-6 sm:mt-0">
                                     <div class="flex items-center gap-2 sm:gap-4 bg-white px-3 py-3 sm:px-5 sm:py-4 rounded-2xl border border-slate-200 shadow-sm">
                                         <span class="text-xs sm:text-sm font-bold text-slate-400 w-6 sm:w-8 text-right">LH</span>
                                         <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-[3px] sm:border-[4px] shadow-sm transition-all duration-300 flex-shrink-0" :class="interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].lh[0] ? 'bg-brass border-brass scale-95 shadow-inner' : 'bg-slate-50 border-slate-300'"></div>
@@ -463,7 +523,6 @@
                                     </div>
                                 </div>
                             </template>
-                            
                         </div>
                     </div>
                 </div>
@@ -476,6 +535,11 @@
         <div class="max-w-7xl mx-auto px-4 space-y-4">
             <div class="font-bold text-slate-900 tracking-tight text-lg">FUBC <span class="text-brass">MUSIC SCHOOL</span></div>
             <p class="text-xs text-slate-400">&copy; 2026 First Ukrainian Baptist Church Band.</p>
+            <div class="flex flex-wrap justify-center gap-4 text-xs font-medium text-slate-500">
+                <a href="/privacy.html" class="hover:text-brass transition-colors">Privacy Policy</a>
+                <span class="hidden sm:inline">&bull;</span>
+                <a href="https://ifob.su" target="_blank" class="hover:text-brass transition-colors">Sheet Music by IFOB</a>
+            </div>
             <p class="text-[10px] sm:text-xs text-slate-400 mt-2 uppercase tracking-widest font-bold">Created and designed by Roman Kucheryavyy</p>
         </div>
     </footer>
@@ -495,27 +559,42 @@
                 globalInstrument: localStorage.getItem('fubc_school_instrument') || 'Trumpet',
                 selectedGroup: 0,
 
-                // Practice Tracker & Timer Logic
+                // Weekly Practice Tracker Logic
                 streak: parseInt(localStorage.getItem('fubc_school_streak')) || 0,
                 lastPractice: localStorage.getItem('fubc_school_last_date') || '',
                 practicedToday: false,
+                practicedLog: JSON.parse(localStorage.getItem('fubc_school_weekly_log')) || [],
+                weekDays: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
                 
+                get currentDayOfWeek() {
+                    return new Date().getDay();
+                },
+
+                hasPracticedOnDay(dayIndex) {
+                    // Check if current week's specific day index has been logged
+                    const today = new Date();
+                    const dayDiff = today.getDay() - dayIndex;
+                    const targetDate = new Date(today);
+                    targetDate.setDate(today.getDate() - dayDiff);
+                    return this.practicedLog.includes(targetDate.toDateString());
+                },
+                
+                // Session Timer Logic
                 sessionActive: false,
                 sessionTimer: null,
                 sessionPhase: 0,
-                sessionTimeLeft: 300, // 5 mins in seconds
+                sessionTimeLeft: 300, 
                 sessionPhases: [
-                    { name: 'Warm-Ups', duration: 300 }, // 5 mins
-                    { name: 'Repertoire', duration: 900 }, // 15 mins
-                    { name: 'Review / Fun', duration: 300 }  // 5 mins
+                    { name_en: 'Warm-Ups', name_ua: 'Розминка', duration: 300 }, // 5 mins
+                    { name_en: 'Repertoire', name_ua: 'Репертуар', duration: 900 }, // 15 mins
+                    { name_en: 'Review / Fun', name_ua: 'Повторення', duration: 300 }  // 5 mins
                 ],
 
                 // Form submission state
                 submitStatus: 'idle',
 
-                // Audio Playback State for ABCJS
-                playingExerciseIdx: null,
-                exerciseAudioTimer: null,
+                // ABCJS Synth Control Reference
+                synthControl: null,
 
                 schoolSongs: [
                     { title: "Юношу Иосифа", desc_en: "Rhythmic precision focus.", desc_ua: "Точність ритму.", link: "https://ifob.su/band/instrumental/simple/yunoshu-iosifa/" },
@@ -548,6 +627,21 @@
                 async init() {
                     const today = new Date();
                     today.setHours(0,0,0,0);
+
+                    // Logic to clean out log array if it's a new week (resetting on Sunday)
+                    const lastPracticedStr = this.practicedLog[this.practicedLog.length - 1];
+                    if (lastPracticedStr) {
+                        const last = new Date(lastPracticedStr);
+                        const diffTime = today.getTime() - last.getTime();
+                        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+                        
+                        // Check if it's a new week (Sunday start)
+                        if (today.getDay() < last.getDay() || diffDays > 6) {
+                            this.practicedLog = [];
+                            localStorage.setItem('fubc_school_weekly_log', JSON.stringify([]));
+                        }
+                    }
+
                     if (this.lastPractice) {
                         const last = new Date(this.lastPractice);
                         last.setHours(0,0,0,0);
@@ -575,23 +669,22 @@
                     return `${m}:${s}`;
                 },
 
-                toggleSession() {
-                    if (this.sessionActive) {
-                        clearInterval(this.sessionTimer);
-                        this.sessionActive = false;
-                    } else {
+                startSessionPhase(idx) {
+                    this.sessionPhase = idx;
+                    this.sessionTimeLeft = this.sessionPhases[idx].duration;
+                    if(!this.sessionActive) {
                         this.sessionActive = true;
                         this.sessionTimer = setInterval(() => {
                             if (this.sessionTimeLeft > 0) {
                                 this.sessionTimeLeft--;
                             } else {
+                                clearInterval(this.sessionTimer);
+                                this.sessionActive = false;
+                                // Auto move to next phase or finish
                                 if (this.sessionPhase < 2) {
-                                    this.sessionPhase++;
-                                    this.sessionTimeLeft = this.sessionPhases[this.sessionPhase].duration;
+                                    alert("Phase complete! Ready for the next one?");
                                 } else {
-                                    clearInterval(this.sessionTimer);
-                                    this.sessionActive = false;
-                                    this.logPractice(); // Automatically log on completion!
+                                    this.logPractice(); // Log when all phases done
                                 }
                             }
                         }, 1000);
@@ -611,7 +704,7 @@
                     
                     this.interactiveChart.instrument = inst;
                     this.interactiveChart.selectedNote = 0;
-                    if(this.activeNote) this.stopNote();
+                    this.stopFingeringAudio();
                     
                     let groupIdx = 0;
                     if (['Flute', 'Oboe'].includes(inst)) groupIdx = 0;
@@ -642,83 +735,56 @@
                     this.$nextTick(() => {
                         const group = this.instrumentGroups[this.selectedGroup];
                         const ex = this.exercises[idx];
-                        const header = `X:${idx+1}\nM:4/4\nK:${group.key} clef=${group.clef}\n`;
+                        const header = `X:${idx+1}\nM:4/4\nQ:1/4=100\nK:${group.key} clef=${group.clef}\n`;
                         const modalScale = window.innerWidth < 640 ? 1.0 : 1.8;
-                        ABCJS.renderAbc('abc-fullscreen', header + ex.abc[this.selectedGroup], { 
-                            responsive: 'resize', scale: modalScale, paddingtop: 30, paddingbottom: 30
-                        });
+                        
+                        var visualObj = ABCJS.renderAbc('abc-fullscreen', header + ex.abc[this.selectedGroup], { 
+                            responsive: 'resize', scale: modalScale, paddingtop: 30, paddingbottom: 30, add_classes: true
+                        })[0];
+
+                        // Build ABCJS Professional Synthesizer
+                        if(this.synthControl) { this.synthControl.pause(); }
+                        this.synthControl = new ABCJS.synth.SynthController();
+                        this.synthControl.load("#audio-control", null, { displayLoop: true, displayRestart: true, displayPlay: true, displayProgress: true, displayWarp: true });
+                        
+                        // Map Instrument to MIDI Program
+                        let program = 56; // Trumpet
+                        if (group.clef === 'bass') program = 57; // Trombone
+                        if (this.globalInstrument === 'Flute') program = 73;
+                        if (this.globalInstrument === 'Clarinet') program = 71;
+                        if (this.globalInstrument === 'Saxophone') program = 65;
+                        if (this.globalInstrument === 'French Horn') program = 60;
+                        if (this.globalInstrument === 'Tuba') program = 58;
+
+                        var createSynth = new ABCJS.synth.CreateSynth();
+                        createSynth.init({ visualObj: visualObj }).then(() => {
+                            this.synthControl.setTune(visualObj, false, { program: program });
+                        }).catch(console.warn);
                     });
                 },
 
-                // Audio Sequencer for Warmups
-                playExerciseAudio(idx) {
-                    if (this.playingExerciseIdx === idx) {
-                        this.stopNote();
-                        this.playingExerciseIdx = null;
-                        clearTimeout(this.exerciseAudioTimer);
-                        return;
-                    }
+                closeFullScreen() {
+                    this.fullScreenModalOpen = false;
+                    if(this.synthControl) this.synthControl.pause();
+                },
+
+                logPractice() {
+                    if(this.practicedToday) return;
+                    this.streak++;
+                    this.practicedToday = true;
+                    const todayStr = new Date().toDateString();
+                    this.lastPractice = todayStr;
                     
-                    this.stopNote();
-                    clearTimeout(this.exerciseAudioTimer);
-                    this.playingExerciseIdx = idx;
-                    
-                    const abcString = this.exercises[idx].abc[this.selectedGroup];
-                    
-                    // Super basic pseudo-sequencer for the hardcoded warmups
-                    // Parses the L:1/8 or L:1/4 header and extracts simple notes for playback.
-                    let baseLengthMs = abcString.includes('L:1/8') ? 300 : 600; // ~100bpm
-                    
-                    // Strip header, bar lines, slurs, spaces
-                    let notesStr = abcString.split('\n')[1].replace(/[|() \.]/g, '').replace(/z2/g, 'zz').replace(/z4/g, 'zzzz');
-                    let sequence = [];
-                    
-                    let i = 0;
-                    while(i < notesStr.length) {
-                        if(notesStr[i] === ']') break;
-                        let acc = '';
-                        if(notesStr[i] === '^' || notesStr[i] === '_' || notesStr[i] === '=') { acc = notesStr[i]; i++; }
-                        let noteLetter = notesStr[i]; i++;
-                        let oct = '';
-                        while (notesStr[i] === ',' || notesStr[i] === "'") { oct += notesStr[i]; i++; }
-                        let durationMultiplier = 1;
-                        if (/[0-9]/.test(notesStr[i])) { durationMultiplier = parseInt(notesStr[i]); i++; }
-                        
-                        sequence.push({ letter: noteLetter, acc: acc, oct: oct, dur: durationMultiplier * baseLengthMs });
+                    if(!this.practicedLog.includes(todayStr)) {
+                        this.practicedLog.push(todayStr);
+                        localStorage.setItem('fubc_school_weekly_log', JSON.stringify(this.practicedLog));
                     }
 
-                    // A map to help find the correct frequency based on ABC notation letter + octave marks
-                    const getFreq = (l, a, o) => {
-                        if(l === 'z') return 0;
-                        let baseMap = { 'C':16.35, 'D':18.35, 'E':20.60, 'F':21.83, 'G':24.50, 'A':27.50, 'B':30.87, 'c':32.70, 'd':36.71, 'e':41.20, 'f':43.65, 'g':49.00, 'a':55.00, 'b':61.74 };
-                        let f = baseMap[l];
-                        if(!f) return 0;
-                        if(a==='^') f *= 1.05946; if(a==='_') f /= 1.05946;
-                        let octShift = 0;
-                        for(let c of o) { if(c===',') octShift--; if(c==="'") octShift++; }
-                        return f * Math.pow(2, octShift + 3); // Shift up to audible range
-                    };
-
-                    let seqIdx = 0;
-                    const playNext = () => {
-                        if(seqIdx >= sequence.length || this.playingExerciseIdx !== idx) {
-                            this.stopNote();
-                            this.playingExerciseIdx = null;
-                            return;
-                        }
-                        let n = sequence[seqIdx];
-                        let freq = getFreq(n.letter, n.acc, n.oct);
-                        
-                        if(freq > 0) {
-                            // Play note for 90% of duration to give articulation gap
-                            this.playToneEngine(freq);
-                            setTimeout(() => this.stopNote(), n.dur * 0.9);
-                        }
-                        
-                        this.exerciseAudioTimer = setTimeout(playNext, n.dur);
-                        seqIdx++;
-                    };
-                    playNext();
+                    localStorage.setItem('fubc_school_streak', this.streak);
+                    localStorage.setItem('fubc_school_last_date', this.lastPractice);
+                    if(typeof confetti === 'function') {
+                        confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, colors: ['#b45309', '#d97706', '#fcd34d', '#34d399', '#3b82f6'], zIndex: 1000 });
+                    }
                 },
 
                 // LIVE MICROPHONE TUNER
@@ -731,11 +797,7 @@
                 animationId: null,
 
                 toggleTuner() {
-                    if (this.tunerActive) {
-                        this.stopTuner();
-                    } else {
-                        this.startTuner();
-                    }
+                    if (this.tunerActive) { this.stopTuner(); } else { this.startTuner(); }
                 },
 
                 async startTuner() {
@@ -769,13 +831,11 @@
                     const acFreq = this.autoCorrelate(buffer, this.audioContext.sampleRate);
                     
                     if (acFreq !== -1) {
-                        // Math to convert frequency to closest musical note
                         const noteNum = 12 * (Math.log(acFreq / 440) / Math.log(2));
                         const noteIndex = Math.round(noteNum) + 69;
                         const notes = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B'];
                         this.tunerNote = notes[noteIndex % 12];
                         
-                        // Calculate cents off
                         const expectedFreq = 440 * Math.pow(2, (noteIndex - 69) / 12);
                         this.tunerCents = Math.floor(1200 * Math.log2(acFreq / expectedFreq));
                     }
@@ -787,27 +847,17 @@
                     let rms = 0;
                     for (let i=0;i<SIZE;i++) rms += buf[i]*buf[i];
                     rms = Math.sqrt(rms/SIZE);
-                    if (rms<0.01) return -1; // Not enough signal
-
+                    if (rms<0.01) return -1; 
                     let r1=0, r2=SIZE-1, thres=0.2;
                     for(let i=0; i<SIZE/2; i++) if (Math.abs(buf[i])<thres) { r1=i; break; }
                     for(let i=1; i<SIZE/2; i++) if (Math.abs(buf[SIZE-i])<thres) { r2=SIZE-i; break; }
-
                     buf = buf.slice(r1,r2);
                     SIZE = buf.length;
-
                     let c = new Array(SIZE).fill(0);
-                    for (let i=0; i<SIZE; i++) {
-                        for (let j=0; j<SIZE-i; j++) {
-                            c[i] = c[i] + buf[j]*buf[j+i];
-                        }
-                    }
-
+                    for (let i=0; i<SIZE; i++) { for (let j=0; j<SIZE-i; j++) { c[i] = c[i] + buf[j]*buf[j+i]; } }
                     let d=0; while (c[d]>c[d+1]) d++;
                     let maxval=-1, maxpos=-1;
-                    for (let i=d; i<SIZE; i++) {
-                        if (c[i] > maxval) { maxval = c[i]; maxpos = i; }
-                    }
+                    for (let i=d; i<SIZE; i++) { if (c[i] > maxval) { maxval = c[i]; maxpos = i; } }
                     let T0 = maxpos;
                     let x1=c[T0-1], x2=c[T0], x3=c[T0+1];
                     let a = (x1 + x3 - 2*x2)/2;
@@ -825,8 +875,7 @@
                         confetti({ particleCount: 150, spread: 70, origin: { y: 0.7 }, colors: ['#b45309', '#d97706', '#ffffff'], zIndex: 1000 });
                         this.$refs.testForm.reset();
                         setTimeout(() => this.submitStatus = 'idle', 5000);
-                    })
-                    .catch(() => { alert('Upload failed. Check your connection or file size.'); this.submitStatus = 'idle'; });
+                    }).catch(() => { alert('Upload failed. Check your connection or file size.'); this.submitStatus = 'idle'; });
                 },
 
                 // Interactive Fingering Chart Data
@@ -889,12 +938,70 @@
                     }
                 },
 
-                // Audio Data for Pitch Pipe
+                // Audio Data for Metronome & Fingering Pitch
+                bpm: 100, 
+                isMetronomePlaying: false, 
+                timer: null, 
+                audioCtx: null,
+                lastTap: 0,
+                
+                isFingeringPlaying: false,
+                activeNote: null,
+                oscillator: null,
+                gainNode: null,
+                filterNode: null,
+                octave: 4,
                 notes: [ { name: 'C', freq: 261.63 }, { name: 'C#', freq: 277.18 }, { name: 'D', freq: 293.66 }, { name: 'Eb', freq: 311.13 }, { name: 'E', freq: 329.63 }, { name: 'F', freq: 349.23 }, { name: 'F#', freq: 369.99 }, { name: 'G', freq: 392.00 }, { name: 'Ab', freq: 415.30 }, { name: 'A', freq: 440.00 }, { name: 'Bb', freq: 466.16 }, { name: 'B', freq: 493.88 } ],
 
-                playToneEngine(freq) {
+                playClick() { 
+                    if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
+                    const osc = this.audioCtx.createOscillator(); 
+                    const gain = this.audioCtx.createGain(); 
+                    osc.connect(gain); gain.connect(this.audioCtx.destination); 
+                    osc.frequency.value = 1000; gain.gain.value = 1; 
+                    osc.start(); gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.1); 
+                    osc.stop(this.audioCtx.currentTime + 0.1); 
+                }, 
+                toggleMetronome() { 
+                    if (this.isMetronomePlaying) { clearInterval(this.timer); this.isMetronomePlaying = false; } 
+                    else { this.isMetronomePlaying = true; this.playClick(); this.timer = setInterval(() => this.playClick(), (60 / this.bpm) * 1000); } 
+                }, 
+                updateMetronomeSpeed() { 
+                    if (this.isMetronomePlaying) { clearInterval(this.timer); this.timer = setInterval(() => this.playClick(), (60 / this.bpm) * 1000); } 
+                },
+                tapTempo() {
+                    const now = Date.now();
+                    if (this.lastTap && (now - this.lastTap) < 2000) {
+                        this.bpm = Math.min(Math.max(Math.round(60000 / (now - this.lastTap)), 40), 240);
+                        this.updateMetronomeSpeed();
+                    }
+                    this.lastTap = now;
+                },
+
+                playFingeringAudio() {
+                    if(this.isFingeringPlaying) {
+                        this.stopFingeringAudio();
+                        return;
+                    }
+                    
                     if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
                     
+                    let noteObj = this.interactiveChart.data[this.interactiveChart.instrument].notes[this.interactiveChart.selectedRange][this.interactiveChart.selectedNote];
+                    let noteName = noteObj.name.split('/')[0].replace('↑', '');
+                    
+                    const matchingFreqObj = this.notes.find(n => n.name === noteName);
+                    const baseFreq = matchingFreqObj ? matchingFreqObj.freq : 261.63; // Default C
+
+                    // Calculate octave based on range (very basic approximation for pitch pipe)
+                    let pitchOctave = 4;
+                    if(this.interactiveChart.selectedRange === 'Low') pitchOctave = 3;
+                    if(this.interactiveChart.selectedRange === 'High') pitchOctave = 5;
+                    
+                    // Bass clef instruments sound an octave lower
+                    if (['Trombone', 'Baritone', 'Tuba'].includes(this.interactiveChart.instrument)) pitchOctave -= 1;
+
+                    const actualFreq = baseFreq * Math.pow(2, pitchOctave - 4);
+
                     this.oscillator = this.audioCtx.createOscillator(); 
                     this.gainNode = this.audioCtx.createGain(); 
                     this.filterNode = this.audioCtx.createBiquadFilter();
@@ -907,37 +1014,31 @@
                     else if (inst === 'French Horn') { this.oscillator.type = 'triangle'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 800; } 
                     else { this.oscillator.type = 'sawtooth'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 3000; }
 
-                    this.oscillator.frequency.setValueAtTime(freq, this.audioCtx.currentTime); 
+                    this.oscillator.frequency.setValueAtTime(actualFreq, this.audioCtx.currentTime); 
                     this.oscillator.connect(this.filterNode); 
                     this.filterNode.connect(this.gainNode);
                     this.gainNode.connect(this.audioCtx.destination);
                     
+                    // Synthesizer Envelope
                     this.gainNode.gain.setValueAtTime(0, this.audioCtx.currentTime);
-                    this.gainNode.gain.linearRampToValueAtTime(0.5, this.audioCtx.currentTime + 0.05);
+                    this.gainNode.gain.linearRampToValueAtTime(0.5, this.audioCtx.currentTime + 0.1);
+                    this.gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioCtx.currentTime + 1.5);
 
                     this.oscillator.start(); 
-                },
-
-                playNote(baseFreq, noteName) { 
-                    const cleanNoteName = noteName.split('/')[0].replace('↑', '');
-                    const matchingFreqObj = this.notes.find(n => n.name === cleanNoteName);
-                    const actualBaseFreq = matchingFreqObj ? matchingFreqObj.freq : baseFreq;
-                    const actualFreq = actualBaseFreq * Math.pow(2, this.octave - 4);
-                    const noteId = cleanNoteName + this.octave;
-
-                    if (this.activeNote === noteId) { this.stopNote(); return; } 
-                    this.stopNote();
+                    this.isFingeringPlaying = true;
                     
-                    this.playToneEngine(actualFreq);
-                    this.activeNote = noteId; 
+                    // Auto stop after 1.5 seconds
+                    setTimeout(() => {
+                        this.stopFingeringAudio();
+                    }, 1500);
                 },
 
-                stopNote() {
+                stopFingeringAudio() {
                     if (this.oscillator && this.gainNode) {
                         this.gainNode.gain.linearRampToValueAtTime(0, this.audioCtx.currentTime + 0.05);
                         setTimeout(() => { if(this.oscillator) { this.oscillator.stop(); this.oscillator.disconnect(); this.oscillator = null; } }, 50);
-                        this.activeNote = null;
                     }
+                    this.isFingeringPlaying = false;
                 },
 
                 printStaves(count) {
