@@ -16,7 +16,6 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/abcjs@6.2.2/abcjs-audio.min.css">
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <link rel="icon" type="image/png" href="/social-logo.png?v=2">
@@ -27,13 +26,8 @@
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'], heading: ['Montserrat', 'sans-serif'] },
                     colors: { pageBg: '#f8fafc', textMain: '#0f172a', textMuted: '#64748b', brass: '#b45309', brassLight: '#d97706', surface: '#ffffff' },
-                    animation: { 
-                        'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                    },
-                    keyframes: {
-                        fadeInUp: { '0%': { opacity: '0', transform: 'translateY(30px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } }
-                    }
+                    animation: { 'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards' },
+                    keyframes: { fadeInUp: { '0%': { opacity: '0', transform: 'translateY(30px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } } }
                 }
             }
         }
@@ -41,7 +35,6 @@
     <style>
         [x-cloak] { display: none !important; }
         
-        /* Premium Custom Range Slider */
         input[type=range] { -webkit-appearance: none; background: transparent; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 28px; width: 28px; border-radius: 50%; background: linear-gradient(135deg, #d97706 0%, #b45309 100%); margin-top: -12px; cursor: pointer; border: 3px solid white; box-shadow: 0 4px 10px rgba(180, 83, 9, 0.4); transition: transform 0.1s; }
         input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.1); }
@@ -52,7 +45,6 @@
         
         .abcjs-container svg { max-width: 100%; height: auto; border-radius: 0.5rem; }
         
-        /* Sleek Audio Player Customization */
         .abcjs-inline-audio { background: linear-gradient(145deg, #0f172a, #1e293b) !important; border-radius: 16px !important; padding: 12px 24px !important; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important; margin: 0 auto !important; max-width: 100%; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1) !important; }
         .abcjs-btn { color: white !important; fill: white !important; background-color: rgba(255,255,255,0.1) !important; border-radius: 50% !important; transition: all 0.2s ease !important; }
         .abcjs-btn:hover { background-color: #b45309 !important; transform: scale(1.1); box-shadow: 0 0 15px rgba(180, 83, 9, 0.6); }
@@ -162,7 +154,7 @@
                 <div id="audio-control" class="w-full"></div>
             </div>
 
-            <div class="p-4 sm:p-10 flex-grow overflow-auto bg-white flex flex-col items-center justify-start w-full custom-scrollbar">
+            <div class="p-4 sm:p-10 flex-grow overflow-auto bg-white flex flex-col items-center justify-start w-full">
                 <div id="abc-fullscreen" class="w-full max-w-5xl flex justify-center"></div>
             </div>
         </div>
@@ -179,7 +171,7 @@
                 
                 <div class="md:hidden flex items-center gap-2 sm:gap-4 relative z-50 shrink-0">
                     <button @click="openProfile()" class="text-[10px] font-black text-slate-600 hover:text-slate-900 transition-colors uppercase tracking-widest border border-slate-200 px-3 py-1.5 rounded-full bg-slate-50 shadow-sm flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full" :class="currentUser ? 'bg-emerald-500' : 'bg-rose-500'"></span>
+                        <span class="w-2 h-2 rounded-full" :class="currentUser ? 'bg-emerald-500 shadow-[0_0_8px_rgba(52,211,153,0.8)]' : 'bg-rose-500'"></span>
                         <span x-text="currentUser ? 'Profile' : 'Login'"></span>
                     </button>
                     <button @click="mobileMenuOpen = !mobileMenuOpen" class="p-2 text-slate-800 hover:text-brass transition-colors focus:outline-none flex-shrink-0">
@@ -210,7 +202,7 @@
                     </a>
                     <button @click="openProfile()" class="text-[10px] font-black text-slate-600 bg-white border border-slate-200 px-3 py-2 rounded-full hover:bg-slate-50 hover:text-slate-900 transition-all shadow-sm uppercase tracking-widest flex items-center gap-1.5 transform hover:-translate-y-0.5">
                         <span class="w-2 h-2 rounded-full" :class="currentUser ? 'bg-emerald-500 shadow-[0_0_8px_rgba(52,211,153,0.8)]' : 'bg-rose-500'"></span>
-                        <span x-text="currentUser ? (lang==='en'?'Profile':'Профіль') : (lang==='en'?'Student Login':'Вхід')"></span>
+                        <span x-text="currentUser ? (lang==='en'?'Profile':'Профіль') : (lang==='en'?'Student Login':'Вхід для учнів')"></span>
                     </button>
                 </div>
             </div>
@@ -592,49 +584,49 @@
                         </div>
                     </div>
 
-                    <div class="bg-white p-5 sm:p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 relative overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
-                        <div class="flex justify-between items-center mb-6 sm:mb-8 border-b border-slate-100 pb-4">
+                    <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 relative overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+                        <div class="flex justify-between items-center mb-8 border-b border-slate-100 pb-4">
                             <div class="flex items-center gap-2">
-                                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                <span class="text-[10px] sm:text-xs font-black text-slate-900 uppercase tracking-widest"><span x-show="lang === 'en'">Metronome</span><span x-show="lang === 'ua'" x-cloak>Метроном</span></span>
+                                <svg class="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                <span class="text-xs font-black text-slate-900 uppercase tracking-widest"><span x-show="lang === 'en'">Metronome</span><span x-show="lang === 'ua'" x-cloak>Метроном</span></span>
                             </div>
-                            <div class="flex items-center gap-2 bg-slate-50 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl shadow-inner border border-slate-200">
-                                <div class="h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full bg-slate-300 transition-colors duration-75" :class="isMetronomePlaying ? 'bg-rose-500 scale-110 shadow-[0_0_12px_rgba(244,63,94,0.6)]' : ''"></div>
-                                <span class="text-xl sm:text-2xl font-mono font-black text-slate-900" x-text="bpm"></span>
-                                <span class="text-[9px] sm:text-[10px] text-slate-500 font-bold mt-1 uppercase tracking-widest">BPM</span>
+                            <div class="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-xl shadow-inner border border-slate-200">
+                                <div class="h-3 w-3 rounded-full bg-slate-300 transition-colors duration-75" :class="isMetronomePlaying ? 'bg-rose-500 scale-110 shadow-[0_0_12px_rgba(244,63,94,0.6)]' : ''"></div>
+                                <span class="text-2xl font-mono font-black text-slate-900" x-text="bpm"></span>
+                                <span class="text-[10px] text-slate-500 font-bold mt-1 uppercase tracking-widest">BPM</span>
                             </div>
                         </div>
-                        <input type="range" min="40" max="240" x-model="bpm" @input="updateMetronomeSpeed()" class="w-full mb-6 sm:mb-8">
-                        <div class="grid grid-cols-2 gap-3 sm:gap-4">
-                            <button @click="toggleMetronome()" class="py-3 sm:py-4 rounded-2xl font-black transition-all duration-300 text-[10px] sm:text-xs uppercase tracking-widest shadow-md border transform hover:-translate-y-1" :class="isMetronomePlaying ? 'bg-white border-slate-200 text-slate-900 hover:bg-slate-50' : 'bg-slate-900 border-transparent text-white hover:bg-brass hover:shadow-[0_8px_20px_rgba(180,83,9,0.3)]'">
+                        <input type="range" min="40" max="240" x-model="bpm" @input="updateMetronomeSpeed()" class="w-full mb-8">
+                        <div class="grid grid-cols-2 gap-4">
+                            <button @click="toggleMetronome()" class="py-4 rounded-2xl font-black transition-all duration-300 text-xs uppercase tracking-widest shadow-md border transform hover:-translate-y-1" :class="isMetronomePlaying ? 'bg-white border-slate-200 text-slate-900 hover:bg-slate-50' : 'bg-slate-900 border-transparent text-white hover:bg-brass hover:shadow-[0_8px_20px_rgba(180,83,9,0.3)]'">
                                 <span x-text="isMetronomePlaying ? (lang === 'en' ? 'Stop' : 'Стоп') : (lang === 'en' ? 'Start' : 'Старт')"></span>
                             </button>
-                            <button @click="tapTempo()" class="py-3 sm:py-4 rounded-2xl font-black transition-all duration-300 text-[10px] sm:text-xs uppercase tracking-widest bg-slate-50 text-slate-600 border border-slate-200 hover:border-brass hover:bg-brass/5 hover:text-brass transform hover:-translate-y-1 shadow-sm">
+                            <button @click="tapTempo()" class="py-4 rounded-2xl font-black transition-all duration-300 text-xs uppercase tracking-widest bg-slate-50 text-slate-600 border border-slate-200 hover:border-brass hover:bg-brass/5 hover:text-brass transform hover:-translate-y-1 shadow-sm">
                                 <span x-show="lang === 'en'">Tap Tempo</span><span x-show="lang === 'ua'" x-cloak>Тап Темп</span>
                             </button>
                         </div>
                     </div>
 
-                    <div class="bg-white p-5 sm:p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 flex flex-col transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
-                        <div class="mb-4 sm:mb-5 border-b border-slate-100 pb-4">
+                    <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 flex flex-col transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+                        <div class="mb-5 border-b border-slate-100 pb-4">
                             <div class="flex items-center gap-2 mb-1">
-                                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-                                <h3 class="font-heading text-[10px] sm:text-xs font-black text-slate-900 uppercase tracking-widest">
+                                <svg class="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                                <h3 class="font-heading text-xs font-black text-slate-900 uppercase tracking-widest">
                                     <span x-show="lang === 'en'">Blank Sheet Music</span><span x-show="lang === 'ua'" x-cloak>Чисті Ноти</span>
                                 </h3>
                             </div>
-                            <p class="text-[9px] sm:text-[10px] text-slate-500 font-bold mt-2">
+                            <p class="text-[10px] text-slate-500 font-bold mt-2">
                                 <span x-show="lang === 'en'">Print staff paper directly from your browser.</span><span x-show="lang === 'ua'" x-cloak>Друкуйте прямо з браузера.</span>
                             </p>
                         </div>
                         <div class="space-y-3 flex-grow">
-                            <button @click="printStaves(10)" class="w-full flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200 hover:border-brass hover:bg-brass/5 transition-all duration-200 group">
-                                <span class="font-black text-[10px] sm:text-xs text-slate-700 group-hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Print 10 Staves</span><span x-show="lang === 'ua'" x-cloak>Друк 10 рядків</span></span>
-                                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 group-hover:text-brass transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                            <button @click="printStaves(10)" class="w-full flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-200 hover:border-brass hover:bg-brass/5 transition-all duration-200 group">
+                                <span class="font-black text-xs text-slate-700 group-hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Print 10 Staves</span><span x-show="lang === 'ua'" x-cloak>Друк 10 рядків</span></span>
+                                <svg class="w-5 h-5 text-slate-400 group-hover:text-brass transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
                             </button>
-                            <button @click="printStaves(12)" class="w-full flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200 hover:border-brass hover:bg-brass/5 transition-all duration-200 group">
-                                <span class="font-black text-[10px] sm:text-xs text-slate-700 group-hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Print 12 Staves</span><span x-show="lang === 'ua'" x-cloak>Друк 12 рядків</span></span>
-                                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 group-hover:text-brass transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                            <button @click="printStaves(12)" class="w-full flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-200 hover:border-brass hover:bg-brass/5 transition-all duration-200 group">
+                                <span class="font-black text-xs text-slate-700 group-hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Print 12 Staves</span><span x-show="lang === 'ua'" x-cloak>Друк 12 рядків</span></span>
+                                <svg class="w-5 h-5 text-slate-400 group-hover:text-brass transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
                             </button>
                         </div>
                     </div>
@@ -818,83 +810,37 @@
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('schoolApp', () => ({
-                // Initialize Supabase Client
                 supabase: null,
-                
                 lang: 'en',
                 mobileMenuOpen: false,
-                
                 fullScreenModalOpen: false,
                 currentFullScreenIdx: 0,
                 currentFullScreenType: 'exercises', 
-                
                 scrollY: 0,
                 scrollProgress: 0,
                 
-                // AUTHENTICATION & PROFILE LOGIC
                 profileModalOpen: false,
-                authMode: 'login', // 'login' or 'register'
+                authMode: 'login',
                 authForm: { name: '', pin: '', code: '' },
                 authLoading: false,
-                
                 currentUser: null,
                 leaderboard: [],
                 
-                // --- DATABASE CLOUD SYNC ---
                 async handleAuth() {
                     if(!this.authForm.name || !this.authForm.pin) return alert("Please enter name and PIN.");
-                    if(!this.supabase) {
-                        alert("Database not connected yet! Waiting for keys.");
-                        return;
-                    }
-
+                    if(!this.supabase) { alert("Database not connected yet!"); return; }
                     this.authLoading = true;
-                    
                     if(this.authMode === 'register') {
-                        // btoa('FUBC26') === 'RlVCQzI2' (Hidden from source code scanners)
-                        if(btoa(this.authForm.code.trim().toUpperCase()) !== 'RlVCQzI2') {
-                            this.authLoading = false;
-                            return alert("Invalid Access Code");
-                        }
-                        
-                        // Check if user exists
+                        if(btoa(this.authForm.code.trim().toUpperCase()) !== 'RlVCQzI2') { this.authLoading = false; return alert("Invalid Access Code"); }
                         const { data: existing } = await this.supabase.from('students').select('*').eq('name', this.authForm.name);
-                        if(existing && existing.length > 0) {
-                            this.authLoading = false;
-                            return alert("Name already taken. Please login or use a different name.");
-                        }
-
-                        const newUser = {
-                            name: this.authForm.name,
-                            pin: this.authForm.pin,
-                            total_minutes: 0,
-                            streak: 0,
-                            last_date: '',
-                            log: []
-                        };
-
+                        if(existing && existing.length > 0) { this.authLoading = false; return alert("Name already taken. Please login or use a different name."); }
+                        const newUser = { name: this.authForm.name, pin: this.authForm.pin, total_minutes: 0, streak: 0, last_date: '', log: [] };
                         const { data, error } = await this.supabase.from('students').insert([newUser]).select().single();
-                        
-                        if (error) { 
-                            alert("Error creating account: " + error.message); 
-                            this.authLoading = false;
-                            return; 
-                        }
-                        
-                        this.currentUser = data;
-                        localStorage.setItem('fubc_cloud_user', JSON.stringify(this.currentUser));
-                        this.loadUserDataLocally();
-                        this.fetchLeaderboard();
+                        if (error) { alert("Error creating account: " + error.message); this.authLoading = false; return; }
+                        this.currentUser = data; localStorage.setItem('fubc_cloud_user', JSON.stringify(this.currentUser)); this.loadUserDataLocally(); this.fetchLeaderboard();
                     } else {
                         const { data, error } = await this.supabase.from('students').select('*').eq('name', this.authForm.name).eq('pin', this.authForm.pin).single();
-                        
-                        if (error || !data) {
-                            alert("Incorrect Name or PIN. Or account does not exist.");
-                        } else {
-                            this.currentUser = data;
-                            localStorage.setItem('fubc_cloud_user', JSON.stringify(this.currentUser));
-                            this.loadUserDataLocally();
-                        }
+                        if (error || !data) { alert("Incorrect Name or PIN. Or account does not exist."); } else { this.currentUser = data; localStorage.setItem('fubc_cloud_user', JSON.stringify(this.currentUser)); this.loadUserDataLocally(); }
                     }
                     this.authLoading = false;
                 },
@@ -902,358 +848,83 @@
                 async saveUserToCloud() {
                     localStorage.setItem('fubc_cloud_user', JSON.stringify(this.currentUser));
                     if (!this.supabase) return;
-
-                    const { error } = await this.supabase.from('students').update({
-                        total_minutes: this.currentUser.total_minutes,
-                        streak: this.currentUser.streak,
-                        last_date: this.currentUser.last_date,
-                        log: this.currentUser.log
-                    }).eq('id', this.currentUser.id);
-
-                    if(error) {
-                        console.error("Failed to sync to cloud:", error);
-                    } else {
-                        this.fetchLeaderboard();
-                    }
+                    const { error } = await this.supabase.from('students').update({ total_minutes: this.currentUser.total_minutes, streak: this.currentUser.streak, last_date: this.currentUser.last_date, log: this.currentUser.log }).eq('id', this.currentUser.id);
+                    if(error) { console.error("Failed to sync to cloud:", error); } else { this.fetchLeaderboard(); }
                 },
 
                 async fetchLeaderboard() {
                     if(!this.supabase) return;
                     try {
-                        const { data, error } = await this.supabase
-                            .from('students')
-                            .select('name, total_minutes, streak')
-                            .order('total_minutes', { ascending: false })
-                            .limit(20);
-                        if(data) {
-                            this.leaderboard = data;
-                        }
-                    } catch (e) {
-                        console.error("Leaderboard error", e);
-                    }
+                        const { data, error } = await this.supabase.from('students').select('name, total_minutes, streak').order('total_minutes', { ascending: false }).limit(20);
+                        if(data) { this.leaderboard = data; }
+                    } catch (e) {}
                 },
 
-                get topTime() {
-                    return [...this.leaderboard].sort((a,b) => b.total_minutes - a.total_minutes).slice(0, 5);
-                },
-
-                get topStreak() {
-                    return [...this.leaderboard].sort((a,b) => b.streak - a.streak).slice(0, 5);
-                },
-
-                logout() {
-                    this.currentUser = null;
-                    localStorage.removeItem('fubc_cloud_user');
-                    this.authForm = { name: '', pin: '', code: '' };
-                },
-
-                loadUserDataLocally() {
-                    this.studentName = this.currentUser.name;
-                    this.totalMinutes = this.currentUser.total_minutes;
-                    this.streak = this.currentUser.streak;
-                    this.lastPractice = this.currentUser.last_date;
-                    this.practicedLog = this.currentUser.log || [];
-                },
-                // -----------------------------
+                get topTime() { return [...this.leaderboard].sort((a,b) => b.total_minutes - a.total_minutes).slice(0, 5); },
+                get topStreak() { return [...this.leaderboard].sort((a,b) => b.streak - a.streak).slice(0, 5); },
+                logout() { this.currentUser = null; localStorage.removeItem('fubc_cloud_user'); this.authForm = { name: '', pin: '', code: '' }; },
+                loadUserDataLocally() { this.studentName = this.currentUser.name; this.totalMinutes = this.currentUser.total_minutes; this.streak = this.currentUser.streak; this.lastPractice = this.currentUser.last_date; this.practicedLog = this.currentUser.log || []; },
 
                 studentName: localStorage.getItem('fubc_student_name') || '',
                 isEditingName: false,
                 totalMinutes: parseInt(localStorage.getItem('fubc_total_minutes')) || 0,
-                
-                openProfile() {
-                    this.profileModalOpen = true;
-                },
+                openProfile() { this.profileModalOpen = true; },
+                getRankName() { let hrs = (this.currentUser ? this.currentUser.total_minutes : this.totalMinutes) / 60; if(hrs < 1) return this.lang === 'en' ? 'Beginner' : 'Початківець'; if(hrs < 5) return this.lang === 'en' ? 'Apprentice' : 'Учень'; if(hrs < 20) return this.lang === 'en' ? 'Musician' : 'Музикант'; if(hrs < 50) return this.lang === 'en' ? 'Section Leader' : 'Лідер групи'; return this.lang === 'en' ? 'Maestro' : 'Маестро'; },
+                getRankColor() { let hrs = (this.currentUser ? this.currentUser.total_minutes : this.totalMinutes) / 60; if(hrs < 5) return 'text-slate-500'; if(hrs < 20) return 'text-emerald-500'; if(hrs < 50) return 'text-blue-500'; return 'text-brass'; },
 
-                getRankName() {
-                    let hrs = (this.currentUser ? this.currentUser.total_minutes : this.totalMinutes) / 60;
-                    if(hrs < 1) return this.lang === 'en' ? 'Beginner' : 'Початківець';
-                    if(hrs < 5) return this.lang === 'en' ? 'Apprentice' : 'Учень';
-                    if(hrs < 20) return this.lang === 'en' ? 'Musician' : 'Музикант';
-                    if(hrs < 50) return this.lang === 'en' ? 'Section Leader' : 'Лідер групи';
-                    return this.lang === 'en' ? 'Maestro' : 'Маестро';
-                },
-                getRankColor() {
-                    let hrs = (this.currentUser ? this.currentUser.total_minutes : this.totalMinutes) / 60;
-                    if(hrs < 5) return 'text-slate-500';
-                    if(hrs < 20) return 'text-emerald-500';
-                    if(hrs < 50) return 'text-blue-500';
-                    return 'text-brass';
-                },
-
-                // --- INSTRUMENT GROUPS & TRANSPOSITION ---
                 availableInstruments: ['Flute', 'Oboe', 'Clarinet', 'Saxophone', 'Trumpet', 'French Horn', 'Tenor Horn', 'Baritone', 'Trombone', 'Tuba'],
                 globalInstrument: localStorage.getItem('fubc_school_instrument') || 'Trumpet',
-                
                 selectedGroup: 0,
-                instrumentGroups: [
-                    { clef: 'treble' }, // 0: Flute/Oboe (C Treble)
-                    { clef: 'treble' }, // 1: Clarinet/Trumpet (Bb Treble)
-                    { clef: 'treble' }, // 2: Sax/Eb Horn (Eb Treble)
-                    { clef: 'treble' }, // 3: F Horn (F Treble)
-                    { clef: 'bass' },   // 4: Trombone/Baritone (C Bass)
-                    { clef: 'bass' }    // 5: Tuba (C Bass 8vb)
-                ],
+                instrumentGroups: [ { clef: 'treble' }, { clef: 'treble' }, { clef: 'treble' }, { clef: 'treble' }, { clef: 'bass' }, { clef: 'bass' } ],
 
-                // Weekly Practice Tracker
                 streak: parseInt(localStorage.getItem('fubc_school_streak')) || 0,
                 lastPractice: localStorage.getItem('fubc_school_last_date') || '',
                 practicedToday: false,
                 practicedLog: JSON.parse(localStorage.getItem('fubc_school_weekly_log')) || [],
                 weekDays: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
-                
                 get currentDayOfWeek() { return new Date().getDay(); },
-
-                hasPracticedOnDay(dayIndex) {
-                    const logToCheck = this.currentUser ? this.currentUser.log : this.practicedLog;
-                    if (!logToCheck) return false;
-                    const today = new Date();
-                    const dayDiff = today.getDay() - dayIndex;
-                    const targetDate = new Date(today);
-                    targetDate.setDate(today.getDate() - dayDiff);
-                    return logToCheck.includes(targetDate.toDateString());
-                },
+                hasPracticedOnDay(dayIndex) { const logToCheck = this.currentUser ? this.currentUser.log : this.practicedLog; if (!logToCheck) return false; const today = new Date(); const dayDiff = today.getDay() - dayIndex; const targetDate = new Date(today); targetDate.setDate(today.getDate() - dayDiff); return logToCheck.includes(targetDate.toDateString()); },
                 
-                // Session Timer
-                sessionActive: false,
-                sessionTimer: null,
-                sessionPhase: 0,
-                sessionTimeLeft: 300, 
-                sessionPhases: [
-                    { name_en: 'Warm-Ups', name_ua: 'Розминка', duration: 300 },
-                    { name_en: 'Repertoire', name_ua: 'Репертуар', duration: 900 },
-                    { name_en: 'Review / Fun', name_ua: 'Повторення', duration: 300 } 
-                ],
+                sessionActive: false, sessionTimer: null, sessionPhase: 0, sessionTimeLeft: 300, 
+                sessionPhases: [ { name_en: 'Warm-Ups', name_ua: 'Розминка', duration: 300 }, { name_en: 'Repertoire', name_ua: 'Репертуар', duration: 900 }, { name_en: 'Review / Fun', name_ua: 'Повторення', duration: 300 } ],
+                submitStatus: 'idle', synthControl: null, schoolSongs: [],
 
-                submitStatus: 'idle',
-                synthControl: null,
-                
-                schoolSongs: [],
-
-                // WARMUPS
                 exercises: [
-                    { 
-                        title_en: '1. Long Tones', title_ua: '1. Довгі Ноти',
-                        keys: ['Bb', 'C', 'G', 'F', 'Bb', 'Bb'],
-                        abc: [
-                            'L:1/4\nB c d e f g a b | b a g f e d c B | B8 |]', // Flute
-                            'L:1/4\nC D E F G A B c | c B A G F E D C | C8 |]', // Clarinet
-                            'L:1/4\nG A B c d e f g | g f e d c B A G | G8 |]', // Sax
-                            'L:1/4\nF G A B c d e f | f e d c B A G F | F8 |]', // Horn
-                            'L:1/4\nB,, C, D, E, F, G, A, B, | B, A, G, F, E, D, C, B,, | B,,8 |]', // Trombone
-                            'L:1/4\nB,,, C,, D,, E,, F,, G,, A,, B,, | B,, A,, G,, F,, E,, D,, C,, B,,, | B,,,8 |]'  // Tuba
-                        ] 
-                    },
-                    { 
-                        title_en: '2. Flexibility', title_ua: '2. Гнучкість', 
-                        keys: ['Bb', 'C', 'G', 'F', 'Bb', 'Bb'],
-                        abc: [
-                            'L:1/8\n(B f B f B2) z2 | (c g c g c2) z2 | (d a d a d2) z2 | (e b e b e2) z2 |]', 
-                            'L:1/8\n(C G C G C2) z2 | (D A D A D2) z2 | (E B E B E2) z2 | (F c F c F2) z2 |]', 
-                            'L:1/8\n(G d G d G2) z2 | (A e A e A2) z2 | (B f B f B2) z2 | (c g c g c2) z2 |]', 
-                            'L:1/8\n(F c F c F2) z2 | (G d G d G2) z2 | (A e A e A2) z2 | (B f B f B2) z2 |]', 
-                            'L:1/8\n(B,, F, B,, F, B,,2) z2 | (C, G, C, G, C,2) z2 | (D, A, D, A, D,2) z2 | (E, B, E, B, E,2) z2 |]', 
-                            'L:1/8\n(B,,, F,, B,,, F,, B,,,2) z2 | (C,, G,, C,, G,, C,,2) z2 | (D,, A,, D,, A,, D,,2) z2 | (E,, B,, E,, B,, E,,2) z2 |]'
-                        ] 
-                    },
-                    { 
-                        title_en: '3. Articulation', title_ua: '3. Артикуляція', 
-                        keys: ['Bb', 'C', 'G', 'F', 'Bb', 'Bb'],
-                        abc: [
-                            'L:1/8\n.B.B .B.B .B.B .B.B | B2 z2 B2 z2 | .f.f .f.f .f.f .f.f | f2 z2 f2 z2 |]', 
-                            'L:1/8\n.C.C .C.C .C.C .C.C | C2 z2 C2 z2 | .G.G .G.G .G.G .G.G | G2 z2 G2 z2 |]', 
-                            'L:1/8\n.G.G .G.G .G.G .G.G | G2 z2 G2 z2 | .d.d .d.d .d.d .d.d | d2 z2 d2 z2 |]', 
-                            'L:1/8\n.F.F .F.F .F.F .F.F | F2 z2 F2 z2 | .c.c .c.c .c.c .c.c | c2 z2 c2 z2 |]', 
-                            'L:1/8\n.B,,.B,, .B,,.B,, .B,,.B,, .B,,.B,, | B,,2 z2 B,,2 z2 | .F,.F, .F,.F, .F,.F, .F,.F, | F,2 z2 F,2 z2 |]', 
-                            'L:1/8\n.B,,,.B,,, .B,,,.B,,, .B,,,.B,,, .B,,,.B,,, | B,,,2 z2 B,,,2 z2 | .F,,.F,, .F,,.F,, .F,,.F,, .F,,.F,, | F,,2 z2 F,,2 z2 |]'
-                        ] 
-                    },
-                    { 
-                        title_en: '4. Arpeggios', title_ua: '4. Арпеджіо', 
-                        keys: ['Bb', 'C', 'G', 'F', 'Bb', 'Bb'],
-                        abc: [
-                            'L:1/8\nB d f b b f d B | B8 | c e g c\' c\' g e c | c8 |]', 
-                            'L:1/8\nC E G c c G E C | C8 | D F A d d A F D | D8 |]', 
-                            'L:1/8\nG B d g g d B G | G8 | A c e a a e c A | A8 |]', 
-                            'L:1/8\nF A c f f c A F | F8 | G B d g g d B G | G8 |]', 
-                            'L:1/8\nB,, D, F, B, B, F, D, B,, | B,,8 | C, E, G, C C G, E, C, | C,8 |]', 
-                            'L:1/8\nB,,, D,, F,, B,, B,, F,, D,, B,,, | B,,,8 | C,, E,, G,, C, C, G,, E,, C,, | C,,8 |]'
-                        ] 
-                    }
+                    { title_en: '1. Long Tones', title_ua: '1. Довгі Ноти', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/4\nB c d e f g a b|b a g f e d c B|B8|]','L:1/4\nC D E F G A B c|c B A G F E D C|C8|]','L:1/4\nG A B c d e f g|g f e d c B A G|G8|]','L:1/4\nF G A B c d e f|f e d c B A G F|F8|]','L:1/4\nB,, C, D, E, F, G, A, B,|B, A, G, F, E, D, C, B,,|B,,8|]','L:1/4\nB,,, C,, D,, E,, F,, G,, A,, B,,|B,, A,, G,, F,, E,, D,, C,, B,,,|B,,,8|]'] },
+                    { title_en: '2. Flexibility', title_ua: '2. Гнучкість', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\n(B f B f B2) z2|(c g c g c2) z2|(d a d a d2) z2|(e b e b e2) z2|]','L:1/8\n(C G C G C2) z2|(D A D A D2) z2|(E B E B E2) z2|(F c F c F2) z2|]','L:1/8\n(G d G d G2) z2|(A e A e A2) z2|(B f B f B2) z2|(c g c g c2) z2|]','L:1/8\n(F c F c F2) z2|(G d G d G2) z2|(A e A e A2) z2|(B f B f B2) z2|]','L:1/8\n(B,, F, B,, F, B,,2) z2|(C, G, C, G, C,2) z2|(D, A, D, A, D,2) z2|(E, B, E, B, E,2) z2|]','L:1/8\n(B,,, F,, B,,, F,, B,,,2) z2|(C,, G,, C,, G,, C,,2) z2|(D,, A,, D,, A,, D,,2) z2|(E,, B,, E,, B,, E,,2) z2|]'] },
+                    { title_en: '3. Articulation', title_ua: '3. Артикуляція', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\n.B.B .B.B .B.B .B.B|B2 z2 B2 z2|.f.f .f.f .f.f .f.f|f2 z2 f2 z2|]','L:1/8\n.C.C .C.C .C.C .C.C|C2 z2 C2 z2|.G.G .G.G .G.G .G.G|G2 z2 G2 z2|]','L:1/8\n.G.G .G.G .G.G .G.G|G2 z2 G2 z2|.d.d .d.d .d.d .d.d|d2 z2 d2 z2|]','L:1/8\n.F.F .F.F .F.F .F.F|F2 z2 F2 z2|.c.c .c.c .c.c .c.c|c2 z2 c2 z2|]','L:1/8\n.B,,.B,, .B,,.B,, .B,,.B,, .B,,.B,,|B,,2 z2 B,,2 z2|.F,.F, .F,.F, .F,.F, .F,.F,|F,2 z2 F,2 z2|]','L:1/8\n.B,,,.B,,, .B,,,.B,,, .B,,,.B,,, .B,,,.B,,,|B,,,2 z2 B,,,2 z2|.F,,.F,, .F,,.F,, .F,,.F,, .F,,.F,,|F,,2 z2 F,,2 z2|]'] },
+                    { title_en: '4. Arpeggios', title_ua: '4. Арпеджіо', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\nB d f b b f d B|B8|c e g c\' c\' g e c|c8|]','L:1/8\nC E G c c G E C|C8|D F A d d A F D|D8|]','L:1/8\nG B d g g d B G|G8|A c e a a e c A|A8|]','L:1/8\nF A c f f c A F|F8|G B d g g d B G|G8|]','L:1/8\nB,, D, F, B, B, F, D, B,,|B,,8|C, E, G, C C G, E, C,|C,8|]','L:1/8\nB,,, D,, F,, B,, B,, F,, D,, B,,,|B,,,8|C,, E,, G,, C, C, G,, E,, C,,|C,,8|]'] }
                 ],
-
-                // 12 MAJOR SCALES (CIRCLE OF FIFTHS)
                 scales: [
-                    {
-                        title_en: 'Concert C Major Scale', title_ua: 'До мажор (Concert C)',
-                        keys: ['C', 'D', 'A', 'G', 'C', 'C'],
-                        abc: [
-                            'L:1/8\nc d e f g a b c\' | c\' b a g f e d c | c8 |]', 
-                            'L:1/8\nd e f g a b c\' d\' | d\' c\' b a g f e d | d8 |]', 
-                            'L:1/8\nA B c d e f g a | a g f e d c B A | A8 |]', 
-                            'L:1/8\nG A B c d e f g | g f e d c B A G | G8 |]', 
-                            'L:1/8\nC, D, E, F, G, A, B, C | C B, A, G, F, E, D, C, | C,8 |]', 
-                            'L:1/8\nC,, D,, E,, F,, G,, A,, B,, C, | C, B,, A,, G,, F,, E,, D,, C,, | C,,8 |]' 
-                        ]
-                    },
-                    {
-                        title_en: 'Concert F Major Scale', title_ua: 'Фа мажор (Concert F)',
-                        keys: ['F', 'G', 'D', 'C', 'F', 'F'],
-                        abc: [
-                            'L:1/8\nf g a b c\' d\' e\' f\' | f\' e\' d\' c\' b a g f | f8 |]', 
-                            'L:1/8\nG A B c d e f g | g f e d c B A G | G8 |]', 
-                            'L:1/8\nd e f g a b c\' d\' | d\' c\' b a g f e d | d8 |]', 
-                            'L:1/8\nc d e f g a b c\' | c\' b a g f e d c | c8 |]', 
-                            'L:1/8\nF, G, A, B, C D E F | F E D C B, A, G, F, | F,8 |]', 
-                            'L:1/8\nF,, G,, A,, B,, C, D, E, F, | F, E, D, C, B,, A,, G,, F,, | F,,8 |]' 
-                        ]
-                    },
-                    {
-                        title_en: 'Concert Bb Major Scale', title_ua: 'Сі-бемоль мажор (Concert Bb)',
-                        keys: ['Bb', 'C', 'G', 'F', 'Bb', 'Bb'],
-                        abc: [
-                            'L:1/8\nb c\' d\' e\' f\' g\' a\' b\' | b\' a\' g\' f\' e\' d\' c\' b | b8 |]', 
-                            'L:1/8\nc d e f g a b c\' | c\' b a g f e d c | c8 |]', 
-                            'L:1/8\nG A B c d e f g | g f e d c B A G | G8 |]', 
-                            'L:1/8\nF G A B c d e f | f e d c B A G F | F8 |]', 
-                            'L:1/8\nB,, C, D, E, F, G, A, B, | B, A, G, F, E, D, C, B,, | B,,8 |]', 
-                            'L:1/8\nB,,, C,, D,, E,, F,, G,, A,, B,, | B,, A,, G,, F,, E,, D,, C,, B,,, | B,,,8 |]'
-                        ]
-                    },
-                    {
-                        title_en: 'Concert Eb Major Scale', title_ua: 'Мі-бемоль мажор (Concert Eb)',
-                        keys: ['Eb', 'F', 'C', 'Bb', 'Eb', 'Eb'],
-                        abc: [
-                            'L:1/8\ne f g a b c\' d\' e\' | e\' d\' c\' b a g f e | e8 |]', 
-                            'L:1/8\nf g a b c\' d\' e\' f\' | f\' e\' d\' c\' b a g f | f8 |]', 
-                            'L:1/8\nc d e f g a b c\' | c\' b a g f e d c | c8 |]', 
-                            'L:1/8\nB c d e f g a b | b a g f e d c B | B8 |]', 
-                            'L:1/8\nE, F, G, A, B, C D E | E D C B, A, G, F, E, | E,8 |]', 
-                            'L:1/8\nE,, F,, G,, A,, B,, C, D, E, | E, D, C, B,, A,, G,, F,, E,, | E,,8 |]' 
-                        ]
-                    },
-                    {
-                        title_en: 'Concert Ab Major Scale', title_ua: 'Ля-бемоль мажор (Concert Ab)',
-                        keys: ['Ab', 'Bb', 'F', 'Eb', 'Ab', 'Ab'],
-                        abc: [
-                            'L:1/8\na b c\' d\' e\' f\' g\' a\' | a\' g\' f\' e\' d\' c\' b a | a8 |]', 
-                            'L:1/8\nB c d e f g a b | b a g f e d c B | B8 |]', 
-                            'L:1/8\nf g a b c\' d\' e\' f\' | f\' e\' d\' c\' b a g f | f8 |]', 
-                            'L:1/8\ne f g a b c\' d\' e\' | e\' d\' c\' b a g f e | e8 |]', 
-                            'L:1/8\nA, B, C D E F G A | A G F E D C B, A, | A,8 |]', 
-                            'L:1/8\nA,, B,, C, D, E, F, G, A, | A, G, F, E, D, C, B,, A,, | A,,8 |]' 
-                        ]
-                    },
-                    {
-                        title_en: 'Concert Db Major Scale', title_ua: 'Ре-бемоль мажор (Concert Db)',
-                        keys: ['Db', 'Eb', 'Bb', 'Ab', 'Db', 'Db'],
-                        abc: [
-                            'L:1/8\nd e f g a b c\' d\' | d\' c\' b a g f e d | d8 |]', 
-                            'L:1/8\ne f g a b c\' d\' e\' | e\' d\' c\' b a g f e | e8 |]', 
-                            'L:1/8\nB c d e f g a b | b a g f e d c B | B8 |]', 
-                            'L:1/8\nA B c d e f g a | a g f e d c B A | A8 |]', 
-                            'L:1/8\nD, E, F, G, A, B, C D | D C B, A, G, F, E, D, | D,8 |]', 
-                            'L:1/8\nD,, E,, F,, G,, A,, B,, C, D, | D, C, B,, A,, G,, F,, E,, D,, | D,,8 |]' 
-                        ]
-                    },
-                    {
-                        title_en: 'Concert Gb Major Scale', title_ua: 'Соль-бемоль мажор (Concert Gb)',
-                        keys: ['Gb', 'Ab', 'Eb', 'Db', 'Gb', 'Gb'],
-                        abc: [
-                            'L:1/8\ng a b c\' d\' e\' f\' g\' | g\' f\' e\' d\' c\' b a g | g8 |]', 
-                            'L:1/8\nA B c d e f g a | a g f e d c B A | A8 |]', 
-                            'L:1/8\ne f g a b c\' d\' e\' | e\' d\' c\' b a g f e | e8 |]', 
-                            'L:1/8\nd e f g a b c\' d\' | d\' c\' b a g f e d | d8 |]', 
-                            'L:1/8\nG, A, B, C D E F G | G F E D C B, A, G, | G,8 |]', 
-                            'L:1/8\nG,, A,, B,, C, D, E, F, G, | G, F, E, D, C, B,, A,, G,, | G,,8 |]' 
-                        ]
-                    },
-                    {
-                        title_en: 'Concert B Major Scale', title_ua: 'Сі мажор (Concert B)',
-                        keys: ['B', 'Db', 'Ab', 'Gb', 'B', 'B'],
-                        abc: [
-                            'L:1/8\nb c\' d\' e\' f\' g\' a\' b\' | b\' a\' g\' f\' e\' d\' c\' b | b8 |]', 
-                            'L:1/8\nd e f g a b c\' d\' | d\' c\' b a g f e d | d8 |]', 
-                            'L:1/8\na b c\' d\' e\' f\' g\' a\' | a\' g\' f\' e\' d\' c\' b a | a8 |]', 
-                            'L:1/8\ng a b c\' d\' e\' f\' g\' | g\' f\' e\' d\' c\' b a g | g8 |]', 
-                            'L:1/8\nB, C D E F G A B | B A G F E D C B, | B,8 |]', 
-                            'L:1/8\nB,, C, D, E, F, G, A, B, | B, A, G, F, E, D, C, B,, | B,,8 |]' 
-                        ]
-                    },
-                    {
-                        title_en: 'Concert E Major Scale', title_ua: 'Мі мажор (Concert E)',
-                        keys: ['E', 'Gb', 'Db', 'B', 'E', 'E'],
-                        abc: [
-                            'L:1/8\ne f g a b c\' d\' e\' | e\' d\' c\' b a g f e | e8 |]', 
-                            'L:1/8\ng a b c\' d\' e\' f\' g\' | g\' f\' e\' d\' c\' b a g | g8 |]', 
-                            'L:1/8\nd e f g a b c\' d\' | d\' c\' b a g f e d | d8 |]', 
-                            'L:1/8\nB c d e f g a b | b a g f e d c B | B8 |]', 
-                            'L:1/8\nE, F, G, A, B, C D E | E D C B, A, G, F, E, | E,8 |]', 
-                            'L:1/8\nE,, F,, G,, A,, B,, C, D, E, | E, D, C, B,, A,, G,, F,, E,, | E,,8 |]' 
-                        ]
-                    },
-                    {
-                        title_en: 'Concert A Major Scale', title_ua: 'Ля мажор (Concert A)',
-                        keys: ['A', 'B', 'Gb', 'E', 'A', 'A'],
-                        abc: [
-                            'L:1/8\na b c\' d\' e\' f\' g\' a\' | a\' g\' f\' e\' d\' c\' b a | a8 |]', 
-                            'L:1/8\nB c d e f g a b | b a g f e d c B | B8 |]', 
-                            'L:1/8\ng a b c\' d\' e\' f\' g\' | g\' f\' e\' d\' c\' b a g | g8 |]', 
-                            'L:1/8\ne f g a b c\' d\' e\' | e\' d\' c\' b a g f e | e8 |]', 
-                            'L:1/8\nA, B, C D E F G A | A G F E D C B, A, | A,8 |]', 
-                            'L:1/8\nA,, B,, C, D, E, F, G, A, | A, G, F, E, D, C, B,, A,, | A,,8 |]' 
-                        ]
-                    },
-                    {
-                        title_en: 'Concert D Major Scale', title_ua: 'Ре мажор (Concert D)',
-                        keys: ['D', 'E', 'B', 'A', 'D', 'D'],
-                        abc: [
-                            'L:1/8\nd e f g a b c\' d\' | d\' c\' b a g f e d | d8 |]', 
-                            'L:1/8\ne f g a b c\' d\' e\' | e\' d\' c\' b a g f e | e8 |]', 
-                            'L:1/8\nB c d e f g a b | b a g f e d c B | B8 |]', 
-                            'L:1/8\nA B c d e f g a | a g f e d c B A | A8 |]', 
-                            'L:1/8\nD, E, F, G, A, B, C D | D C B, A, G, F, E, D, | D,8 |]', 
-                            'L:1/8\nD,, E,, F,, G,, A,, B,, C, D, | D, C, B,, A,, G,, F,, E,, D,, | D,,8 |]' 
-                        ]
-                    },
-                    {
-                        title_en: 'Concert G Major Scale', title_ua: 'Соль мажор (Concert G)',
-                        keys: ['G', 'A', 'E', 'D', 'G', 'G'],
-                        abc: [
-                            'L:1/8\ng a b c\' d\' e\' f\' g\' | g\' f\' e\' d\' c\' b a g | g8 |]', 
-                            'L:1/8\nA B c d e f g a | a g f e d c B A | A8 |]', 
-                            'L:1/8\ne f g a b c\' d\' e\' | e\' d\' c\' b a g f e | e8 |]', 
-                            'L:1/8\nd e f g a b c\' d\' | d\' c\' b a g f e d | d8 |]', 
-                            'L:1/8\nG, A, B, C D E F G | G F E D C B, A, G, | G,8 |]', 
-                            'L:1/8\nG,, A,, B,, C, D, E, F, G, | G, F, E, D, C, B,, A,, G,, | G,,8 |]' 
-                        ]
-                    }
+                    { title_en: 'Concert C Major', title_ua: 'До мажор (C)', keys: ['C','D','A','G','C','C'], abc: ['L:1/8\nc d e f g a b c\'|c\' b a g f e d c|c8|]','L:1/8\nd e f g a b c\' d\'|d\' c\' b a g f e d|d8|]','L:1/8\nA B c d e f g a|a g f e d c B A|A8|]','L:1/8\nG A B c d e f g|g f e d c B A G|G8|]','L:1/8\nC, D, E, F, G, A, B, C|C B, A, G, F, E, D, C,|C,8|]','L:1/8\nC,, D,, E,, F,, G,, A,, B,, C,|C, B,, A,, G,, F,, E,, D,, C,,|C,,8|]']},
+                    { title_en: 'Concert F Major', title_ua: 'Фа мажор (F)', keys: ['F','G','D','C','F','F'], abc: ['L:1/8\nf g a b c\' d\' e\' f\'|f\' e\' d\' c\' b a g f|f8|]','L:1/8\nG A B c d e f g|g f e d c B A G|G8|]','L:1/8\nd e f g a b c\' d\'|d\' c\' b a g f e d|d8|]','L:1/8\nc d e f g a b c\'|c\' b a g f e d c|c8|]','L:1/8\nF, G, A, B, C D E F|F E D C B, A, G, F,|F,8|]','L:1/8\nF,, G,, A,, B,, C, D, E, F,|F, E, D, C, B,, A,, G,, F,,|F,,8|]']},
+                    { title_en: 'Concert Bb Major', title_ua: 'Сі-бемоль мажор (Bb)', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\nb c\' d\' e\' f\' g\' a\' b\'|b\' a\' g\' f\' e\' d\' c\' b|b8|]','L:1/8\nc d e f g a b c\'|c\' b a g f e d c|c8|]','L:1/8\nG A B c d e f g|g f e d c B A G|G8|]','L:1/8\nF G A B c d e f|f e d c B A G F|F8|]','L:1/8\nB,, C, D, E, F, G, A, B,|B, A, G, F, E, D, C, B,,|B,,8|]','L:1/8\nB,,, C,, D,, E,, F,, G,, A,, B,,|B,, A,, G,, F,, E,, D,, C,, B,,,|B,,,8|]']},
+                    { title_en: 'Concert Eb Major', title_ua: 'Мі-бемоль мажор (Eb)', keys: ['Eb','F','C','Bb','Eb','Eb'], abc: ['L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\nf g a b c\' d\' e\' f\'|f\' e\' d\' c\' b a g f|f8|]','L:1/8\nc d e f g a b c\'|c\' b a g f e d c|c8|]','L:1/8\nB c d e f g a b|b a g f e d c B|B8|]','L:1/8\nE, F, G, A, B, C D E|E D C B, A, G, F, E,|E,8|]','L:1/8\nE,, F,, G,, A,, B,, C, D, E,|E, D, C, B,, A,, G,, F,, E,,|E,,8|]']},
+                    { title_en: 'Concert Ab Major', title_ua: 'Ля-бемоль мажор (Ab)', keys: ['Ab','Bb','F','Eb','Ab','Ab'], abc: ['L:1/8\na b c\' d\' e\' f\' g\' a\'|a\' g\' f\' e\' d\' c\' b a|a8|]','L:1/8\nB c d e f g a b|b a g f e d c B|B8|]','L:1/8\nf g a b c\' d\' e\' f\'|f\' e\' d\' c\' b a g f|f8|]','L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\nA, B, C D E F G A|A G F E D C B, A,|A,8|]','L:1/8\nA,, B,, C, D, E, F, G, A,|A, G, F, E, D, C, B,, A,,|A,,8|]']},
+                    { title_en: 'Concert Db Major', title_ua: 'Ре-бемоль мажор (Db)', keys: ['Db','Eb','Bb','Ab','Db','Db'], abc: ['L:1/8\nd e f g a b c\' d\'|d\' c\' b a g f e d|d8|]','L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\nB c d e f g a b|b a g f e d c B|B8|]','L:1/8\nA B c d e f g a|a g f e d c B A|A8|]','L:1/8\nD, E, F, G, A, B, C D|D C B, A, G, F, E, D,|D,8|]','L:1/8\nD,, E,, F,, G,, A,, B,, C, D,|D, C, B,, A,, G,, F,, E,, D,,|D,,8|]']},
+                    { title_en: 'Concert Gb Major', title_ua: 'Соль-бемоль мажор (Gb)', keys: ['Gb','Ab','Eb','Db','Gb','Gb'], abc: ['L:1/8\ng a b c\' d\' e\' f\' g\'|g\' f\' e\' d\' c\' b a g|g8|]','L:1/8\nA B c d e f g a|a g f e d c B A|A8|]','L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\nd e f g a b c\' d\'|d\' c\' b a g f e d|d8|]','L:1/8\nG, A, B, C D E F G|G F E D C B, A, G,|G,8|]','L:1/8\nG,, A,, B,, C, D, E, F, G,|G, F, E, D, C, B,, A,, G,,|G,,8|]']},
+                    { title_en: 'Concert B Major', title_ua: 'Сі мажор (B)', keys: ['B','Db','Ab','Gb','B','B'], abc: ['L:1/8\nb c\' d\' e\' f\' g\' a\' b\'|b\' a\' g\' f\' e\' d\' c\' b|b8|]','L:1/8\nd e f g a b c\' d\'|d\' c\' b a g f e d|d8|]','L:1/8\na b c\' d\' e\' f\' g\' a\'|a\' g\' f\' e\' d\' c\' b a|a8|]','L:1/8\ng a b c\' d\' e\' f\' g\'|g\' f\' e\' d\' c\' b a g|g8|]','L:1/8\nB, C D E F G A B|B A G F E D C B,|B,8|]','L:1/8\nB,, C, D, E, F, G, A, B,|B, A, G, F, E, D, C, B,,|B,,8|]']},
+                    { title_en: 'Concert E Major', title_ua: 'Мі мажор (E)', keys: ['E','Gb','Db','B','E','E'], abc: ['L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\ng a b c\' d\' e\' f\' g\'|g\' f\' e\' d\' c\' b a g|g8|]','L:1/8\nd e f g a b c\' d\'|d\' c\' b a g f e d|d8|]','L:1/8\nB c d e f g a b|b a g f e d c B|B8|]','L:1/8\nE, F, G, A, B, C D E|E D C B, A, G, F, E,|E,8|]','L:1/8\nE,, F,, G,, A,, B,, C, D, E,|E, D, C, B,, A,, G,, F,, E,,|E,,8|]']},
+                    { title_en: 'Concert A Major', title_ua: 'Ля мажор (A)', keys: ['A','B','Gb','E','A','A'], abc: ['L:1/8\na b c\' d\' e\' f\' g\' a\'|a\' g\' f\' e\' d\' c\' b a|a8|]','L:1/8\nB c d e f g a b|b a g f e d c B|B8|]','L:1/8\ng a b c\' d\' e\' f\' g\'|g\' f\' e\' d\' c\' b a g|g8|]','L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\nA, B, C D E F G A|A G F E D C B, A,|A,8|]','L:1/8\nA,, B,, C, D, E, F, G, A,|A, G, F, E, D, C, B,, A,,|A,,8|]']},
+                    { title_en: 'Concert D Major', title_ua: 'Ре мажор (D)', keys: ['D','E','B','A','D','D'], abc: ['L:1/8\nd e f g a b c\' d\'|d\' c\' b a g f e d|d8|]','L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\nB c d e f g a b|b a g f e d c B|B8|]','L:1/8\nA B c d e f g a|a g f e d c B A|A8|]','L:1/8\nD, E, F, G, A, B, C D|D C B, A, G, F, E, D,|D,8|]','L:1/8\nD,, E,, F,, G,, A,, B,, C, D,|D, C, B,, A,, G,, F,, E,, D,,|D,,8|]']},
+                    { title_en: 'Concert G Major', title_ua: 'Соль мажор (G)', keys: ['G','A','E','D','G','G'], abc: ['L:1/8\ng a b c\' d\' e\' f\' g\'|g\' f\' e\' d\' c\' b a g|g8|]','L:1/8\nA B c d e f g a|a g f e d c B A|A8|]','L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\nd e f g a b c\' d\'|d\' c\' b a g f e d|d8|]','L:1/8\nG, A, B, C D E F G|G F E D C B, A, G,|G,8|]','L:1/8\nG,, A,, B,, C, D, E, F, G,|G, F, E, D, C, B,, A,, G,,|G,,8|]']}
                 ],
 
                 async init() {
-                    // SETUP SUPABASE CONNECTION
                     const supabaseUrl = 'https://levtwocaqocalknouepf.supabase.co';
                     const supabaseKey = 'sb_publishable_BpPAx20IJLbntNt5pjZiAQ_jG3b4Joh';
-                    
                     this.supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-                    // Check for logged in cloud user
                     let storedCloudUser = localStorage.getItem('fubc_cloud_user');
-                    if (storedCloudUser) {
-                        this.currentUser = JSON.parse(storedCloudUser);
-                        this.loadUserDataLocally();
-                    }
+                    if (storedCloudUser) { this.currentUser = JSON.parse(storedCloudUser); this.loadUserDataLocally(); }
 
-                    const today = new Date();
-                    today.setHours(0,0,0,0);
-
+                    const today = new Date(); today.setHours(0,0,0,0);
                     let logArr = this.currentUser ? (this.currentUser.log || []) : this.practicedLog;
-
                     const lastPracticedStr = logArr[logArr.length - 1];
                     if (lastPracticedStr) {
                         const last = new Date(lastPracticedStr);
                         const diffTime = today.getTime() - last.getTime();
                         const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-                        
                         if (today.getDay() < last.getDay() || diffDays > 6) {
                             if(this.currentUser) { this.currentUser.log = []; this.saveUserToCloud(); }
                             else { this.practicedLog = []; localStorage.setItem('fubc_school_weekly_log', JSON.stringify([])); }
@@ -1262,10 +933,8 @@
 
                     let lastPrac = this.currentUser ? this.currentUser.last_date : this.lastPractice;
                     if (lastPrac) {
-                        const last = new Date(lastPrac);
-                        last.setHours(0,0,0,0);
-                        const diffTime = today.getTime() - last.getTime();
-                        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+                        const last = new Date(lastPrac); last.setHours(0,0,0,0);
+                        const diffDays = Math.round((today.getTime() - last.getTime()) / (1000 * 60 * 60 * 24));
                         if (diffDays === 0) { this.practicedToday = true; } 
                         else if (diffDays > 1) { 
                             if(this.currentUser) { this.currentUser.streak = 0; this.saveUserToCloud(); }
@@ -1279,50 +948,25 @@
                             const json = await response.json();
                             if(json.schoolSetlist && json.schoolSetlist.length > 0) { this.schoolSongs = json.schoolSetlist; }
                         }
-                    } catch(e) { console.log('Offline - Using default fallback setlist.'); }
-
+                    } catch(e) {}
+                    
                     this.updateGlobalInstrument(this.globalInstrument);
                     this.fetchLeaderboard();
                 },
 
-                get currentModalData() {
-                    if(this.currentFullScreenType === 'exercises') return this.exercises[this.currentFullScreenIdx];
-                    if(this.currentFullScreenType === 'scales') return this.scales[this.currentFullScreenIdx];
-                    return {};
-                },
-
-                formatTime(seconds) {
-                    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-                    const s = (seconds % 60).toString().padStart(2, '0');
-                    return `${m}:${s}`;
-                },
+                get currentModalData() { if(this.currentFullScreenType === 'exercises') return this.exercises[this.currentFullScreenIdx]; if(this.currentFullScreenType === 'scales') return this.scales[this.currentFullScreenIdx]; return {}; },
+                formatTime(seconds) { const m = Math.floor(seconds / 60).toString().padStart(2, '0'); const s = (seconds % 60).toString().padStart(2, '0'); return `${m}:${s}`; },
 
                 startSessionPhase(idx) {
-                    this.sessionPhase = idx;
-                    this.sessionTimeLeft = this.sessionPhases[idx].duration;
+                    this.sessionPhase = idx; this.sessionTimeLeft = this.sessionPhases[idx].duration;
                     if(!this.sessionActive) {
                         this.sessionActive = true;
                         this.sessionTimer = setInterval(() => {
-                            if (this.sessionTimeLeft > 0) {
-                                this.sessionTimeLeft--;
-                            } else {
-                                clearInterval(this.sessionTimer);
-                                this.sessionActive = false;
-                                
+                            if (this.sessionTimeLeft > 0) { this.sessionTimeLeft--; } else {
+                                clearInterval(this.sessionTimer); this.sessionActive = false;
                                 let minsToAdd = Math.round(this.sessionPhases[this.sessionPhase].duration / 60);
-                                if(this.currentUser) {
-                                    this.currentUser.total_minutes += minsToAdd;
-                                    this.saveUserToCloud();
-                                } else {
-                                    this.totalMinutes += minsToAdd;
-                                    localStorage.setItem('fubc_total_minutes', this.totalMinutes);
-                                }
-
-                                if (this.sessionPhase < 2) {
-                                    alert("Phase complete! Ready for the next one?");
-                                } else {
-                                    this.logPractice(); 
-                                }
+                                if(this.currentUser) { this.currentUser.total_minutes += minsToAdd; this.saveUserToCloud(); } else { this.totalMinutes += minsToAdd; localStorage.setItem('fubc_total_minutes', this.totalMinutes); }
+                                if (this.sessionPhase < 2) { alert("Phase complete! Ready for the next one?"); } else { this.logPractice(); }
                             }
                         }, 1000);
                     }
@@ -1330,364 +974,104 @@
 
                 toggleSession() {
                     if (this.sessionActive) {
-                        clearInterval(this.sessionTimer);
-                        this.sessionActive = false;
-                        
+                        clearInterval(this.sessionTimer); this.sessionActive = false;
                         let elapsedSeconds = this.sessionPhases[this.sessionPhase].duration - this.sessionTimeLeft;
                         if(elapsedSeconds > 60) {
                             let minsToAdd = Math.floor(elapsedSeconds / 60);
-                            if(this.currentUser) {
-                                this.currentUser.total_minutes += minsToAdd;
-                                this.saveUserToCloud();
-                            } else {
-                                this.totalMinutes += minsToAdd;
-                                localStorage.setItem('fubc_total_minutes', this.totalMinutes);
-                            }
+                            if(this.currentUser) { this.currentUser.total_minutes += minsToAdd; this.saveUserToCloud(); } else { this.totalMinutes += minsToAdd; localStorage.setItem('fubc_total_minutes', this.totalMinutes); }
                             this.sessionTimeLeft = this.sessionPhases[this.sessionPhase].duration; 
                         }
-                    } else {
-                        this.startSessionPhase(this.sessionPhase);
-                    }
+                    } else { this.startSessionPhase(this.sessionPhase); }
                 },
 
                 updateGlobalInstrument(inst) {
-                    this.globalInstrument = inst;
-                    localStorage.setItem('fubc_school_instrument', inst);
-                    
-                    this.interactiveChart.instrument = inst;
-                    this.interactiveChart.selectedNote = 0;
-                    this.stopFingeringAudio();
-                    
+                    this.globalInstrument = inst; localStorage.setItem('fubc_school_instrument', inst);
+                    this.interactiveChart.instrument = inst; this.interactiveChart.selectedNote = 0; this.stopFingeringAudio();
                     let groupIdx = 0;
-                    if (['Flute', 'Oboe'].includes(inst)) groupIdx = 0;
-                    else if (['Clarinet', 'Trumpet'].includes(inst)) groupIdx = 1;
-                    else if (['Saxophone', 'Tenor Horn'].includes(inst)) groupIdx = 2;
-                    else if (['French Horn'].includes(inst)) groupIdx = 3;
-                    else if (['Trombone', 'Baritone'].includes(inst)) groupIdx = 4;
-                    else if (['Tuba'].includes(inst)) groupIdx = 5;
-                    
+                    if (['Flute', 'Oboe'].includes(inst)) groupIdx = 0; else if (['Clarinet', 'Trumpet'].includes(inst)) groupIdx = 1; else if (['Saxophone', 'Tenor Horn'].includes(inst)) groupIdx = 2; else if (['French Horn'].includes(inst)) groupIdx = 3; else if (['Trombone', 'Baritone'].includes(inst)) groupIdx = 4; else if (['Tuba'].includes(inst)) groupIdx = 5;
                     this.selectedGroup = groupIdx;
-                    this.$nextTick(() => { 
-                        this.renderWarmups(); 
-                        this.renderScales();
-                    });
+                    this.$nextTick(() => { this.renderWarmups(); this.renderScales(); });
                 },
 
                 renderWarmups() {
                     if (typeof ABCJS !== 'undefined') {
-                        const group = this.instrumentGroups[this.selectedGroup];
-                        const scale = window.innerWidth < 640 ? 0.7 : 0.9;
-                        const options = { responsive: 'resize', scale: scale, paddingbottom: 5, paddingtop: 15, paddingleft: 0, paddingright: 0 };
-                        this.exercises.forEach((ex, idx) => {
-                            const header = `X:${idx+1}\nM:4/4\nQ:1/4=100\nK:${ex.keys[this.selectedGroup]} clef=${group.clef}\n`;
-                            ABCJS.renderAbc(`abc-warmup-${idx}`, header + ex.abc[this.selectedGroup], options);
-                        });
+                        const group = this.instrumentGroups[this.selectedGroup]; const scale = window.innerWidth < 640 ? 0.7 : 0.9; const options = { responsive: 'resize', scale: scale, paddingbottom: 5, paddingtop: 15, paddingleft: 0, paddingright: 0 };
+                        this.exercises.forEach((ex, idx) => { ABCJS.renderAbc(`abc-warmup-${idx}`, `X:${idx+1}\nM:4/4\nQ:1/4=100\nK:${ex.keys[this.selectedGroup]} clef=${group.clef}\n` + ex.abc[this.selectedGroup], options); });
                     }
                 },
 
                 renderScales() {
                     if (typeof ABCJS !== 'undefined') {
-                        const group = this.instrumentGroups[this.selectedGroup];
-                        // Slightly smaller scale to fit the denser 12-scale grid
-                        const scale = window.innerWidth < 640 ? 0.6 : 0.75;
-                        const options = { responsive: 'resize', scale: scale, paddingbottom: 5, paddingtop: 15, paddingleft: 0, paddingright: 0 };
-                        this.scales.forEach((sc, idx) => {
-                            const header = `X:${idx+1}\nM:4/4\nQ:1/4=100\nK:${sc.keys[this.selectedGroup]} clef=${group.clef}\n`;
-                            ABCJS.renderAbc(`abc-scale-${idx}`, header + sc.abc[this.selectedGroup], options);
-                        });
+                        const group = this.instrumentGroups[this.selectedGroup]; const scale = window.innerWidth < 640 ? 0.6 : 0.75; const options = { responsive: 'resize', scale: scale, paddingbottom: 5, paddingtop: 15, paddingleft: 0, paddingright: 0 };
+                        this.scales.forEach((sc, idx) => { ABCJS.renderAbc(`abc-scale-${idx}`, `X:${idx+1}\nM:4/4\nQ:1/4=100\nK:${sc.keys[this.selectedGroup]} clef=${group.clef}\n` + sc.abc[this.selectedGroup], options); });
                     }
                 },
 
                 openFullScreen(idx, type) {
-                    this.currentFullScreenIdx = idx;
-                    this.currentFullScreenType = type;
-                    this.fullScreenModalOpen = true;
-                    
+                    this.currentFullScreenIdx = idx; this.currentFullScreenType = type; this.fullScreenModalOpen = true;
                     this.$nextTick(() => {
-                        const group = this.instrumentGroups[this.selectedGroup];
-                        const dataObj = type === 'exercises' ? this.exercises[idx] : this.scales[idx];
-                        const header = `X:${idx+1}\nM:4/4\nQ:1/4=100\nK:${dataObj.keys[this.selectedGroup]} clef=${group.clef}\n`;
-                        const modalScale = window.innerWidth < 640 ? 1.0 : 1.8;
-                        
-                        document.getElementById('abc-fullscreen').innerHTML = ''; // Wipe old notes
-                        
-                        var visualObj = ABCJS.renderAbc('abc-fullscreen', header + dataObj.abc[this.selectedGroup], { 
-                            responsive: 'resize', scale: modalScale, paddingtop: 30, paddingbottom: 30, add_classes: true
-                        })[0];
-
+                        const group = this.instrumentGroups[this.selectedGroup]; const dataObj = type === 'exercises' ? this.exercises[idx] : this.scales[idx];
+                        const header = `X:${idx+1}\nM:4/4\nQ:1/4=100\nK:${dataObj.keys[this.selectedGroup]} clef=${group.clef}\n`; const modalScale = window.innerWidth < 640 ? 1.0 : 1.8;
+                        document.getElementById('abc-fullscreen').innerHTML = ''; 
+                        var visualObj = ABCJS.renderAbc('abc-fullscreen', header + dataObj.abc[this.selectedGroup], { responsive: 'resize', scale: modalScale, paddingtop: 30, paddingbottom: 30, add_classes: true })[0];
                         if(this.synthControl) { this.synthControl.pause(); }
-                        this.synthControl = new ABCJS.synth.SynthController();
-                        this.synthControl.load("#audio-control", null, { displayLoop: true, displayRestart: true, displayPlay: true, displayProgress: true, displayWarp: true });
-                        
-                        let program = 56; // Trumpet
-                        if (group.clef === 'bass') program = 57; // Trombone
-                        if (this.globalInstrument === 'Flute') program = 73;
-                        if (this.globalInstrument === 'Clarinet') program = 71;
-                        if (this.globalInstrument === 'Saxophone') program = 65;
-                        if (this.globalInstrument === 'French Horn') program = 60;
-                        if (this.globalInstrument === 'Tuba') program = 58;
-
-                        var createSynth = new ABCJS.synth.CreateSynth();
-                        createSynth.init({ visualObj: visualObj }).then(() => {
-                            this.synthControl.setTune(visualObj, false, { program: program });
-                        }).catch(console.warn);
+                        this.synthControl = new ABCJS.synth.SynthController(); this.synthControl.load("#audio-control", null, { displayLoop: true, displayRestart: true, displayPlay: true, displayProgress: true, displayWarp: true });
+                        let program = 56; if (group.clef === 'bass') program = 57; if (this.globalInstrument === 'Flute') program = 73; if (this.globalInstrument === 'Clarinet') program = 71; if (this.globalInstrument === 'Saxophone') program = 65; if (this.globalInstrument === 'French Horn') program = 60; if (this.globalInstrument === 'Tuba') program = 58;
+                        var createSynth = new ABCJS.synth.CreateSynth(); createSynth.init({ visualObj: visualObj }).then(() => { this.synthControl.setTune(visualObj, false, { program: program }); }).catch(console.warn);
                     });
                 },
 
-                closeFullScreen() {
-                    this.fullScreenModalOpen = false;
-                    if(this.synthControl) this.synthControl.pause();
-                },
+                closeFullScreen() { this.fullScreenModalOpen = false; if(this.synthControl) this.synthControl.pause(); },
 
                 logPractice() {
-                    if(this.practicedToday) return;
-                    this.practicedToday = true;
-                    const todayStr = new Date().toDateString();
-                    
+                    if(this.practicedToday) return; this.practicedToday = true; const todayStr = new Date().toDateString();
                     if(this.currentUser) {
-                        this.currentUser.streak++;
-                        this.currentUser.last_date = todayStr;
-                        if(!this.currentUser.log) this.currentUser.log = [];
-                        if(!this.currentUser.log.includes(todayStr)) this.currentUser.log.push(todayStr);
-                        this.currentUser.total_minutes += 30; // Baseline bump for clicking button
-                        this.saveUserToCloud();
+                        this.currentUser.streak++; this.currentUser.last_date = todayStr; if(!this.currentUser.log) this.currentUser.log = []; if(!this.currentUser.log.includes(todayStr)) this.currentUser.log.push(todayStr); this.currentUser.total_minutes += 30; this.saveUserToCloud();
                     } else {
-                        this.streak++;
-                        this.lastPractice = todayStr;
-                        if(!this.practicedLog.includes(todayStr)) {
-                            this.practicedLog.push(todayStr);
-                            localStorage.setItem('fubc_school_weekly_log', JSON.stringify(this.practicedLog));
-                        }
-                        this.totalMinutes += 30;
-                        localStorage.setItem('fubc_total_minutes', this.totalMinutes);
-                        localStorage.setItem('fubc_school_streak', this.streak);
-                        localStorage.setItem('fubc_school_last_date', this.lastPractice);
+                        this.streak++; this.lastPractice = todayStr; if(!this.practicedLog.includes(todayStr)) { this.practicedLog.push(todayStr); localStorage.setItem('fubc_school_weekly_log', JSON.stringify(this.practicedLog)); }
+                        this.totalMinutes += 30; localStorage.setItem('fubc_total_minutes', this.totalMinutes); localStorage.setItem('fubc_school_streak', this.streak); localStorage.setItem('fubc_school_last_date', this.lastPractice);
                     }
-
-                    if(typeof confetti === 'function') {
-                        confetti({ particleCount: 250, spread: 100, origin: { y: 0.6 }, colors: ['#b45309', '#d97706', '#fcd34d', '#34d399', '#3b82f6'], zIndex: 1000 });
-                    }
+                    if(typeof confetti === 'function') confetti({ particleCount: 250, spread: 100, origin: { y: 0.6 }, colors: ['#b45309', '#d97706', '#fcd34d', '#34d399', '#3b82f6'], zIndex: 1000 });
                 },
 
-                // LIVE TUNER
-                tunerActive: false,
-                tunerNote: '--',
-                tunerCents: 0,
-                audioContext: null,
-                analyser: null,
-                micStream: null,
-                animationId: null,
+                tunerActive: false, tunerNote: '--', tunerCents: 0, audioContext: null, analyser: null, micStream: null, animationId: null,
+                toggleTuner() { if (this.tunerActive) { this.stopTuner(); } else { this.startTuner(); } },
+                async startTuner() { try { this.micStream = await navigator.mediaDevices.getUserMedia({ audio: true }); this.audioContext = new (window.AudioContext || window.webkitAudioContext)(); this.analyser = this.audioContext.createAnalyser(); this.analyser.fftSize = 2048; const source = this.audioContext.createMediaStreamSource(this.micStream); source.connect(this.analyser); this.tunerActive = true; this.updatePitch(); } catch (err) { alert("Microphone access denied. Please check your browser settings."); } },
+                stopTuner() { if (this.micStream) this.micStream.getTracks().forEach(t => t.stop()); if (this.audioContext) this.audioContext.close(); if (this.animationId) cancelAnimationFrame(this.animationId); this.tunerActive = false; this.tunerNote = '--'; this.tunerCents = 0; },
+                updatePitch() { if (!this.tunerActive) return; const buffer = new Float32Array(this.analyser.fftSize); this.analyser.getFloatTimeDomainData(buffer); const acFreq = this.autoCorrelate(buffer, this.audioContext.sampleRate); if (acFreq !== -1) { const noteNum = 12 * (Math.log(acFreq / 440) / Math.log(2)); const noteIndex = Math.round(noteNum) + 69; const notes = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B']; this.tunerNote = notes[noteIndex % 12]; const expectedFreq = 440 * Math.pow(2, (noteIndex - 69) / 12); this.tunerCents = Math.floor(1200 * Math.log2(acFreq / expectedFreq)); } this.animationId = requestAnimationFrame(() => this.updatePitch()); },
+                autoCorrelate(buf, sampleRate) { let SIZE = buf.length; let rms = 0; for (let i=0;i<SIZE;i++) rms += buf[i]*buf[i]; rms = Math.sqrt(rms/SIZE); if (rms<0.01) return -1; let r1=0, r2=SIZE-1, thres=0.2; for(let i=0; i<SIZE/2; i++) if (Math.abs(buf[i])<thres) { r1=i; break; } for(let i=1; i<SIZE/2; i++) if (Math.abs(buf[SIZE-i])<thres) { r2=SIZE-i; break; } buf = buf.slice(r1,r2); SIZE = buf.length; let c = new Array(SIZE).fill(0); for (let i=0; i<SIZE; i++) { for (let j=0; j<SIZE-i; j++) { c[i] = c[i] + buf[j]*buf[j+i]; } } let d=0; while (c[d]>c[d+1]) d++; let maxval=-1, maxpos=-1; for (let i=d; i<SIZE; i++) { if (c[i] > maxval) { maxval = c[i]; maxpos = i; } } let T0 = maxpos; let x1=c[T0-1], x2=c[T0], x3=c[T0+1]; let a = (x1 + x3 - 2*x2)/2; let b = (x3 - x1)/2; if (a) T0 = T0 - b/(2*a); return sampleRate/T0; },
 
-                toggleTuner() {
-                    if (this.tunerActive) { this.stopTuner(); } else { this.startTuner(); }
-                },
+                bpm: 100, isPlaying: false, timer: null, audioCtx: null, lastTap: 0,
+                playClick() { if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); const osc = this.audioCtx.createOscillator(); const gain = this.audioCtx.createGain(); osc.connect(gain); gain.connect(this.audioCtx.destination); osc.frequency.value = 1000; gain.gain.value = 1; osc.start(); gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.1); osc.stop(this.audioCtx.currentTime + 0.1); }, 
+                toggleMetronome() { if (this.isPlaying) { clearInterval(this.timer); this.isPlaying = false; } else { this.isPlaying = true; this.playClick(); this.timer = setInterval(() => this.playClick(), (60 / this.bpm) * 1000); } }, 
+                updateSpeed() { if (this.isPlaying) { clearInterval(this.timer); this.timer = setInterval(() => this.playClick(), (60 / this.bpm) * 1000); } },
+                tapTempo() { const now = Date.now(); if (this.lastTap && (now - this.lastTap) < 2000) { this.bpm = Math.min(Math.max(Math.round(60000 / (now - this.lastTap)), 40), 240); this.updateSpeed(); } this.lastTap = now; },
 
-                async startTuner() {
-                    try {
-                        this.micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                        this.analyser = this.audioContext.createAnalyser();
-                        this.analyser.fftSize = 2048;
-                        const source = this.audioContext.createMediaStreamSource(this.micStream);
-                        source.connect(this.analyser);
-                        this.tunerActive = true;
-                        this.updatePitch();
-                    } catch (err) {
-                        alert("Microphone access denied. Please check your browser settings.");
-                    }
-                },
+                isFingeringPlaying: false, oscillator: null, gainNode: null, filterNode: null, notes: [ { name: 'C', freq: 261.63 }, { name: 'C#', freq: 277.18 }, { name: 'D', freq: 293.66 }, { name: 'Eb', freq: 311.13 }, { name: 'E', freq: 329.63 }, { name: 'F', freq: 349.23 }, { name: 'F#', freq: 369.99 }, { name: 'G', freq: 392.00 }, { name: 'Ab', freq: 415.30 }, { name: 'A', freq: 440.00 }, { name: 'Bb', freq: 466.16 }, { name: 'B', freq: 493.88 } ],
+                playFingeringAudio() { if(this.isFingeringPlaying) { this.stopFingeringAudio(); return; } if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); let noteObj = this.interactiveChart.data[this.interactiveChart.instrument].notes[this.interactiveChart.selectedRange][this.interactiveChart.selectedNote]; let noteName = noteObj.name.split('/')[0].replace('↑', ''); const matchingFreqObj = this.notes.find(n => n.name === noteName); const baseFreq = matchingFreqObj ? matchingFreqObj.freq : 261.63; let pitchOctave = 4; if(this.interactiveChart.selectedRange === 'Low') pitchOctave = 3; if(this.interactiveChart.selectedRange === 'High') pitchOctave = 5; if (['Trombone', 'Baritone', 'Tuba'].includes(this.interactiveChart.instrument)) pitchOctave -= 1; const actualFreq = baseFreq * Math.pow(2, pitchOctave - 4); this.oscillator = this.audioCtx.createOscillator(); this.gainNode = this.audioCtx.createGain(); this.filterNode = this.audioCtx.createBiquadFilter(); const inst = this.interactiveChart.instrument; if (inst === 'Flute') { this.oscillator.type = 'sine'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 2000; } else if (inst === 'Clarinet') { this.oscillator.type = 'square'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 1500; } else if (inst === 'Oboe') { this.oscillator.type = 'sawtooth'; this.filterNode.type = 'bandpass'; this.filterNode.frequency.value = 1200; } else if (['Trumpet', 'Trombone', 'Tenor Horn', 'Baritone', 'Tuba'].includes(inst)) { this.oscillator.type = 'sawtooth'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 2500; } else if (inst === 'French Horn') { this.oscillator.type = 'triangle'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 800; } else { this.oscillator.type = 'sawtooth'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 3000; } this.oscillator.frequency.setValueAtTime(actualFreq, this.audioCtx.currentTime); this.oscillator.connect(this.filterNode); this.filterNode.connect(this.gainNode); this.gainNode.connect(this.audioCtx.destination); this.gainNode.gain.setValueAtTime(0, this.audioCtx.currentTime); this.gainNode.gain.linearRampToValueAtTime(0.5, this.audioCtx.currentTime + 0.1); this.gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioCtx.currentTime + 1.5); this.oscillator.start(); this.isFingeringPlaying = true; setTimeout(() => { this.stopFingeringAudio(); }, 1500); },
+                stopFingeringAudio() { if (this.oscillator && this.gainNode) { this.gainNode.gain.linearRampToValueAtTime(0, this.audioCtx.currentTime + 0.05); setTimeout(() => { if(this.oscillator) { this.oscillator.stop(); this.oscillator.disconnect(); this.oscillator = null; } }, 50); } this.isFingeringPlaying = false; },
 
-                stopTuner() {
-                    if (this.micStream) this.micStream.getTracks().forEach(t => t.stop());
-                    if (this.audioContext) this.audioContext.close();
-                    if (this.animationId) cancelAnimationFrame(this.animationId);
-                    this.tunerActive = false;
-                    this.tunerNote = '--';
-                    this.tunerCents = 0;
-                },
+                submitTest(e) { this.submitStatus = 'submitting'; const formData = new FormData(this.$refs.testForm); fetch('/', { method: 'POST', body: formData }).then(() => { this.submitStatus = 'success'; confetti({ particleCount: 150, spread: 70, origin: { y: 0.7 }, colors: ['#b45309', '#d97706', '#ffffff'], zIndex: 1000 }); this.$refs.testForm.reset(); setTimeout(() => { this.submitStatus = 'idle'; }, 5000); }).catch(() => { alert('Upload failed. Check your connection or file size.'); this.submitStatus = 'idle'; }); },
 
-                updatePitch() {
-                    if (!this.tunerActive) return;
-                    const buffer = new Float32Array(this.analyser.fftSize);
-                    this.analyser.getFloatTimeDomainData(buffer);
-                    const acFreq = this.autoCorrelate(buffer, this.audioContext.sampleRate);
-                    
-                    if (acFreq !== -1) {
-                        const noteNum = 12 * (Math.log(acFreq / 440) / Math.log(2));
-                        const noteIndex = Math.round(noteNum) + 69;
-                        const notes = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B'];
-                        this.tunerNote = notes[noteIndex % 12];
-                        
-                        const expectedFreq = 440 * Math.pow(2, (noteIndex - 69) / 12);
-                        this.tunerCents = Math.floor(1200 * Math.log2(acFreq / expectedFreq));
-                    }
-                    this.animationId = requestAnimationFrame(() => this.updatePitch());
-                },
+                printStaves(count) { const container = document.getElementById('print-staves'); container.innerHTML = ''; for(let i=0; i<count; i++) { container.innerHTML += `<div class='stave-group'><div class='stave'></div><div class='stave'></div><div class='stave'></div><div class='stave'></div><div class='stave'></div></div>`; } window.print(); },
 
-                autoCorrelate(buf, sampleRate) {
-                    let SIZE = buf.length;
-                    let rms = 0;
-                    for (let i=0;i<SIZE;i++) rms += buf[i]*buf[i];
-                    rms = Math.sqrt(rms/SIZE);
-                    if (rms<0.01) return -1; 
-                    let r1=0, r2=SIZE-1, thres=0.2;
-                    for(let i=0; i<SIZE/2; i++) if (Math.abs(buf[i])<thres) { r1=i; break; }
-                    for(let i=1; i<SIZE/2; i++) if (Math.abs(buf[SIZE-i])<thres) { r2=SIZE-i; break; }
-                    buf = buf.slice(r1,r2);
-                    SIZE = buf.length;
-                    let c = new Array(SIZE).fill(0);
-                    for (let i=0; i<SIZE; i++) { for (let j=0; j<SIZE-i; j++) { c[i] = c[i] + buf[j]*buf[j+i]; } }
-                    let d=0; while (c[d]>c[d+1]) d++;
-                    let maxval=-1, maxpos=-1;
-                    for (let i=d; i<SIZE; i++) { if (c[i] > maxval) { maxval = c[i]; maxpos = i; } }
-                    let T0 = maxpos;
-                    let x1=c[T0-1], x2=c[T0], x3=c[T0+1];
-                    let a = (x1 + x3 - 2*x2)/2;
-                    let b = (x3 - x1)/2;
-                    if (a) T0 = T0 - b/(2*a);
-                    return sampleRate/T0;
-                },
-
-                // METRONOME
-                bpm: 100, 
-                isPlaying: false, 
-                timer: null, 
-                audioCtx: null,
-                lastTap: 0,
-                
-                playClick() { 
-                    if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
-                    const osc = this.audioCtx.createOscillator(); 
-                    const gain = this.audioCtx.createGain(); 
-                    osc.connect(gain); gain.connect(this.audioCtx.destination); 
-                    osc.frequency.value = 1000; gain.gain.value = 1; 
-                    osc.start(); gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.1); 
-                    osc.stop(this.audioCtx.currentTime + 0.1); 
-                }, 
-                toggleMetronome() { 
-                    if (this.isPlaying) { clearInterval(this.timer); this.isPlaying = false; } 
-                    else { this.isPlaying = true; this.playClick(); this.timer = setInterval(() => this.playClick(), (60 / this.bpm) * 1000); } 
-                }, 
-                updateSpeed() { 
-                    if (this.isPlaying) { clearInterval(this.timer); this.timer = setInterval(() => this.playClick(), (60 / this.bpm) * 1000); } 
-                },
-                tapTempo() {
-                    const now = Date.now();
-                    if (this.lastTap && (now - this.lastTap) < 2000) {
-                        this.bpm = Math.min(Math.max(Math.round(60000 / (now - this.lastTap)), 40), 240);
-                        this.updateSpeed();
-                    }
-                    this.lastTap = now;
-                },
-
-                // FINGERING AUDIO
-                isFingeringPlaying: false,
-                oscillator: null,
-                gainNode: null,
-                filterNode: null,
-                notes: [ { name: 'C', freq: 261.63 }, { name: 'C#', freq: 277.18 }, { name: 'D', freq: 293.66 }, { name: 'Eb', freq: 311.13 }, { name: 'E', freq: 329.63 }, { name: 'F', freq: 349.23 }, { name: 'F#', freq: 369.99 }, { name: 'G', freq: 392.00 }, { name: 'Ab', freq: 415.30 }, { name: 'A', freq: 440.00 }, { name: 'Bb', freq: 466.16 }, { name: 'B', freq: 493.88 } ],
-
-                playFingeringAudio() {
-                    if(this.isFingeringPlaying) {
-                        this.stopFingeringAudio();
-                        return;
-                    }
-                    
-                    if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
-                    
-                    let noteObj = this.interactiveChart.data[this.interactiveChart.instrument].notes[this.interactiveChart.selectedRange][this.interactiveChart.selectedNote];
-                    let noteName = noteObj.name.split('/')[0].replace('↑', '');
-                    
-                    const matchingFreqObj = this.notes.find(n => n.name === noteName);
-                    const baseFreq = matchingFreqObj ? matchingFreqObj.freq : 261.63;
-
-                    let pitchOctave = 4;
-                    if(this.interactiveChart.selectedRange === 'Low') pitchOctave = 3;
-                    if(this.interactiveChart.selectedRange === 'High') pitchOctave = 5;
-                    
-                    if (['Trombone', 'Baritone', 'Tuba'].includes(this.interactiveChart.instrument)) pitchOctave -= 1;
-
-                    const actualFreq = baseFreq * Math.pow(2, pitchOctave - 4);
-
-                    this.oscillator = this.audioCtx.createOscillator(); 
-                    this.gainNode = this.audioCtx.createGain(); 
-                    this.filterNode = this.audioCtx.createBiquadFilter();
-
-                    const inst = this.interactiveChart.instrument;
-                    if (inst === 'Flute') { this.oscillator.type = 'sine'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 2000; } 
-                    else if (inst === 'Clarinet') { this.oscillator.type = 'square'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 1500; } 
-                    else if (inst === 'Oboe') { this.oscillator.type = 'sawtooth'; this.filterNode.type = 'bandpass'; this.filterNode.frequency.value = 1200; } 
-                    else if (['Trumpet', 'Trombone', 'Tenor Horn', 'Baritone', 'Tuba'].includes(inst)) { this.oscillator.type = 'sawtooth'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 2500; } 
-                    else if (inst === 'French Horn') { this.oscillator.type = 'triangle'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 800; } 
-                    else { this.oscillator.type = 'sawtooth'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 3000; }
-
-                    this.oscillator.frequency.setValueAtTime(actualFreq, this.audioCtx.currentTime); 
-                    this.oscillator.connect(this.filterNode); 
-                    this.filterNode.connect(this.gainNode);
-                    this.gainNode.connect(this.audioCtx.destination);
-                    
-                    this.gainNode.gain.setValueAtTime(0, this.audioCtx.currentTime);
-                    this.gainNode.gain.linearRampToValueAtTime(0.5, this.audioCtx.currentTime + 0.1);
-                    this.gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioCtx.currentTime + 1.5);
-
-                    this.oscillator.start(); 
-                    this.isFingeringPlaying = true;
-                    
-                    setTimeout(() => { this.stopFingeringAudio(); }, 1500);
-                },
-
-                stopFingeringAudio() {
-                    if (this.oscillator && this.gainNode) {
-                        this.gainNode.gain.linearRampToValueAtTime(0, this.audioCtx.currentTime + 0.05);
-                        setTimeout(() => { if(this.oscillator) { this.oscillator.stop(); this.oscillator.disconnect(); this.oscillator = null; } }, 50);
-                    }
-                    this.isFingeringPlaying = false;
-                },
-
-                // SUBMISSIONS
-                submitTest(e) {
-                    this.submitStatus = 'submitting';
-                    const formData = new FormData(this.$refs.testForm);
-                    fetch('/', { method: 'POST', body: formData })
-                    .then(() => {
-                        this.submitStatus = 'success';
-                        confetti({ particleCount: 150, spread: 70, origin: { y: 0.7 }, colors: ['#b45309', '#d97706', '#ffffff'], zIndex: 1000 });
-                        this.$refs.testForm.reset();
-                        setTimeout(() => { this.submitStatus = 'idle'; }, 5000);
-                    }).catch(() => { alert('Upload failed. Check your connection or file size.'); this.submitStatus = 'idle'; });
-                },
-
-                // PRINTING
-                printStaves(count) {
-                    const container = document.getElementById('print-staves');
-                    container.innerHTML = '';
-                    for(let i=0; i<count; i++) { container.innerHTML += `<div class='stave-group'><div class='stave'></div><div class='stave'></div><div class='stave'></div><div class='stave'></div><div class='stave'></div></div>`; }
-                    window.print();
-                },
-
-                // FINGERING CHART DATA
                 interactiveChart: {
-                    instrument: 'Trumpet',
-                    selectedRange: 'Mid',
-                    selectedNote: 0,
-                    ranges: ['Low', 'Mid', 'High'],
+                    instrument: 'Trumpet', selectedRange: 'Mid', selectedNote: 0, ranges: ['Low', 'Mid', 'High'],
                     data: {
-                        'Flute': { type: 'woodwind', notes: { 
-                            'Low': [ { name: 'C', lh: [0,1,1,1], rh: [1,1,1,1] }, { name: 'D', lh: [1,1,1,1], rh: [1,1,1,0] }, { name: 'E', lh: [1,1,1,1], rh: [1,1,0,1] }, { name: 'F', lh: [1,1,1,1], rh: [1,0,0,1] }, { name: 'G', lh: [1,1,1,1], rh: [0,0,0,1] }, { name: 'A', lh: [1,1,1,0], rh: [0,0,0,1] }, { name: 'B', lh: [1,1,0,0], rh: [0,0,0,1] } ], 
-                            'Mid': [ { name: 'C', lh: [0,1,0,0], rh: [0,0,0,1] }, { name: 'Db', lh: [0,0,0,0], rh: [0,0,0,1] }, { name: 'D', lh: [1,0,1,1], rh: [1,1,1,0] }, { name: 'Eb', lh: [1,0,1,1], rh: [1,1,1,1] }, { name: 'E', lh: [1,1,1,1], rh: [1,1,0,1] }, { name: 'F', lh: [1,1,1,1], rh: [1,0,0,1] }, { name: 'Gb', lh: [1,1,1,1], rh: [0,0,1,1] }, { name: 'G', lh: [1,1,1,1], rh: [0,0,0,1] }, { name: 'Ab', lh: [1,1,1,1], rh: [0,0,0,1] }, { name: 'A', lh: [1,1,1,0], rh: [0,0,0,1] }, { name: 'Bb', lh: [1,1,0,0], rh: [1,0,0,1] }, { name: 'B', lh: [1,1,0,0], rh: [0,0,0,1] }, { name: 'C↑', lh: [0,1,0,0], rh: [0,0,0,1] } ], 
-                            'High': [ { name: 'C', lh: [0,1,0,0], rh: [0,0,0,1] }, { name: 'D', lh: [1,0,1,1], rh: [0,0,0,0] }, { name: 'E', lh: [1,1,1,0], rh: [1,1,0,1] }, { name: 'F', lh: [1,1,0,1], rh: [1,0,0,1] }, { name: 'G', lh: [1,0,1,1], rh: [0,0,0,1] }, { name: 'A', lh: [1,0,1,0], rh: [1,0,0,1] }, { name: 'B', lh: [1,0,0,0], rh: [0,0,0,1] } ] 
-                        } },
-                        'Oboe': { type: 'woodwind', notes: { 
-                            'Low': [ { name: 'C', lh: [0,1,1,1], rh: [1,1,1,1] }, { name: 'D', lh: [0,1,1,1], rh: [1,1,1,0] }, { name: 'E', lh: [0,1,1,1], rh: [1,1,0,0] }, { name: 'F', lh: [0,1,1,1], rh: [1,0,0,0] }, { name: 'G', lh: [0,1,1,1], rh: [0,0,0,0] }, { name: 'A', lh: [0,1,1,0], rh: [0,0,0,0] }, { name: 'B', lh: [0,1,0,0], rh: [0,0,0,0] } ], 
-                            'Mid': [ { name: 'C', lh: [0,0,1,0], rh: [0,0,0,0] }, { name: 'Db', lh: [0,0,0,0], rh: [0,0,0,0] }, { name: 'D', lh: [1,1,1,1], rh: [1,1,1,0] }, { name: 'Eb', lh: [1,1,1,1], rh: [1,1,1,1] }, { name: 'E', lh: [1,1,1,1], rh: [1,1,0,0] }, { name: 'F', lh: [1,1,1,1], rh: [1,0,0,0] }, { name: 'Gb', lh: [1,1,1,1], rh: [0,1,0,0] }, { name: 'G', lh: [1,1,1,1], rh: [0,0,0,0] }, { name: 'Ab', lh: [1,1,1,1], rh: [0,0,0,0] }, { name: 'A', lh: [1,1,1,0], rh: [0,0,0,0] }, { name: 'Bb', lh: [1,1,0,0], rh: [1,0,0,0] }, { name: 'B', lh: [1,1,0,0], rh: [0,0,0,0] }, { name: 'C↑', lh: [1,0,1,0], rh: [0,0,0,0] } ], 
-                            'High': [ { name: 'C', lh: [1,0,1,0], rh: [0,0,0,0] }, { name: 'D', lh: [1,0,1,1], rh: [0,0,0,0] }, { name: 'E', lh: [1,0,1,0], rh: [1,0,0,0] }, { name: 'F', lh: [1,0,1,0], rh: [0,1,0,0] }, { name: 'G', lh: [1,0,1,0], rh: [0,0,0,0] }, { name: 'A', lh: [1,0,1,1], rh: [0,0,0,0] }, { name: 'B', lh: [1,0,0,0], rh: [0,0,0,0] } ] 
-                        } },
-                        'Clarinet': { type: 'woodwind', notes: { 
-                            'Low': [ { name: 'E', lh: [1,1,1,1], rh: [1,1,1,1] }, { name: 'F', lh: [1,1,1,1], rh: [1,1,1,0] }, { name: 'G', lh: [1,1,1,1], rh: [1,1,0,0] }, { name: 'A', lh: [1,1,1,1], rh: [1,0,0,0] }, { name: 'B', lh: [1,1,1,1], rh: [0,0,0,0] }, { name: 'C', lh: [1,1,1,0], rh: [0,0,0,0] } ], 
-                            'Mid': [ { name: 'C', lh: [1,1,1,0], rh: [0,0,0,0] }, { name: 'Db', lh: [1,1,1,0], rh: [0,0,0,0] }, { name: 'D', lh: [1,1,0,0], rh: [0,0,0,0] }, { name: 'Eb', lh: [1,1,0,0], rh: [0,0,0,0] }, { name: 'E', lh: [1,0,0,0], rh: [0,0,0,0] }, { name: 'F', lh: [0,0,0,0], rh: [0,0,0,0] }, { name: 'Gb', lh: [0,0,0,0], rh: [0,0,0,0] }, { name: 'G', lh: [0,0,0,0], rh: [0,0,0,0] }, { name: 'Ab', lh: [0,0,0,0], rh: [0,0,0,0] }, { name: 'A', lh: [0,0,0,0], rh: [0,0,0,0] }, { name: 'Bb', lh: [0,0,0,0], rh: [0,0,0,0] }, { name: 'B', lh: [1,1,1,1], rh: [1,1,1,1] }, { name: 'C↑', lh: [1,1,1,1], rh: [1,1,1,0] } ], 
-                            'High': [ { name: 'C', lh: [1,1,1,1], rh: [1,1,1,0] }, { name: 'D', lh: [1,1,1,1], rh: [1,1,0,0] }, { name: 'E', lh: [1,1,1,1], rh: [1,0,0,0] }, { name: 'F', lh: [1,1,1,1], rh: [0,0,0,0] }, { name: 'G', lh: [1,1,1,0], rh: [0,0,0,0] }, { name: 'A', lh: [1,1,0,0], rh: [0,0,0,0] } ] 
-                        } },
-                        'Saxophone': { type: 'woodwind', notes: { 
-                            'Low': [ { name: 'Bb', lh: [0,1,1,1], rh: [1,1,1,1] }, { name: 'C', lh: [0,1,1,1], rh: [1,1,1,0] }, { name: 'D', lh: [0,1,1,1], rh: [1,1,1,0] }, { name: 'E', lh: [0,1,1,1], rh: [1,1,0,0] }, { name: 'F', lh: [0,1,1,1], rh: [1,0,0,0] } ], 
-                            'Mid': [ { name: 'G', lh: [0,1,1,1], rh: [0,0,0,0] }, { name: 'Ab', lh: [0,1,1,1], rh: [0,0,0,0] }, { name: 'A', lh: [0,1,1,0], rh: [0,0,0,0] }, { name: 'Bb', lh: [0,1,1,0], rh: [1,0,0,0] }, { name: 'B', lh: [0,1,0,0], rh: [0,0,0,0] }, { name: 'C', lh: [0,0,1,0], rh: [0,0,0,0] }, { name: 'Db', lh: [0,0,0,0], rh: [0,0,0,0] }, { name: 'D', lh: [1,1,1,1], rh: [1,1,1,0] }, { name: 'Eb', lh: [1,1,1,1], rh: [1,1,1,1] }, { name: 'E', lh: [1,1,1,1], rh: [1,1,0,0] }, { name: 'F', lh: [1,1,1,1], rh: [1,0,0,0] }, { name: 'Gb', lh: [1,1,1,1], rh: [0,1,0,0] }, { name: 'G↑', lh: [1,1,1,1], rh: [0,0,0,0] } ], 
-                            'High': [ { name: 'G', lh: [1,1,1,1], rh: [0,0,0,0] }, { name: 'A', lh: [1,1,1,0], rh: [0,0,0,0] }, { name: 'B', lh: [1,1,0,0], rh: [0,0,0,0] }, { name: 'C', lh: [1,0,1,0], rh: [0,0,0,0] }, { name: 'D', lh: [1,0,0,0], rh: [0,0,0,
+                        'Flute':{type:'woodwind',notes:{'Low':[{name:'C',lh:[0,1,1,1],rh:[1,1,1,1]},{name:'D',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,1]},{name:'F',lh:[1,1,1,1],rh:[1,0,0,1]},{name:'G',lh:[1,1,1,1],rh:[0,0,0,1]},{name:'A',lh:[1,1,1,0],rh:[0,0,0,1]},{name:'B',lh:[1,1,0,0],rh:[0,0,0,1]}],'Mid':[{name:'C',lh:[0,1,0,0],rh:[0,0,0,1]},{name:'Db',lh:[0,0,0,0],rh:[0,0,0,1]},{name:'D',lh:[1,0,1,1],rh:[1,1,1,0]},{name:'Eb',lh:[1,0,1,1],rh:[1,1,1,1]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,1]},{name:'F',lh:[1,1,1,1],rh:[1,0,0,1]},{name:'Gb',lh:[1,1,1,1],rh:[0,0,1,1]},{name:'G',lh:[1,1,1,1],rh:[0,0,0,1]},{name:'Ab',lh:[1,1,1,1],rh:[0,0,0,1]},{name:'A',lh:[1,1,1,0],rh:[0,0,0,1]},{name:'Bb',lh:[1,1,0,0],rh:[1,0,0,1]},{name:'B',lh:[1,1,0,0],rh:[0,0,0,1]},{name:'C↑',lh:[0,1,0,0],rh:[0,0,0,1]}],'High':[{name:'C',lh:[0,1,0,0],rh:[0,0,0,1]},{name:'D',lh:[1,0,1,1],rh:[0,0,0,0]},{name:'E',lh:[1,1,1,0],rh:[1,1,0,1]},{name:'F',lh:[1,1,0,1],rh:[1,0,0,1]},{name:'G',lh:[1,0,1,1],rh:[0,0,0,1]},{name:'A',lh:[1,0,1,0],rh:[1,0,0,1]},{name:'B',lh:[1,0,0,0],rh:[0,0,0,1]}]}},
+                        'Oboe':{type:'woodwind',notes:{'Low':[{name:'C',lh:[0,1,1,1],rh:[1,1,1,1]},{name:'D',lh:[0,1,1,1],rh:[1,1,1,0]},{name:'E',lh:[0,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[0,1,1,1],rh:[1,0,0,0]},{name:'G',lh:[0,1,1,1],rh:[0,0,0,0]},{name:'A',lh:[0,1,1,0],rh:[0,0,0,0]},{name:'B',lh:[0,1,0,0],rh:[0,0,0,0]}],'Mid':[{name:'C',lh:[0,0,1,0],rh:[0,0,0,0]},{name:'Db',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'D',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'Eb',lh:[1,1,1,1],rh:[1,1,1,1]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[1,1,1,1],rh:[1,0,0,0]},{name:'Gb',lh:[1,1,1,1],rh:[0,1,0,0]},{name:'G',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'Ab',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'A',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'Bb',lh:[1,1,0,0],rh:[1,0,0,0]},{name:'B',lh:[1,1,0,0],rh:[0,0,0,0]},{name:'C↑',lh:[1,0,1,0],rh:[0,0,0,0]}],'High':[{name:'C',lh:[1,0,1,0],rh:[0,0,0,0]},{name:'D',lh:[1,0,1,1],rh:[0,0,0,0]},{name:'E',lh:[1,0,1,0],rh:[1,0,0,0]},{name:'F',lh:[1,0,1,0],rh:[0,1,0,0]},{name:'G',lh:[1,0,1,0],rh:[0,0,0,0]},{name:'A',lh:[1,0,1,1],rh:[0,0,0,0]},{name:'B',lh:[1,0,0,0],rh:[0,0,0,0]}]}},
+                        'Clarinet':{type:'woodwind',notes:{'Low':[{name:'E',lh:[1,1,1,1],rh:[1,1,1,1]},{name:'F',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'G',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'A',lh:[1,1,1,1],rh:[1,0,0,0]},{name:'B',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'C',lh:[1,1,1,0],rh:[0,0,0,0]}],'Mid':[{name:'C',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'Db',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'D',lh:[1,1,0,0],rh:[0,0,0,0]},{name:'Eb',lh:[1,1,0,0],rh:[0,0,0,0]},{name:'E',lh:[1,0,0,0],rh:[0,0,0,0]},{name:'F',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'Gb',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'G',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'Ab',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'A',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'Bb',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'B',lh:[1,1,1,1],rh:[1,1,1,1]},{name:'C↑',lh:[1,1,1,1],rh:[1,1,1,0]}],'High':[{name:'C',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'D',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'E',lh:[1,1,1,1],rh:[1,0,0,0]},{name:'F',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'G',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'A',lh:[1,1,0,0],rh:[0,0,0,0]}]}},
+                        'Saxophone':{type:'woodwind',notes:{'Low':[{name:'Bb',lh:[0,1,1,1],rh:[1,1,1,1]},{name:'C',lh:[0,1,1,1],rh:[1,1,1,0]},{name:'D',lh:[0,1,1,1],rh:[1,1,1,0]},{name:'E',lh:[0,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[0,1,1,1],rh:[1,0,0,0]}],'Mid':[{name:'G',lh:[0,1,1,1],rh:[0,0,0,0]},{name:'Ab',lh:[0,1,1,1],rh:[0,0,0,0]},{name:'A',lh:[0,1,1,0],rh:[0,0,0,0]},{name:'Bb',lh:[0,1,1,0],rh:[1,0,0,0]},{name:'B',lh:[0,1,0,0],rh:[0,0,0,0]},{name:'C',lh:[0,0,1,0],rh:[0,0,0,0]},{name:'Db',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'D',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'Eb',lh:[1,1,1,1],rh:[1,1,1,1]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[1,1,1,1],rh:[1,0,0,0]},{name:'Gb',lh:[1,1,1,1],rh:[0,1,0,0]},{name:'G↑',lh:[1,1,1,1],rh:[0,0,0,0]}],'High':[{name:'G',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'A',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'B',lh:[1,1,0,0],rh:[0,0,0,0]},{name:'C',lh:[1,0,1,0],rh:[0,0,0,0]},{name:'D',lh:[1,0,0,0],rh:[0,0,0,0]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[1,1,0,1],rh:[1,0,0,0]}]}},
+                        'Trumpet':{type:'valves',notes:{'Low':[{name:'F#',val:[1,1,1]},{name:'G',val:[1,0,1]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'C',val:[0,0,0]}],'Mid':[{name:'C',val:[0,0,0]},{name:'C#/Db',val:[1,1,1]},{name:'D',val:[1,0,1]},{name:'Eb',val:[0,1,1]},{name:'E',val:[1,1,0]},{name:'F',val:[1,0,0]},{name:'F#/Gb',val:[0,1,0]},{name:'G',val:[0,0,0]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}],'High':[{name:'C',val:[0,0,0]},{name:'D',val:[1,0,0]},{name:'E',val:[0,0,0]},{name:'F',val:[1,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[1,1,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}]}},
+                        'French Horn':{type:'valves',notes:{'Low':[{name:'C',val:[0,0,0]},{name:'D',val:[1,0,1]},{name:'E',val:[0,1,0]},{name:'F',val:[0,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[1,1,0]},{name:'B',val:[0,1,0]}],'Mid':[{name:'C',val:[0,0,0]},{name:'Db',val:[1,1,0]},{name:'D',val:[1,0,0]},{name:'Eb',val:[0,1,0]},{name:'E',val:[0,0,0]},{name:'F',val:[1,0,0]},{name:'Gb',val:[0,1,0]},{name:'G',val:[0,0,0]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}],'High':[{name:'C',val:[0,0,0]},{name:'D',val:[1,0,0]},{name:'E',val:[0,0,0]},{name:'F',val:[1,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[1,1,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}]}},
+                        'Tenor Horn':{type:'valves',notes:{'Low':[{name:'F#',val:[1,1,1]},{name:'G',val:[1,0,1]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'C',val:[0,0,0]}],'Mid':[{name:'C',val:[0,0,0]},{name:'C#/Db',val:[1,1,1]},{name:'D',val:[1,0,1]},{name:'Eb',val:[0,1,1]},{name:'E',val:[1,1,0]},{name:'F',val:[1,0,0]},{name:'F#/Gb',val:[0,1,0]},{name:'G',val:[0,0,0]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}],'High':[{name:'C',val:[0,0,0]},{name:'D',val:[1,0,0]},{name:'E',val:[0,0,0]},{name:'F',val:[1,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[1,1,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}]}},
+                        'Baritone':{type:'valves',notes:{'Low':[{name:'E',val:[1,1,1]},{name:'F',val:[1,0,1]},{name:'G',val:[1,1,0]},{name:'Ab',val:[1,0,0]},{name:'A',val:[0,1,0]},{name:'Bb',val:[0,0,0]}],'Mid':[{name:'Bb',val:[0,0,0]},{name:'B',val:[1,1,1]},{name:'C',val:[1,0,1]},{name:'Db',val:[0,1,1]},{name:'D',val:[1,1,0]},{name:'Eb',val:[1,0,0]},{name:'E',val:[0,1,0]},{name:'F',val:[0,0,0]},{name:'Gb',val:[0,1,1]},{name:'G',val:[1,1,0]},{name:'Ab',val:[1,0,0]},{name:'A',val:[0,1,0]},{name:'Bb↑',val:[0,0,0]}],'High':[{name:'Bb',val:[0,0,0]},{name:'C',val:[1,0,0]},{name:'D',val:[1,1,0]},{name:'Eb',val:[1,0,0]},{name:'F',val:[0,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[0,1,0]},{name:'Bb↑',val:[0,0,0]}]}},
+                        'Trombone':{type:'slide',notes:{'Low':[{name:'E',pos:7},{name:'F',pos:6},{name:'G',pos:4},{name:'Ab',pos:3},{name:'A',pos:2},{name:'Bb',pos:1}],'Mid':[{name:'Bb',pos:1},{name:'B',pos:7},{name:'C',pos:6},{name:'Db',pos:5},{name:'D',pos:4},{name:'Eb',pos:3},{name:'E',pos:2},{name:'F',pos:1},{name:'Gb',pos:5},{name:'G',pos:4},{name:'Ab',pos:3},{name:'A',pos:2},{name:'Bb↑',pos:1}],'High':[{name:'Bb',pos:1},{name:'C',pos:3},{name:'D',pos:1},{name:'Eb',pos:3},{name:'F',pos:1},{name:'G',pos:2},{name:'Ab',pos:3},{name:'Bb↑',pos:1}]}},
+                        'Tuba':{type:'valves',notes:{'Low':[{name:'E',val:[1,1,1]},{name:'F',val:[1,0,1]},{name:'G',val:[1,1,0]},{name:'Ab',val:[1,0,0]},{name:'A',val:[0,1,0]},{name:'Bb',val:[0,0,0]}],'Mid':[{name:'Bb',val:[0,0,0]},{name:'B',val:[1,1,1]},{name:'C',val:[1,0,1]},{name:'Db',val:[0,1,1]},{name:'D',val:[1,1,0]},{name:'Eb',val:[1,0,0]},{name:'E',val:[0,1,0]},{name:'F',val:[0,0,0]},{name:'Gb',val:[0,1,1]},{name:'G',val:[1,1,0]},{name:'Ab',val:[1,0,0]},{name:'A',val:[0,1,0]},{name:'Bb↑',val:[0,0,0]}],'High':[{name:'Bb',val:[0,0,0]},{name:'C',val:[1,0,0]},{name:'D',val:[1,1,0]},{name:'Eb',val:[1,0,0]},{name:'F',val:[0,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[0,1,0]},{name:'Bb↑',val:[0,0,0]}]}}
+                    }
+                }
+            }));
+        });
+    </script>
+</body>
+</html>
