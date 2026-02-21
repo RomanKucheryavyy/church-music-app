@@ -1011,9 +1011,7 @@
                     const supabaseUrl = 'https://levtwocaqocalknouepf.supabase.co';
                     const supabaseKey = 'sb_publishable_BpPAx20IJLbntNt5pjZiAQ_jG3b4Joh';
                     
-                    if(supabaseUrl !== 'https://levtwocaqocalknouepf.supabase.co') {
-                        this.supabase = supabase.createClient(supabaseUrl, supabaseKey);
-                    }
+                    this.supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
                     // Check for logged in cloud user
                     let storedCloudUser = localStorage.getItem('fubc_cloud_user');
@@ -1504,3 +1502,4 @@
     </script>
 </body>
 </html>
+
