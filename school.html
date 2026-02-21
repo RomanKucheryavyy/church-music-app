@@ -673,7 +673,7 @@
                         </div>
                         
                         <div class="flex flex-wrap gap-1.5 sm:gap-3 justify-center mb-6 sm:mb-8 w-full max-w-2xl min-h-[40px]">
-                            <template x-for="(note, index) in interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange]">
+                            <template x-for="(note, index) in interactiveChart.data[interactiveChart.instrument]?.notes[interactiveChart.selectedRange] || []">
                                 <button @click="interactiveChart.selectedNote = index; stopFingeringAudio();"
                                     :class="interactiveChart.selectedNote === index ? 'bg-gradient-to-b from-brass to-brassLight text-white shadow-[0_4px_10px_rgba(180,83,9,0.4)] scale-110 border-transparent z-10' : 'bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-900 border-slate-200 hover:border-slate-300 shadow-sm'"
                                     class="px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl font-bold text-[11px] sm:text-sm transition-all duration-300 border relative"
@@ -689,7 +689,7 @@
                                 <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest hidden sm:block"><span x-show="lang === 'en'">Play Pitch</span><span x-show="lang === 'ua'" x-cloak>Звук</span></span>
                             </button>
 
-                            <template x-if="interactiveChart.data[interactiveChart.instrument].type === 'valves'">
+                            <template x-if="interactiveChart.data[interactiveChart.instrument]?.type === 'valves'">
                                 <div class="flex gap-4 sm:gap-10 mt-4 sm:mt-0">
                                     <template x-for="(v, i) in interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].val">
                                         <div class="flex flex-col items-center gap-3 sm:gap-5">
@@ -701,7 +701,7 @@
                                 </div>
                             </template>
                             
-                            <template x-if="interactiveChart.data[interactiveChart.instrument].type === 'slide'">
+                            <template x-if="interactiveChart.data[interactiveChart.instrument]?.type === 'slide'">
                                 <div class="flex flex-col items-center w-full max-w-lg mt-4 sm:mt-0">
                                     <span class="text-4xl sm:text-8xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-brass to-yellow-500 mb-1 sm:mb-2 transition-all duration-300 drop-shadow-md" x-text="interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].pos"></span>
                                     <span class="text-[9px] sm:text-xs font-bold text-slate-300 uppercase tracking-[0.3em] mb-6 sm:mb-10">
@@ -719,7 +719,7 @@
                                 </div>
                             </template>
                             
-                            <template x-if="interactiveChart.data[interactiveChart.instrument].type === 'woodwind'">
+                            <template x-if="interactiveChart.data[interactiveChart.instrument]?.type === 'woodwind'">
                                 <div class="flex flex-col items-center w-full justify-center relative">
                                     <div class="bg-slate-50 p-4 sm:p-6 rounded-[2rem] border border-slate-200 shadow-inner flex flex-col gap-4 sm:gap-6 relative w-full sm:w-auto">
                                         
@@ -825,377 +825,292 @@
     <script>
         document.addEventListener('alpine:init', () => {
             
-            // 1. Safe Cache Loader
-            const validInstruments = ['Flute', 'Oboe', 'Clarinet', 'Saxophone', 'Trumpet', 'French Horn', 'Tenor Horn', 'Baritone', 'Trombone', 'Tuba'];
-            const getSavedInst = () => {
-                let saved = localStorage.getItem('fubc_school_instrument');
-                if (saved === 'Alto Saxophone') saved = 'Saxophone'; // backwards compat
-                return validInstruments.includes(saved) ? saved : 'Trumpet';
-            };
-
-            Alpine.data('schoolApp', () => ({
-                supabase: null,
-                lang: 'en',
-                mobileMenuOpen: false,
-                fullScreenModalOpen: false,
-                currentFullScreenIdx: 0,
-                currentFullScreenType: 'exercises', 
-                scrollY: 0,
-                scrollProgress: 0,
-                showToast: false,
-                toastMessage: '',
-                
-                profileModalOpen: false,
-                authMode: 'login',
-                authForm: { name: '', pin: '', code: '' },
-                authLoading: false,
-                currentUser: null,
-                leaderboard: [],
-                
-                triggerToast(msg) {
-                    this.toastMessage = msg;
-                    this.showToast = true;
-                    setTimeout(() => this.showToast = false, 3000);
-                },
-
-                async handleAuth() {
-                    if(!this.authForm.name || !this.authForm.pin) return alert("Please enter name and PIN.");
-                    if(!this.authForm.name.trim().includes(' ')) return alert("Please enter both your First and Last Name (e.g. John Doe).");
-                    if(!this.supabase) return alert("Database not connected yet!");
-                    this.authLoading = true;
+            Alpine.data('schoolApp', function() {
+                return {
+                    // Safe Initialization defaults. 
+                    // NEVER call localStorage up here. Doing so will crash the DOM parser if the cache is corrupt.
+                    supabase: null,
+                    lang: 'en',
+                    mobileMenuOpen: false,
+                    fullScreenModalOpen: false,
+                    currentFullScreenIdx: 0,
+                    currentFullScreenType: 'exercises', 
+                    scrollY: 0,
+                    scrollProgress: 0,
+                    showToast: false,
+                    toastMessage: '',
                     
-                    if(this.authMode === 'register') {
-                        if(btoa(this.authForm.code.trim().toUpperCase()) !== 'RlVCQzI2') { this.authLoading = false; return alert("Invalid Access Code"); }
-                        const { data: existing } = await this.supabase.from('students').select('*').eq('name', this.authForm.name);
-                        if(existing && existing.length > 0) { this.authLoading = false; return alert("Name already taken. Please login or use a different name."); }
-                        const newUser = { name: this.authForm.name, pin: this.authForm.pin, total_minutes: 0, streak: 0, last_date: '', log: [] };
-                        const { data, error } = await this.supabase.from('students').insert([newUser]).select().single();
-                        if (error) { alert("Error creating account: " + error.message); this.authLoading = false; return; }
-                        this.currentUser = data; localStorage.setItem('fubc_cloud_user', JSON.stringify(this.currentUser)); this.loadUserDataLocally(); this.fetchLeaderboard();
-                    } else {
-                        const { data, error } = await this.supabase.from('students').select('*').eq('name', this.authForm.name).eq('pin', this.authForm.pin).single();
-                        if (error || !data) { alert("Incorrect Name or PIN. Or account does not exist."); } else { this.currentUser = data; localStorage.setItem('fubc_cloud_user', JSON.stringify(this.currentUser)); this.loadUserDataLocally(); }
-                    }
-                    this.authLoading = false;
-                },
-                
-                async saveUserToCloud() {
-                    localStorage.setItem('fubc_cloud_user', JSON.stringify(this.currentUser));
-                    if (!this.supabase) return;
-                    const { error } = await this.supabase.from('students').update({ total_minutes: this.currentUser.total_minutes, streak: this.currentUser.streak, last_date: this.currentUser.last_date, log: this.currentUser.log }).eq('id', this.currentUser.id);
-                    if(error) { console.error("Failed to sync to cloud:", error); } else { this.fetchLeaderboard(); }
-                },
+                    profileModalOpen: false,
+                    authMode: 'login',
+                    authForm: { name: '', pin: '', code: '' },
+                    authLoading: false,
+                    currentUser: null,
+                    leaderboard: [],
 
-                async fetchLeaderboard() {
-                    if(!this.supabase) return;
-                    try {
-                        const { data, error } = await this.supabase.from('students').select('name, total_minutes, streak').order('total_minutes', { ascending: false }).limit(20);
-                        if(data) { this.leaderboard = data; }
-                    } catch (e) {}
-                },
+                    studentName: '',
+                    isEditingName: false,
+                    totalMinutes: 0,
+                    streak: 0,
+                    lastPractice: '',
+                    practicedToday: false,
+                    practicedLog: [],
+                    weekDays: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
 
-                get topTime() { return [...this.leaderboard].sort((a,b) => b.total_minutes - a.total_minutes).slice(0, 5); },
-                get topStreak() { return [...this.leaderboard].sort((a,b) => b.streak - a.streak).slice(0, 5); },
-                logout() { this.currentUser = null; localStorage.removeItem('fubc_cloud_user'); this.authForm = { name: '', pin: '', code: '' }; },
-                loadUserDataLocally() { this.studentName = this.currentUser.name; this.totalMinutes = this.currentUser.total_minutes; this.streak = this.currentUser.streak; this.lastPractice = this.currentUser.last_date; this.practicedLog = this.currentUser.log || []; },
-
-                studentName: localStorage.getItem('fubc_student_name') || '',
-                isEditingName: false,
-                totalMinutes: parseInt(localStorage.getItem('fubc_total_minutes')) || 0,
-                openProfile() { this.profileModalOpen = true; },
-                getRankName() { let hrs = (this.currentUser ? this.currentUser.total_minutes : this.totalMinutes) / 60; if(hrs < 1) return this.lang === 'en' ? 'Beginner' : 'Початківець'; if(hrs < 5) return this.lang === 'en' ? 'Apprentice' : 'Учень'; if(hrs < 20) return this.lang === 'en' ? 'Musician' : 'Музикант'; if(hrs < 50) return this.lang === 'en' ? 'Section Leader' : 'Лідер групи'; return this.lang === 'en' ? 'Maestro' : 'Маестро'; },
-                getRankColor() { let hrs = (this.currentUser ? this.currentUser.total_minutes : this.totalMinutes) / 60; if(hrs < 5) return 'text-slate-500'; if(hrs < 20) return 'text-emerald-500'; if(hrs < 50) return 'text-blue-500'; return 'text-brass'; },
-
-                availableInstruments: validInstruments,
-                globalInstrument: getSavedInst(),
-                selectedGroup: 0,
-                instrumentGroups: [ { clef: 'treble' }, { clef: 'treble' }, { clef: 'treble' }, { clef: 'treble' }, { clef: 'bass' }, { clef: 'bass' } ],
-
-                streak: parseInt(localStorage.getItem('fubc_school_streak')) || 0,
-                lastPractice: localStorage.getItem('fubc_school_last_date') || '',
-                practicedToday: false,
-                practicedLog: (function() { try { return JSON.parse(localStorage.getItem('fubc_school_weekly_log')) || []; } catch(e) { return []; } })(),
-                weekDays: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
-                get currentDayOfWeek() { return new Date().getDay(); },
-                hasPracticedOnDay(dayIndex) { const logToCheck = this.currentUser ? this.currentUser.log : this.practicedLog; if (!logToCheck) return false; const today = new Date(); const dayDiff = today.getDay() - dayIndex; const targetDate = new Date(today); targetDate.setDate(today.getDate() - dayDiff); return logToCheck.includes(targetDate.toDateString()); },
-                
-                sessionActive: false, sessionTimer: null, sessionPhase: 0, sessionTimeLeft: 300, 
-                sessionPhases: [ { name_en: 'Warm-Ups', name_ua: 'Розминка', duration: 300 }, { name_en: 'Repertoire', name_ua: 'Репертуар', duration: 900 }, { name_en: 'Review', name_ua: 'Повторення', duration: 300 } ],
-                submitStatus: 'idle', synthControl: null, schoolSongs: [],
-
-                exercises: [
-                    { title_en: '1. Long Tones', title_ua: '1. Довгі Ноти', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/4\nb\' a\' g\' f\'|e\' d\' c\' b|b4 z4|]','L:1/4\nc\' b a g|f e d c|c4 z4|]','L:1/4\ng\' f\' e\' d\'|c\' b a g|g4 z4|]','L:1/4\nf e d c|B A G F|F4 z4|]','L:1/4\nB A G F|E D C B,|B,4 z4|]','L:1/4\nB, A, G, F,|E, D, C, B,,|B,,4 z4|]'] },
-                    { title_en: '2. Flexibility', title_ua: '2. Гнучкість', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\n(b f\' b f\' b2) z2|(c\' g\' c\' g\' c\'2) z2|(d\' a\' d\' a\' d\'2) z2|(e\' b\' e\' b\' e\'2) z2|]','L:1/8\n(c g c g c2) z2|(d a d a d2) z2|(e b e b e2) z2|(f c\' f c\' f2) z2|]','L:1/8\n(g d\' g d\' g2) z2|(a e\' a e\' a2) z2|(b f\' b f\' b2) z2|(c\' g\' c\' g\' c\'2) z2|]','L:1/8\n(F c F c F2) z2|(G d G d G2) z2|(A e A e A2) z2|(B f B f B2) z2|]','L:1/8\n(B, F B, F B,2) z2|(C G C G C2) z2|(D A D A D2) z2|(E B E B E2) z2|]','L:1/8\n(B,, F, B,, F, B,,2) z2|(C, G, C, G, C,2) z2|(D, A, D, A, D,2) z2|(E, B, E, B, E,2) z2|]'] },
-                    { title_en: '3. Articulation', title_ua: '3. Артикуляція', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\n.b.b .b.b .b.b .b.b|b2 z2 b2 z2|.f\'.f\' .f\'.f\' .f\'.f\' .f\'.f\'|f\'2 z2 f\'2 z2|]','L:1/8\n.c.c .c.c .c.c .c.c|c2 z2 c2 z2|.g.g .g.g .g.g .g.g|g2 z2 g2 z2|]','L:1/8\n.g.g .g.g .g.g .g.g|g2 z2 g2 z2|.d\'.d\' .d\'.d\' .d\'.d\' .d\'.d\'|d\'2 z2 d\'2 z2|]','L:1/8\n.F.F .F.F .F.F .F.F|F2 z2 F2 z2|.c.c .c.c .c.c .c.c|c2 z2 c2 z2|]','L:1/8\n.B,.B, .B,.B, .B,.B, .B,.B,|B,2 z2 B,2 z2|.F.F .F.F .F.F .F.F|F2 z2 F2 z2|]','L:1/8\n.B,,.B,, .B,,.B,, .B,,.B,, .B,,.B,,|B,,2 z2 B,,2 z2|.F,.F, .F,.F, .F,.F, .F,.F,|F,2 z2 F,2 z2|]'] },
-                    { title_en: '4. Arpeggios', title_ua: '4. Арпеджіо', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\nb d\' f\' b\' b\' f\' d\' b|b8|c\' e\' g\' c\'\' c\'\' g\' e\' c\'|c\'8|]','L:1/8\nc e g c\' c\' g e c|c8|d f a d\' d\' a f d|d8|]','L:1/8\ng b d\' g\' g\' d\' b g|g8|a c\' e\' a\' a\' e\' c\' a|a8|]','L:1/8\nF A c f f c A F|F8|G B d g g d B G|G8|]','L:1/8\nB, D F B B F D B,|B,8|C E G c c G E C|C8|]','L:1/8\nB,, D, F, B, B, F, D, B,,|B,,8|C, E, G, C C G, E, C,|C,8|]'] }
-                ],
-                scales: [
-                    { title_en: 'Concert C Major', title_ua: 'До мажор (C)', keys: ['C','D','A','G','C','C'], abc: [`L:1/8\nc d e f g a b c'|c' b a g f e d c|c8|]`,`L:1/8\nd e f g a b c' d'|d' c' b a g f e d|d8|]`,`L:1/8\na b c' d' e' f' g' a'|a' g' f' e' d' c' b a|a8|]`,`L:1/8\nG A B c d e f g|g f e d c B A G|G8|]`,`L:1/8\nC D E F G A B c|c B A G F E D C|C8|]`,`L:1/8\nC, D, E, F, G, A, B, C|C B, A, G, F, E, D, C,|C,8|]`]},
-                    { title_en: 'Concert F Major', title_ua: 'Фа мажор (F)', keys: ['F','G','D','C','F','F'], abc: [`L:1/8\nf g a b c' d' e' f'|f' e' d' c' b a g f|f8|]`,`L:1/8\ng a b c' d' e' f' g'|g' f' e' d' c' b a g|g8|]`,`L:1/8\nd e f g a b c' d'|d' c' b a g f e d|d8|]`,`L:1/8\nc d e f g a b c'|c' b a g f e d c|c8|]`,`L:1/8\nF, G, A, B, C D E F|F E D C B, A, G, F,|F,8|]`,`L:1/8\nF,, G,, A,, B,, C, D, E, F,|F, E, D, C, B,, A,, G,, F,,|F,,8|]`]},
-                    { title_en: 'Concert Bb Major', title_ua: 'Сі-бемоль мажор (Bb)', keys: ['Bb','C','G','F','Bb','Bb'], abc: [`L:1/8\nb c' d' e' f' g' a' b'|b' a' g' f' e' d' c' b|b8|]`,`L:1/8\nc d e f g a b c'|c' b a g f e d c|c8|]`,`L:1/8\ng a b c' d' e' f' g'|g' f' e' d' c' b a g|g8|]`,`L:1/8\nF G A B c d e f|f e d c B A G F|F8|]`,`L:1/8\nB, C D E F G A B|B A G F E D C B,|B,8|]`,`L:1/8\nB,, C, D, E, F, G, A, B,|B, A, G, F, E, D, C, B,,|B,,8|]`]},
-                    { title_en: 'Concert Eb Major', title_ua: 'Мі-бемоль мажор (Eb)', keys: ['Eb','F','C','Bb','Eb','Eb'], abc: [`L:1/8\ne f g a b c' d' e'|e' d' c' b a g f e|e8|]`,`L:1/8\nf g a b c' d' e' f'|f' e' d' c' b a g f|f8|]`,`L:1/8\nc d e f g a b c'|c' b a g f e d c|c8|]`,`L:1/8\nB c d e f g a b|b a g f e d c B|B8|]`,`L:1/8\nE, F, G, A, B, C D E|E D C B, A, G, F, E,|E,8|]`,`L:1/8\nE,, F,, G,, A,, B,, C, D, E,|E, D, C, B,, A,, G,, F,, E,,|E,,8|]`]},
-                    { title_en: 'Concert Ab Major', title_ua: 'Ля-бемоль мажор (Ab)', keys: ['Ab','Bb','F','Eb','Ab','Ab'], abc: [`L:1/8\na b c' d' e' f' g' a'|a' g' f' e' d' c' b a|a8|]`,`L:1/8\nb c' d' e' f' g' a' b'|b' a' g' f' e' d' c' b|b8|]`,`L:1/8\nf g a b c' d' e' f'|f' e' d' c' b a g f|f8|]`,`L:1/8\ne f g a b c' d' e'|e' d' c' b a g f e|e8|]`,`L:1/8\nA, B, C D E F G A|A G F E D C B, A,|A,8|]`,`L:1/8\nA,, B,, C, D, E, F, G, A,|A, G, F, E, D, C, B,, A,,|A,,8|]`]},
-                    { title_en: 'Concert Db Major', title_ua: 'Ре-бемоль мажор (Db)', keys: ['Db','Eb','Bb','Ab','Db','Db'], abc: [`L:1/8\nd e f g a b c' d'|d' c' b a g f e d|d8|]`,`L:1/8\ne f g a b c' d' e'|e' d' c' b a g f e|e8|]`,`L:1/8\nb c' d' e' f' g' a' b'|b' a' g' f' e' d' c' b|b8|]`,`L:1/8\nA B c d e f g a|a g f e d c B A|A8|]`,`L:1/8\nD, E, F, G, A, B, C D|D C B, A, G, F, E, D,|D,8|]`,`L:1/8\nD,, E,, F,, G,, A,, B,, C, D,|D, C, B,, A,, G,, F,, E,, D,,|D,,8|]`]},
-                    { title_en: 'Concert Gb Major', title_ua: 'Соль-бемоль мажор (Gb)', keys: ['Gb','Ab','Eb','Db','Gb','Gb'], abc: [`L:1/8\ng a b c' d' e' f' g'|g' f' e' d' c' b a g|g8|]`,`L:1/8\na b c' d' e' f' g' a'|a' g' f' e' d' c' b a|a8|]`,`L:1/8\ne f g a b c' d' e'|e' d' c' b a g f e|e8|]`,`L:1/8\nd e f g a b c' d'|d' c' b a g f e d|d8|]`,`L:1/8\nG, A, B, C D E F G|G F E D C B, A, G,|G,8|]`,`L:1/8\nG,, A,, B,, C, D, E, F, G,|G, F, E, D, C, B,, A,, G,,|G,,8|]`]},
-                    { title_en: 'Concert B Major', title_ua: 'Сі мажор (B)', keys: ['B','Db','Ab','Gb','B','B'], abc: [`L:1/8\nb c' d' e' f' g' a' b'|b' a' g' f' e' d' c' b|b8|]`,`L:1/8\nd e f g a b c' d'|d' c' b a g f e d|d8|]`,`L:1/8\na b c' d' e' f' g' a'|a' g' f' e' d' c' b a|a8|]`,`L:1/8\ng a b c' d' e' f' g'|g' f' e' d' c' b a g|g8|]`,`L:1/8\nB, C D E F G A B|B A G F E D C B,|B,8|]`,`L:1/8\nB,, C, D, E, F, G, A, B,|B, A, G, F, E, D, C, B,,|B,,8|]`]},
-                    { title_en: 'Concert E Major', title_ua: 'Мі мажор (E)', keys: ['E','Gb','Db','B','E','E'], abc: [`L:1/8\ne f g a b c' d' e'|e' d' c' b a g f e|e8|]`,`L:1/8\ng a b c' d' e' f' g'|g' f' e' d' c' b a g|g8|]`,`L:1/8\nd e f g a b c' d'|d' c' b a g f e d|d8|]`,`L:1/8\nB c d e f g a b|b a g f e d c B|B8|]`,`L:1/8\nE, F, G, A, B, C D E|E D C B, A, G, F, E,|E,8|]`,`L:1/8\nE,, F,, G,, A,, B,, C, D, E,|E, D, C, B,, A,, G,, F,, E,,|E,,8|]`]},
-                    { title_en: 'Concert A Major', title_ua: 'Ля мажор (A)', keys: ['A','B','Gb','E','A','A'], abc: [`L:1/8\na b c' d' e' f' g' a'|a' g' f' e' d' c' b a|a8|]`,`L:1/8\nb c' d' e' f' g' a' b'|b' a' g' f' e' d' c' b|b8|]`,`L:1/8\ng a b c' d' e' f' g'|g' f' e' d' c' b a g|g8|]`,`L:1/8\ne f g a b c' d' e'|e' d' c' b a g f e|e8|]`,`L:1/8\nA, B, C D E F G A|A G F E D C B, A,|A,8|]`,`L:1/8\nA,, B,, C, D, E, F, G, A,|A, G, F, E, D, C, B,, A,,|A,,8|]`}
-                ],
-
-                async init() {
-                    this.updateGlobalInstrument(this.globalInstrument, true);
+                    availableInstruments: ['Flute', 'Oboe', 'Clarinet', 'Saxophone', 'Trumpet', 'French Horn', 'Tenor Horn', 'Baritone', 'Trombone', 'Tuba'],
+                    globalInstrument: 'Trumpet',
+                    selectedGroup: 1,
+                    instrumentGroups: [ { clef: 'treble' }, { clef: 'treble' }, { clef: 'treble' }, { clef: 'treble' }, { clef: 'bass' }, { clef: 'bass' } ],
                     
-                    const supabaseUrl = 'https://levtwocaqocalknouepf.supabase.co';
-                    const supabaseKey = 'sb_publishable_BpPAx20IJLbntNt5pjZiAQ_jG3b4Joh';
-                    this.supabase = supabase.createClient(supabaseUrl, supabaseKey);
+                    sessionActive: false, sessionTimer: null, sessionPhase: 0, sessionTimeLeft: 300, 
+                    sessionPhases: [ { name_en: 'Warm-Ups', name_ua: 'Розминка', duration: 300 }, { name_en: 'Repertoire', name_ua: 'Репертуар', duration: 900 }, { name_en: 'Review', name_ua: 'Повторення', duration: 300 } ],
+                    submitStatus: 'idle', synthControl: null, schoolSongs: [],
 
-                    let storedCloudUser = localStorage.getItem('fubc_cloud_user');
-                    if (storedCloudUser) { this.currentUser = JSON.parse(storedCloudUser); this.loadUserDataLocally(); }
-
-                    const today = new Date(); today.setHours(0,0,0,0);
-                    let logArr = this.currentUser ? (this.currentUser.log || []) : this.practicedLog;
-                    const lastPracticedStr = logArr[logArr.length - 1];
-                    if (lastPracticedStr) {
-                        const last = new Date(lastPracticedStr);
-                        const diffTime = today.getTime() - last.getTime();
-                        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-                        if (today.getDay() < last.getDay() || diffDays > 6) {
-                            if(this.currentUser) { this.currentUser.log = []; this.saveUserToCloud(); }
-                            else { this.practicedLog = []; localStorage.setItem('fubc_school_weekly_log', JSON.stringify([])); }
+                    // These are safe to load upfront
+                    interactiveChart: {
+                        instrument: 'Trumpet', // Start safe
+                        selectedRange: 'Mid', 
+                        selectedNote: 0, 
+                        ranges: ['Low', 'Mid', 'High'],
+                        data: {
+                            'Flute':{type:'woodwind',notes:{'Low':[{name:'C',lh:[0,1,1,1],rh:[1,1,1,1]},{name:'D',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,1]},{name:'F',lh:[1,1,1,1],rh:[1,0,0,1]},{name:'G',lh:[1,1,1,1],rh:[0,0,0,1]},{name:'A',lh:[1,1,1,0],rh:[0,0,0,1]},{name:'B',lh:[1,1,0,0],rh:[0,0,0,1]}],'Mid':[{name:'C',lh:[0,1,0,0],rh:[0,0,0,1]},{name:'Db',lh:[0,0,0,0],rh:[0,0,0,1]},{name:'D',lh:[1,0,1,1],rh:[1,1,1,0]},{name:'Eb',lh:[1,0,1,1],rh:[1,1,1,1]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,1]},{name:'F',lh:[1,1,1,1],rh:[1,0,0,1]},{name:'Gb',lh:[1,1,1,1],rh:[0,0,1,1]},{name:'G',lh:[1,1,1,1],rh:[0,0,0,1]},{name:'Ab',lh:[1,1,1,1],rh:[0,0,0,1]},{name:'A',lh:[1,1,1,0],rh:[0,0,0,1]},{name:'Bb',lh:[1,1,0,0],rh:[1,0,0,1]},{name:'B',lh:[1,1,0,0],rh:[0,0,0,1]},{name:'C↑',lh:[0,1,0,0],rh:[0,0,0,1]}],'High':[{name:'C',lh:[0,1,0,0],rh:[0,0,0,1]},{name:'D',lh:[1,0,1,1],rh:[0,0,0,0]},{name:'E',lh:[1,1,1,0],rh:[1,1,0,1]},{name:'F',lh:[1,1,0,1],rh:[1,0,0,1]},{name:'G',lh:[1,0,1,1],rh:[0,0,0,1]},{name:'A',lh:[1,0,1,0],rh:[1,0,0,1]},{name:'B',lh:[1,0,0,0],rh:[0,0,0,1]}]}},
+                            'Oboe':{type:'woodwind',notes:{'Low':[{name:'C',lh:[0,1,1,1],rh:[1,1,1,1]},{name:'D',lh:[0,1,1,1],rh:[1,1,1,0]},{name:'E',lh:[0,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[0,1,1,1],rh:[1,0,0,0]},{name:'G',lh:[0,1,1,1],rh:[0,0,0,0]},{name:'A',lh:[0,1,1,0],rh:[0,0,0,0]},{name:'B',lh:[0,1,0,0],rh:[0,0,0,0]}],'Mid':[{name:'C',lh:[0,0,1,0],rh:[0,0,0,0]},{name:'Db',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'D',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'Eb',lh:[1,1,1,1],rh:[1,1,1,1]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[1,1,1,1],rh:[1,0,0,0]},{name:'Gb',lh:[1,1,1,1],rh:[0,1,0,0]},{name:'G',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'Ab',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'A',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'Bb',lh:[1,1,0,0],rh:[1,0,0,0]},{name:'B',lh:[1,1,0,0],rh:[0,0,0,0]},{name:'C↑',lh:[1,0,1,0],rh:[0,0,0,0]}],'High':[{name:'C',lh:[1,0,1,0],rh:[0,0,0,0]},{name:'D',lh:[1,0,1,1],rh:[0,0,0,0]},{name:'E',lh:[1,0,1,0],rh:[1,0,0,0]},{name:'F',lh:[1,0,1,0],rh:[0,1,0,0]},{name:'G',lh:[1,0,1,0],rh:[0,0,0,0]},{name:'A',lh:[1,0,1,1],rh:[0,0,0,0]},{name:'B',lh:[1,0,0,0],rh:[0,0,0,0]}]}},
+                            'Clarinet':{type:'woodwind',notes:{'Low':[{name:'E',lh:[1,1,1,1],rh:[1,1,1,1]},{name:'F',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'G',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'A',lh:[1,1,1,1],rh:[1,0,0,0]},{name:'B',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'C',lh:[1,1,1,0],rh:[0,0,0,0]}],'Mid':[{name:'C',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'Db',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'D',lh:[1,1,0,0],rh:[0,0,0,0]},{name:'Eb',lh:[1,1,0,0],rh:[0,0,0,0]},{name:'E',lh:[1,0,0,0],rh:[0,0,0,0]},{name:'F',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'Gb',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'G',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'Ab',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'A',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'Bb',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'B',lh:[1,1,1,1],rh:[1,1,1,1]},{name:'C↑',lh:[1,1,1,1],rh:[1,1,1,0]}],'High':[{name:'C',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'D',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'E',lh:[1,1,1,1],rh:[1,0,0,0]},{name:'F',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'G',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'A',lh:[1,1,0,0],rh:[0,0,0,0]}]}},
+                            'Saxophone':{type:'woodwind',notes:{'Low':[{name:'Bb',lh:[0,1,1,1],rh:[1,1,1,1]},{name:'C',lh:[0,1,1,1],rh:[1,1,1,0]},{name:'D',lh:[0,1,1,1],rh:[1,1,1,0]},{name:'E',lh:[0,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[0,1,1,1],rh:[1,0,0,0]}],'Mid':[{name:'G',lh:[0,1,1,1],rh:[0,0,0,0]},{name:'Ab',lh:[0,1,1,1],rh:[0,0,0,0]},{name:'A',lh:[0,1,1,0],rh:[0,0,0,0]},{name:'Bb',lh:[0,1,1,0],rh:[1,0,0,0]},{name:'B',lh:[0,1,0,0],rh:[0,0,0,0]},{name:'C',lh:[0,0,1,0],rh:[0,0,0,0]},{name:'Db',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'D',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'Eb',lh:[1,1,1,1],rh:[1,1,1,1]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[1,1,1,1],rh:[1,0,0,0]},{name:'Gb',lh:[1,1,1,1],rh:[0,1,0,0]},{name:'G↑',lh:[1,1,1,1],rh:[0,0,0,0]}],'High':[{name:'G',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'A',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'B',lh:[1,1,0,0],rh:[0,0,0,0]},{name:'C',lh:[1,0,1,0],rh:[0,0,0,0]},{name:'D',lh:[1,0,0,0],rh:[0,0,0,0]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[1,1,0,1],rh:[1,0,0,0]}]}},
+                            'Trumpet':{type:'valves',notes:{'Low':[{name:'F#',val:[1,1,1]},{name:'G',val:[1,0,1]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'C',val:[0,0,0]}],'Mid':[{name:'C',val:[0,0,0]},{name:'C#/Db',val:[1,1,1]},{name:'D',val:[1,0,1]},{name:'Eb',val:[0,1,1]},{name:'E',val:[1,1,0]},{name:'F',val:[1,0,0]},{name:'F#/Gb',val:[0,1,0]},{name:'G',val:[0,0,0]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}],'High':[{name:'C',val:[0,0,0]},{name:'D',val:[1,0,0]},{name:'E',val:[0,0,0]},{name:'F',val:[1,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[1,1,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}]}},
+                            'French Horn':{type:'valves',notes:{'Low':[{name:'C',val:[0,0,0]},{name:'D',val:[1,0,1]},{name:'E',val:[0,1,0]},{name:'F',val:[0,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[1,1,0]},{name:'B',val:[0,1,0]}],'Mid':[{name:'C',val:[0,0,0]},{name:'Db',val:[1,1,0]},{name:'D',val:[1,0,0]},{name:'Eb',val:[0,1,0]},{name:'E',val:[0,0,0]},{name:'F',val:[1,0,0]},{name:'Gb',val:[0,1,0]},{name:'G',val:[0,0,0]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}],'High':[{name:'C',val:[0,0,0]},{name:'D',val:[1,0,0]},{name:'E',val:[0,0,0]},{name:'F',val:[1,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[1,1,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}]}},
+                            'Tenor Horn':{type:'valves',notes:{'Low':[{name:'F#',val:[1,1,1]},{name:'G',val:[1,0,1]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'C',val:[0,0,0]}],'Mid':[{name:'C',val:[0,0,0]},{name:'C#/Db',val:[1,1,1]},{name:'D',val:[1,0,1]},{name:'Eb',val:[0,1,1]},{name:'E',val:[1,1,0]},{name:'F',val:[1,0,0]},{name:'F#/Gb',val:[0,1,0]},{name:'G',val:[0,0,0]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}],'High':[{name:'C',val:[0,0,0]},{name:'D',val:[1,0,0]},{name:'E',val:[0,0,0]},{name:'F',val:[1,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[1,1,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}]}},
+                            'Baritone':{type:'valves',notes:{'Low':[{name:'E',val:[1,1,1]},{name:'F',val:[1,0,1]},{name:'G',val:[1,1,0]},{name:'Ab',val:[1,0,0]},{name:'A',val:[0,1,0]},{name:'Bb',val:[0,0,0]}],'Mid':[{name:'Bb',val:[0,0,0]},{name:'B',val:[1,1,1]},{name:'C',val:[1,0,1]},{name:'Db',val:[0,1,1]},{name:'D',val:[1,1,0]},{name:'Eb',val:[1,0,0]},{name:'E',val:[0,1,0]},{name:'F',val:[0,0,0]},{name:'Gb',val:[0,1,1]},{name:'G',val:[1,1,0]},{name:'Ab',val:[1,0,0]},{name:'A',val:[0,1,0]},{name:'Bb↑',val:[0,0,0]}],'High':[{name:'Bb',val:[0,0,0]},{name:'C',val:[1,0,0]},{name:'D',val:[1,1,0]},{name:'Eb',val:[1,0,0]},{name:'F',val:[0,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[0,1,0]},{name:'Bb↑',val:[0,0,0]}]}},
+                            'Trombone':{type:'slide',notes:{'Low':[{name:'E',pos:7},{name:'F',pos:6},{name:'G',pos:4},{name:'Ab',pos:3},{name:'A',pos:2},{name:'Bb',pos:1}],'Mid':[{name:'Bb',pos:1},{name:'B',pos:7},{name:'C',pos:6},{name:'Db',pos:5},{name:'D',pos:4},{name:'Eb',pos:3},{name:'E',pos:2},{name:'F',pos:1},{name:'Gb',pos:5},{name:'G',pos:4},{name:'Ab',pos:3},{name:'A',pos:2},{name:'Bb↑',pos:1}],'High':[{name:'Bb',pos:1},{name:'C',pos:3},{name:'D',pos:1},{name:'Eb',pos:3},{name:'F',pos:1},{name:'G',pos:2},{name:'Ab',pos:3},{name:'Bb↑',pos:1}]}},
+                            'Tuba':{type:'valves',notes:{'Low':[{name:'E',val:[1,1,1]},{name:'F',val:[1,0,1]},{name:'G',val:[1,1,0]},{name:'Ab',val:[1,0,0]},{name:'A',val:[0,1,0]},{name:'Bb',val:[0,0,0]}],'Mid':[{name:'Bb',val:[0,0,0]},{name:'B',val:[1,1,1]},{name:'C',val:[1,0,1]},{name:'Db',val:[0,1,1]},{name:'D',val:[1,1,0]},{name:'Eb',val:[1,0,0]},{name:'E',val:[0,1,0]},{name:'F',val:[0,0,0]},{name:'Gb',val:[0,1,1]},{name:'G',val:[1,1,0]},{name:'Ab',val:[1,0,0]},{name:'A',val:[0,1,0]},{name:'Bb↑',val:[0,0,0]}],'High':[{name:'Bb',val:[0,0,0]},{name:'C',val:[1,0,0]},{name:'D',val:[1,1,0]},{name:'Eb',val:[1,0,0]},{name:'F',val:[0,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[0,1,0]},{name:'Bb↑',val:[0,0,0]}]}}
                         }
-                    }
+                    },
 
-                    let lastPrac = this.currentUser ? this.currentUser.last_date : this.lastPractice;
-                    if (lastPrac) {
-                        const last = new Date(lastPrac); last.setHours(0,0,0,0);
-                        const diffDays = Math.round((today.getTime() - last.getTime()) / (1000 * 60 * 60 * 24));
-                        if (diffDays === 0) { this.practicedToday = true; } 
-                        else if (diffDays > 1) { 
-                            if(this.currentUser) { this.currentUser.streak = 0; this.saveUserToCloud(); }
-                            else { this.streak = 0; localStorage.setItem('fubc_school_streak', 0); }
+                    exercises: [
+                        { title_en: '1. Long Tones', title_ua: '1. Довгі Ноти', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/4\nb\' a\' g\' f\'|e\' d\' c\' b|b4 z4|]','L:1/4\nc\' b a g|f e d c|c4 z4|]','L:1/4\ng\' f\' e\' d\'|c\' b a g|g4 z4|]','L:1/4\nf e d c|B A G F|F4 z4|]','L:1/4\nB A G F|E D C B,|B,4 z4|]','L:1/4\nB, A, G, F,|E, D, C, B,,|B,,4 z4|]'] },
+                        { title_en: '2. Flexibility', title_ua: '2. Гнучкість', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\n(b f\' b f\' b2) z2|(c\' g\' c\' g\' c\'2) z2|(d\' a\' d\' a\' d\'2) z2|(e\' b\' e\' b\' e\'2) z2|]','L:1/8\n(c g c g c2) z2|(d a d a d2) z2|(e b e b e2) z2|(f c\' f c\' f2) z2|]','L:1/8\n(g d\' g d\' g2) z2|(a e\' a e\' a2) z2|(b f\' b f\' b2) z2|(c\' g\' c\' g\' c\'2) z2|]','L:1/8\n(F c F c F2) z2|(G d G d G2) z2|(A e A e A2) z2|(B f B f B2) z2|]','L:1/8\n(B, F B, F B,2) z2|(C G C G C2) z2|(D A D A D2) z2|(E B E B E2) z2|]','L:1/8\n(B,, F, B,, F, B,,2) z2|(C, G, C, G, C,2) z2|(D, A, D, A, D,2) z2|(E, B, E, B, E,2) z2|]'] },
+                        { title_en: '3. Articulation', title_ua: '3. Артикуляція', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\n.b.b .b.b .b.b .b.b|b2 z2 b2 z2|.f\'.f\' .f\'.f\' .f\'.f\' .f\'.f\'|f\'2 z2 f\'2 z2|]','L:1/8\n.c.c .c.c .c.c .c.c|c2 z2 c2 z2|.g.g .g.g .g.g .g.g|g2 z2 g2 z2|]','L:1/8\n.g.g .g.g .g.g .g.g|g2 z2 g2 z2|.d\'.d\' .d\'.d\' .d\'.d\' .d\'.d\'|d\'2 z2 d\'2 z2|]','L:1/8\n.F.F .F.F .F.F .F.F|F2 z2 F2 z2|.c.c .c.c .c.c .c.c|c2 z2 c2 z2|]','L:1/8\n.B,.B, .B,.B, .B,.B, .B,.B,|B,2 z2 B,2 z2|.F.F .F.F .F.F .F.F|F2 z2 F2 z2|]','L:1/8\n.B,,.B,, .B,,.B,, .B,,.B,, .B,,.B,,|B,,2 z2 B,,2 z2|.F,.F, .F,.F, .F,.F, .F,.F,|F,2 z2 F,2 z2|]'] },
+                        { title_en: '4. Arpeggios', title_ua: '4. Арпеджіо', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\nb d\' f\' b\' b\' f\' d\' b|b8|c\' e\' g\' c\'\' c\'\' g\' e\' c\'|c\'8|]','L:1/8\nc e g c\' c\' g e c|c8|d f a d\' d\' a f d|d8|]','L:1/8\ng b d\' g\' g\' d\' b g|g8|a c\' e\' a\' a\' e\' c\' a|a8|]','L:1/8\nF A c f f c A F|F8|G B d g g d B G|G8|]','L:1/8\nB, D F B B F D B,|B,8|C E G c c G E C|C8|]','L:1/8\nB,, D, F, B, B, F, D, B,,|B,,8|C, E, G, C C G, E, C,|C,8|]'] }
+                    ],
+                    scales: [
+                        { title_en: 'Concert C Major', title_ua: 'До мажор (C)', keys: ['C','D','A','G','C','C'], abc: [`L:1/8\nc d e f g a b c'|c' b a g f e d c|c8|]`,`L:1/8\nd e f g a b c' d'|d' c' b a g f e d|d8|]`,`L:1/8\na b c' d' e' f' g' a'|a' g' f' e' d' c' b a|a8|]`,`L:1/8\nG A B c d e f g|g f e d c B A G|G8|]`,`L:1/8\nC D E F G A B c|c B A G F E D C|C8|]`,`L:1/8\nC, D, E, F, G, A, B, C|C B, A, G, F, E, D, C,|C,8|]`]},
+                        { title_en: 'Concert F Major', title_ua: 'Фа мажор (F)', keys: ['F','G','D','C','F','F'], abc: [`L:1/8\nf g a b c' d' e' f'|f' e' d' c' b a g f|f8|]`,`L:1/8\ng a b c' d' e' f' g'|g' f' e' d' c' b a g|g8|]`,`L:1/8\nd e f g a b c' d'|d' c' b a g f e d|d8|]`,`L:1/8\nc d e f g a b c'|c' b a g f e d c|c8|]`,`L:1/8\nF, G, A, B, C D E F|F E D C B, A, G, F,|F,8|]`,`L:1/8\nF,, G,, A,, B,, C, D, E, F,|F, E, D, C, B,, A,, G,, F,,|F,,8|]`]},
+                        { title_en: 'Concert Bb Major', title_ua: 'Сі-бемоль мажор (Bb)', keys: ['Bb','C','G','F','Bb','Bb'], abc: [`L:1/8\nb c' d' e' f' g' a' b'|b' a' g' f' e' d' c' b|b8|]`,`L:1/8\nc d e f g a b c'|c' b a g f e d c|c8|]`,`L:1/8\ng a b c' d' e' f' g'|g' f' e' d' c' b a g|g8|]`,`L:1/8\nF G A B c d e f|f e d c B A G F|F8|]`,`L:1/8\nB, C D E F G A B|B A G F E D C B,|B,8|]`,`L:1/8\nB,, C, D, E, F, G, A, B,|B, A, G, F, E, D, C, B,,|B,,8|]`]},
+                        { title_en: 'Concert Eb Major', title_ua: 'Мі-бемоль мажор (Eb)', keys: ['Eb','F','C','Bb','Eb','Eb'], abc: [`L:1/8\ne f g a b c' d' e'|e' d' c' b a g f e|e8|]`,`L:1/8\nf g a b c' d' e' f'|f' e' d' c' b a g f|f8|]`,`L:1/8\nc d e f g a b c'|c' b a g f e d c|c8|]`,`L:1/8\nB c d e f g a b|b a g f e d c B|B8|]`,`L:1/8\nE, F, G, A, B, C D E|E D C B, A, G, F, E,|E,8|]`,`L:1/8\nE,, F,, G,, A,, B,, C, D, E,|E, D, C, B,, A,, G,, F,, E,,|E,,8|]`]},
+                        { title_en: 'Concert Ab Major', title_ua: 'Ля-бемоль мажор (Ab)', keys: ['Ab','Bb','F','Eb','Ab','Ab'], abc: [`L:1/8\na b c' d' e' f' g' a'|a' g' f' e' d' c' b a|a8|]`,`L:1/8\nb c' d' e' f' g' a' b'|b' a' g' f' e' d' c' b|b8|]`,`L:1/8\nf g a b c' d' e' f'|f' e' d' c' b a g f|f8|]`,`L:1/8\ne f g a b c' d' e'|e' d' c' b a g f e|e8|]`,`L:1/8\nA, B, C D E F G A|A G F E D C B, A,|A,8|]`,`L:1/8\nA,, B,, C, D, E, F, G, A,|A, G, F, E, D, C, B,, A,,|A,,8|]`]},
+                        { title_en: 'Concert Db Major', title_ua: 'Ре-бемоль мажор (Db)', keys: ['Db','Eb','Bb','Ab','Db','Db'], abc: [`L:1/8\nd e f g a b c' d'|d' c' b a g f e d|d8|]`,`L:1/8\ne f g a b c' d' e'|e' d' c' b a g f e|e8|]`,`L:1/8\nb c' d' e' f' g' a' b'|b' a' g' f' e' d' c' b|b8|]`,`L:1/8\nA B c d e f g a|a g f e d c B A|A8|]`,`L:1/8\nD, E, F, G, A, B, C D|D C B, A, G, F, E, D,|D,8|]`,`L:1/8\nD,, E,, F,, G,, A,, B,, C, D,|D, C, B,, A,, G,, F,, E,, D,,|D,,8|]`]},
+                        { title_en: 'Concert Gb Major', title_ua: 'Соль-бемоль мажор (Gb)', keys: ['Gb','Ab','Eb','Db','Gb','Gb'], abc: [`L:1/8\ng a b c' d' e' f' g'|g' f' e' d' c' b a g|g8|]`,`L:1/8\na b c' d' e' f' g' a'|a' g' f' e' d' c' b a|a8|]`,`L:1/8\ne f g a b c' d' e'|e' d' c' b a g f e|e8|]`,`L:1/8\nd e f g a b c' d'|d' c' b a g f e d|d8|]`,`L:1/8\nG, A, B, C D E F G|G F E D C B, A, G,|G,8|]`,`L:1/8\nG,, A,, B,, C, D, E, F, G,|G, F, E, D, C, B,, A,, G,,|G,,8|]`]},
+                        { title_en: 'Concert B Major', title_ua: 'Сі мажор (B)', keys: ['B','Db','Ab','Gb','B','B'], abc: [`L:1/8\nb c' d' e' f' g' a' b'|b' a' g' f' e' d' c' b|b8|]`,`L:1/8\nd e f g a b c' d'|d' c' b a g f e d|d8|]`,`L:1/8\na b c' d' e' f' g' a'|a' g' f' e' d' c' b a|a8|]`,`L:1/8\ng a b c' d' e' f' g'|g' f' e' d' c' b a g|g8|]`,`L:1/8\nB, C D E F G A B|B A G F E D C B,|B,8|]`,`L:1/8\nB,, C, D, E, F, G, A, B,|B, A, G, F, E, D, C, B,,|B,,8|]`]},
+                        { title_en: 'Concert E Major', title_ua: 'Мі мажор (E)', keys: ['E','Gb','Db','B','E','E'], abc: [`L:1/8\ne f g a b c' d' e'|e' d' c' b a g f e|e8|]`,`L:1/8\ng a b c' d' e' f' g'|g' f' e' d' c' b a g|g8|]`,`L:1/8\nd e f g a b c' d'|d' c' b a g f e d|d8|]`,`L:1/8\nB c d e f g a b|b a g f e d c B|B8|]`,`L:1/8\nE, F, G, A, B, C D E|E D C B, A, G, F, E,|E,8|]`,`L:1/8\nE,, F,, G,, A,, B,, C, D, E,|E, D, C, B,, A,, G,, F,, E,,|E,,8|]`]},
+                        { title_en: 'Concert A Major', title_ua: 'Ля мажор (A)', keys: ['A','B','Gb','E','A','A'], abc: [`L:1/8\na b c' d' e' f' g' a'|a' g' f' e' d' c' b a|a8|]`,`L:1/8\nb c' d' e' f' g' a' b'|b' a' g' f' e' d' c' b|b8|]`,`L:1/8\ng a b c' d' e' f' g'|g' f' e' d' c' b a g|g8|]`,`L:1/8\ne f g a b c' d' e'|e' d' c' b a g f e|e8|]`,`L:1/8\nA, B, C D E F G A|A G F E D C B, A,|A,8|]`,`L:1/8\nA,, B,, C, D, E, F, G, A,|A, G, F, E, D, C, B,, A,,|A,,8|]`}
+                    ],
+
+                    get currentModalData() { if(this.currentFullScreenType === 'exercises') return this.exercises[this.currentFullScreenIdx]; if(this.currentFullScreenType === 'scales') return this.scales[this.currentFullScreenIdx]; return {}; },
+                    formatTime(seconds) { const m = Math.floor(seconds / 60).toString().padStart(2, '0'); const s = (seconds % 60).toString().padStart(2, '0'); return `${m}:${s}`; },
+
+                    async init() {
+                        // DEFERRED SAFE LOADING: This runs after the HTML is safely painted
+                        try {
+                            let savedInst = localStorage.getItem('fubc_school_instrument');
+                            if (savedInst === 'Alto Saxophone') savedInst = 'Saxophone';
+                            if (!this.availableInstruments.includes(savedInst)) savedInst = 'Trumpet';
+                            
+                            // Sets instrument, group index, resets arrays, and renders notation safely
+                            this.updateGlobalInstrument(savedInst, true);
+
+                            this.studentName = localStorage.getItem('fubc_student_name') || '';
+                            this.totalMinutes = parseInt(localStorage.getItem('fubc_total_minutes')) || 0;
+                            this.streak = parseInt(localStorage.getItem('fubc_school_streak')) || 0;
+                            this.lastPractice = localStorage.getItem('fubc_school_last_date') || '';
+                            
+                            const logStr = localStorage.getItem('fubc_school_weekly_log');
+                            this.practicedLog = logStr ? JSON.parse(logStr) : [];
+                        } catch(e) {
+                            console.warn("Cache parsing error, falling back to clean defaults.");
                         }
-                    }
-                    
-                    try {
-                        const response = await fetch('/data.json?t=' + new Date().getTime());
-                        if (response.ok) {
-                            const json = await response.json();
-                            if(json.schoolSetlist && json.schoolSetlist.length > 0) { this.schoolSongs = json.schoolSetlist; }
-                        }
-                    } catch(e) {}
-                    
-                    this.fetchLeaderboard();
-                },
 
-                get currentModalData() { if(this.currentFullScreenType === 'exercises') return this.exercises[this.currentFullScreenIdx]; if(this.currentFullScreenType === 'scales') return this.scales[this.currentFullScreenIdx]; return {}; },
-                formatTime(seconds) { const m = Math.floor(seconds / 60).toString().padStart(2, '0'); const s = (seconds % 60).toString().padStart(2, '0'); return `${m}:${s}`; },
-
-                startSessionPhase(idx) {
-                    this.sessionPhase = idx; this.sessionTimeLeft = this.sessionPhases[idx].duration;
-                    if(!this.sessionActive) {
-                        this.sessionActive = true;
-                        this.sessionTimer = setInterval(() => {
-                            if (this.sessionTimeLeft > 0) { this.sessionTimeLeft--; } else {
-                                clearInterval(this.sessionTimer); this.sessionActive = false;
-                                let minsToAdd = Math.round(this.sessionPhases[this.sessionPhase].duration / 60);
-                                if(this.currentUser) { this.currentUser.total_minutes += minsToAdd; this.saveUserToCloud(); } else { this.totalMinutes += minsToAdd; localStorage.setItem('fubc_total_minutes', this.totalMinutes); }
-                                if (this.sessionPhase < 2) { alert("Phase complete! Ready for the next one?"); } else { this.logPractice(); }
+                        // Load external data
+                        try {
+                            const response = await fetch('/data.json?t=' + new Date().getTime());
+                            if (response.ok) {
+                                const json = await response.json();
+                                if(json.schoolSetlist && json.schoolSetlist.length > 0) { this.schoolSongs = json.schoolSetlist; }
                             }
-                        }, 1000);
-                    }
-                },
+                        } catch(e) {}
 
-                toggleSession() {
-                    if (this.sessionActive) {
-                        clearInterval(this.sessionTimer); this.sessionActive = false;
-                        let elapsedSeconds = this.sessionPhases[this.sessionPhase].duration - this.sessionTimeLeft;
-                        if(elapsedSeconds > 60) {
-                            let minsToAdd = Math.floor(elapsedSeconds / 60);
-                            if(this.currentUser) { this.currentUser.total_minutes += minsToAdd; this.saveUserToCloud(); } else { this.totalMinutes += minsToAdd; localStorage.setItem('fubc_total_minutes', this.totalMinutes); }
-                            this.sessionTimeLeft = this.sessionPhases[this.sessionPhase].duration; 
-                        }
-                    } else { this.startSessionPhase(this.sessionPhase); }
-                },
+                        // Load Supabase Database
+                        const supabaseUrl = 'https://levtwocaqocalknouepf.supabase.co';
+                        const supabaseKey = 'sb_publishable_BpPAx20IJLbntNt5pjZiAQ_jG3b4Joh';
+                        this.supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-                updateGlobalInstrument(inst, silent=false) {
-                    this.globalInstrument = inst; localStorage.setItem('fubc_school_instrument', inst);
-                    this.interactiveChart.instrument = inst; 
-                    
-                    // Reset to safe defaults to prevent undefined array crashes
-                    this.interactiveChart.selectedRange = 'Mid';
-                    this.interactiveChart.selectedNote = 0; 
-                    this.stopFingeringAudio();
+                        let storedCloudUser = localStorage.getItem('fubc_cloud_user');
+                        if (storedCloudUser) { this.currentUser = JSON.parse(storedCloudUser); this.loadUserDataLocally(); }
 
-                    let groupIdx = 0;
-                    if (['Flute', 'Oboe'].includes(inst)) groupIdx = 0; 
-                    else if (['Clarinet', 'Trumpet'].includes(inst)) groupIdx = 1; 
-                    else if (['Saxophone', 'Tenor Horn'].includes(inst)) groupIdx = 2; 
-                    else if (['French Horn'].includes(inst)) groupIdx = 3; 
-                    else if (['Trombone', 'Baritone'].includes(inst)) groupIdx = 4; 
-                    else if (['Tuba'].includes(inst)) groupIdx = 5;
-                    
-                    this.selectedGroup = groupIdx;
-                    this.$nextTick(() => { this.renderWarmups(); this.renderScales(); });
-                    if(!silent) this.triggerToast(this.lang === 'en' ? `Instrument set to ${inst}` : `Інструмент: ${inst}`);
-                },
-
-                renderWarmups() {
-                    if (typeof ABCJS !== 'undefined') {
-                        const group = this.instrumentGroups[this.selectedGroup]; const scale = window.innerWidth < 640 ? 0.7 : 0.9; const options = { responsive: 'resize', scale: scale, paddingbottom: 5, paddingtop: 15, paddingleft: 0, paddingright: 0 };
-                        this.exercises.forEach((ex, idx) => { ABCJS.renderAbc(`abc-warmup-${idx}`, `X:${idx+1}\nM:4/4\nQ:1/4=100\nK:${ex.keys[this.selectedGroup]} clef=${group.clef}\n` + ex.abc[this.selectedGroup], options); });
-                    } else {
-                        setTimeout(() => this.renderWarmups(), 200);
-                    }
-                },
-
-                renderScales() {
-                    if (typeof ABCJS !== 'undefined') {
-                        const group = this.instrumentGroups[this.selectedGroup]; const scale = window.innerWidth < 640 ? 0.6 : 0.75; const options = { responsive: 'resize', scale: scale, paddingbottom: 5, paddingtop: 15, paddingleft: 0, paddingright: 0 };
-                        this.scales.forEach((sc, idx) => { ABCJS.renderAbc(`abc-scale-${idx}`, `X:${idx+1}\nM:4/4\nQ:1/4=100\nK:${sc.keys[this.selectedGroup]} clef=${group.clef}\n` + sc.abc[this.selectedGroup], options); });
-                    } else {
-                        setTimeout(() => this.renderScales(), 200);
-                    }
-                },
-
-                openFullScreen(idx, type) {
-                    this.currentFullScreenIdx = idx; this.currentFullScreenType = type; this.fullScreenModalOpen = true;
-                    this.$nextTick(() => {
-                        const group = this.instrumentGroups[this.selectedGroup]; const dataObj = type === 'exercises' ? this.exercises[idx] : this.scales[idx];
-                        
-                        let midiTrans = 0;
-                        if(this.selectedGroup === 1) midiTrans = -2;
-                        if(this.selectedGroup === 2) midiTrans = -9;
-                        if(this.selectedGroup === 3) midiTrans = -7;
-                        
-                        const header = `X:${idx+1}\nM:4/4\nQ:1/4=100\nK:${dataObj.keys[this.selectedGroup]} clef=${group.clef}\n%%MIDI transpose ${midiTrans}\n`; 
-                        const modalScale = window.innerWidth < 640 ? 1.0 : 1.8;
-                        
-                        document.getElementById('abc-fullscreen').innerHTML = ''; 
-                        var visualObj = ABCJS.renderAbc('abc-fullscreen', header + dataObj.abc[this.selectedGroup], { responsive: 'resize', scale: modalScale, paddingtop: 30, paddingbottom: 30, add_classes: true })[0];
-                        if(this.synthControl) { this.synthControl.pause(); }
-                        this.synthControl = new ABCJS.synth.SynthController(); this.synthControl.load("#audio-control", null, { displayLoop: true, displayRestart: true, displayPlay: true, displayProgress: true, displayWarp: true });
-                        let program = 56; if (group.clef === 'bass') program = 57; if (this.globalInstrument === 'Flute') program = 73; if (this.globalInstrument === 'Clarinet') program = 71; if (this.globalInstrument === 'Saxophone') program = 65; if (this.globalInstrument === 'French Horn') program = 60; if (this.globalInstrument === 'Tuba') program = 58;
-                        var createSynth = new ABCJS.synth.CreateSynth(); createSynth.init({ visualObj: visualObj }).then(() => { this.synthControl.setTune(visualObj, false, { program: program }); }).catch(console.warn);
-                    });
-                },
-
-                closeFullScreen() { this.fullScreenModalOpen = false; if(this.synthControl) this.synthControl.pause(); },
-
-                logPractice() {
-                    if(this.practicedToday) return; this.practicedToday = true; const todayStr = new Date().toDateString();
-                    if(this.currentUser) {
-                        this.currentUser.streak++; this.currentUser.last_date = todayStr; if(!this.currentUser.log) this.currentUser.log = []; if(!this.currentUser.log.includes(todayStr)) this.currentUser.log.push(todayStr); this.currentUser.total_minutes += 30; this.saveUserToCloud();
-                    } else {
-                        this.streak++; this.lastPractice = todayStr; if(!this.practicedLog.includes(todayStr)) { this.practicedLog.push(todayStr); localStorage.setItem('fubc_school_weekly_log', JSON.stringify(this.practicedLog)); }
-                        this.totalMinutes += 30; localStorage.setItem('fubc_total_minutes', this.totalMinutes); localStorage.setItem('fubc_school_streak', this.streak); localStorage.setItem('fubc_school_last_date', this.lastPractice);
-                    }
-                    if(typeof confetti === 'function') confetti({ particleCount: 250, spread: 100, origin: { y: 0.6 }, colors: ['#b45309', '#d97706', '#fcd34d', '#34d399', '#3b82f6'], zIndex: 1000 });
-                },
-
-                tunerActive: false, tunerNote: '--', tunerCents: 0, audioContext: null, analyser: null, micStream: null, animationId: null,
-                toggleTuner() { if (this.tunerActive) { this.stopTuner(); } else { this.startTuner(); } },
-                async startTuner() { try { this.micStream = await navigator.mediaDevices.getUserMedia({ audio: true }); this.audioContext = new (window.AudioContext || window.webkitAudioContext)(); this.analyser = this.audioContext.createAnalyser(); this.analyser.fftSize = 2048; const source = this.audioContext.createMediaStreamSource(this.micStream); source.connect(this.analyser); this.tunerActive = true; this.updatePitch(); } catch (err) { alert("Microphone access denied. Please check your browser settings."); } },
-                stopTuner() { if (this.micStream) this.micStream.getTracks().forEach(t => t.stop()); if (this.audioContext) this.audioContext.close(); if (this.animationId) cancelAnimationFrame(this.animationId); this.tunerActive = false; this.tunerNote = '--'; this.tunerCents = 0; },
-                updatePitch() { if (!this.tunerActive) return; const buffer = new Float32Array(this.analyser.fftSize); this.analyser.getFloatTimeDomainData(buffer); const acFreq = this.autoCorrelate(buffer, this.audioContext.sampleRate); if (acFreq !== -1) { const noteNum = 12 * (Math.log(acFreq / 440) / Math.log(2)); const noteIndex = Math.round(noteNum) + 69; const notes = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B']; this.tunerNote = notes[noteIndex % 12]; const expectedFreq = 440 * Math.pow(2, (noteIndex - 69) / 12); this.tunerCents = Math.floor(1200 * Math.log2(acFreq / expectedFreq)); } this.animationId = requestAnimationFrame(() => this.updatePitch()); },
-                autoCorrelate(buf, sampleRate) { let SIZE = buf.length; let rms = 0; for (let i=0;i<SIZE;i++) rms += buf[i]*buf[i]; rms = Math.sqrt(rms/SIZE); if (rms<0.01) return -1; let r1=0, r2=SIZE-1, thres=0.2; for(let i=0; i<SIZE/2; i++) if (Math.abs(buf[i])<thres) { r1=i; break; } for(let i=1; i<SIZE/2; i++) if (Math.abs(buf[SIZE-i])<thres) { r2=SIZE-i; break; } buf = buf.slice(r1,r2); SIZE = buf.length; let c = new Array(SIZE).fill(0); for (let i=0; i<SIZE; i++) { for (let j=0; j<SIZE-i; j++) { c[i] = c[i] + buf[j]*buf[j+i]; } } let d=0; while (c[d]>c[d+1]) d++; let maxval=-1, maxpos=-1; for (let i=d; i<SIZE; i++) { if (c[i] > maxval) { maxval = c[i]; maxpos = i; } } let T0 = maxpos; let x1=c[T0-1], x2=c[T0], x3=c[T0+1]; let a = (x1 + x3 - 2*x2)/2; let b = (x3 - x1)/2; if (a) T0 = T0 - b/(2*a); return sampleRate/T0; },
-
-                bpm: 100, isMetronomePlaying: false, timer: null, audioCtx: null, lastTap: 0,
-                playClick() { if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); const osc = this.audioCtx.createOscillator(); const gain = this.audioCtx.createGain(); osc.connect(gain); gain.connect(this.audioCtx.destination); osc.frequency.value = 1000; gain.gain.value = 1; osc.start(); gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.1); osc.stop(this.audioCtx.currentTime + 0.1); }, 
-                toggleMetronome() { if (this.isMetronomePlaying) { clearInterval(this.timer); this.isMetronomePlaying = false; } else { this.isMetronomePlaying = true; this.playClick(); this.timer = setInterval(() => this.playClick(), (60 / this.bpm) * 1000); } }, 
-                updateMetronomeSpeed() { if (this.isMetronomePlaying) { clearInterval(this.timer); this.timer = setInterval(() => this.playClick(), (60 / this.bpm) * 1000); } },
-                tapTempo() { const now = Date.now(); if (this.lastTap && (now - this.lastTap) < 2000) { this.bpm = Math.min(Math.max(Math.round(60000 / (now - this.lastTap)), 40), 240); this.updateMetronomeSpeed(); } this.lastTap = now; },
-
-                isFingeringPlaying: false, oscillator: null, gainNode: null, filterNode: null,
-                playFingeringAudio() { 
-                    if(this.isFingeringPlaying) { this.stopFingeringAudio(); return; } 
-                    if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
-                    
-                    let inst = this.interactiveChart.instrument;
-                    let ranges = ['Low', 'Mid', 'High'];
-                    
-                    const baseMidiMap = { 'Flute': 60, 'Oboe': 60, 'Clarinet': 52, 'Saxophone': 58, 'Trumpet': 54, 'French Horn': 60, 'Tenor Horn': 54, 'Baritone': 40, 'Trombone': 40, 'Tuba': 28 };
-                    const transpositions = { 'Flute': 0, 'Oboe': 0, 'Trombone': 0, 'Baritone': 0, 'Tuba': 0, 'Clarinet': -2, 'Trumpet': -2, 'Saxophone': -9, 'Tenor Horn': -9, 'French Horn': -7 };
-                    
-                    let targetMidi = baseMidiMap[inst];
-                    let currentMidi = targetMidi;
-                    const noteIndexMap = {'C':0, 'C#':1, 'Db':1, 'D':2, 'Eb':3, 'E':4, 'F':5, 'F#':6, 'Gb':6, 'G':7, 'Ab':8, 'A':9, 'Bb':10, 'B':11};
-                    
-                    let firstNote = this.interactiveChart.data[inst].notes['Low'][0].name.split('/')[0].replace('↑', '');
-                    let prevClass = noteIndexMap[firstNote];
-                    let found = false;
-
-                    for (let r of ranges) {
-                        let notesArray = this.interactiveChart.data[inst].notes[r];
-                        if(!notesArray) continue;
-                        for (let i = 0; i < notesArray.length; i++) {
-                            let nName = notesArray[i].name.split('/')[0].replace('↑', '');
-                            let nClass = noteIndexMap[nName];
-                            
-                            let diff = nClass - prevClass;
-                            if (diff < 0) diff += 12; 
-                            if (i === 0 && r === 'Low') diff = 0; 
-                            
-                            currentMidi += diff;
-                            prevClass = nClass;
-                            
-                            if (r === this.interactiveChart.selectedRange && i === this.interactiveChart.selectedNote) {
-                                targetMidi = currentMidi;
-                                found = true;
-                                break;
+                        // Date logic
+                        const today = new Date(); today.setHours(0,0,0,0);
+                        let logArr = this.currentUser ? (this.currentUser.log || []) : this.practicedLog;
+                        const lastPracticedStr = logArr[logArr.length - 1];
+                        if (lastPracticedStr) {
+                            const last = new Date(lastPracticedStr);
+                            const diffTime = today.getTime() - last.getTime();
+                            const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+                            if (today.getDay() < last.getDay() || diffDays > 6) {
+                                if(this.currentUser) { this.currentUser.log = []; this.saveUserToCloud(); }
+                                else { this.practicedLog = []; localStorage.setItem('fubc_school_weekly_log', JSON.stringify([])); }
                             }
                         }
-                        if(found) break;
-                    }
-                    
-                    let concertMidi = targetMidi + transpositions[inst];
-                    let actualFreq = 440 * Math.pow(2, (concertMidi - 69) / 12);
-                    
-                    this.oscillator = this.audioCtx.createOscillator(); 
-                    this.gainNode = this.audioCtx.createGain(); 
-                    this.filterNode = this.audioCtx.createBiquadFilter(); 
-                    
-                    if (inst === 'Flute') { this.oscillator.type = 'sine'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 2000; } 
-                    else if (inst === 'Clarinet') { this.oscillator.type = 'square'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 1500; } 
-                    else if (inst === 'Oboe') { this.oscillator.type = 'sawtooth'; this.filterNode.type = 'bandpass'; this.filterNode.frequency.value = 1200; } 
-                    else if (['Trumpet', 'Trombone', 'Tenor Horn', 'Baritone', 'Tuba'].includes(inst)) { this.oscillator.type = 'sawtooth'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 2500; } 
-                    else if (inst === 'French Horn') { this.oscillator.type = 'triangle'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 800; } 
-                    else { this.oscillator.type = 'sawtooth'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 3000; } 
-                    
-                    this.oscillator.frequency.setValueAtTime(actualFreq, this.audioCtx.currentTime); 
-                    this.oscillator.connect(this.filterNode); 
-                    this.filterNode.connect(this.gainNode); 
-                    this.gainNode.connect(this.audioCtx.destination); 
-                    this.gainNode.gain.setValueAtTime(0, this.audioCtx.currentTime); 
-                    this.gainNode.gain.linearRampToValueAtTime(0.5, this.audioCtx.currentTime + 0.1); 
-                    this.gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioCtx.currentTime + 1.5); 
-                    
-                    this.oscillator.start(); 
-                    this.isFingeringPlaying = true; 
-                    setTimeout(() => { this.stopFingeringAudio(); }, 1500); 
-                },
-                stopFingeringAudio() { if (this.oscillator && this.gainNode) { this.gainNode.gain.linearRampToValueAtTime(0, this.audioCtx.currentTime + 0.05); setTimeout(() => { if(this.oscillator) { this.oscillator.stop(); this.oscillator.disconnect(); this.oscillator = null; } }, 50); } this.isFingeringPlaying = false; },
 
-                submitTest(e) { this.submitStatus = 'submitting'; const formData = new FormData(this.$refs.testForm); fetch('/', { method: 'POST', body: formData }).then(() => { this.submitStatus = 'success'; confetti({ particleCount: 150, spread: 70, origin: { y: 0.7 }, colors: ['#b45309', '#d97706', '#ffffff'], zIndex: 1000 }); this.$refs.testForm.reset(); setTimeout(() => { this.submitStatus = 'idle'; }, 5000); }).catch(() => { alert('Upload failed. Check your connection or file size.'); this.submitStatus = 'idle'; }); },
+                        let lastPrac = this.currentUser ? this.currentUser.last_date : this.lastPractice;
+                        if (lastPrac) {
+                            const last = new Date(lastPrac); last.setHours(0,0,0,0);
+                            const diffDays = Math.round((today.getTime() - last.getTime()) / (1000 * 60 * 60 * 24));
+                            if (diffDays === 0) { this.practicedToday = true; } 
+                            else if (diffDays > 1) { 
+                                if(this.currentUser) { this.currentUser.streak = 0; this.saveUserToCloud(); }
+                                else { this.streak = 0; localStorage.setItem('fubc_school_streak', 0); }
+                            }
+                        }
+                        
+                        this.fetchLeaderboard();
+                    },
 
-                printStaves(count) { const container = document.getElementById('print-staves'); container.innerHTML = ''; for(let i=0; i<count; i++) { container.innerHTML += `<div class='stave-group'><div class='stave'></div><div class='stave'></div><div class='stave'></div><div class='stave'></div><div class='stave'></div></div>`; } window.print(); },
+                    updateGlobalInstrument(inst, silent=false) {
+                        this.globalInstrument = inst; 
+                        localStorage.setItem('fubc_school_instrument', inst);
+                        
+                        this.interactiveChart.instrument = inst; 
+                        this.interactiveChart.selectedRange = 'Mid';
+                        this.interactiveChart.selectedNote = 0; 
+                        this.stopFingeringAudio();
 
-                interactiveChart: {
-                    instrument: getSavedInst(), 
-                    selectedRange: 'Mid', selectedNote: 0, ranges: ['Low', 'Mid', 'High'],
-                    data: {
-                        'Flute':{type:'woodwind',notes:{'Low':[{name:'C',lh:[0,1,1,1],rh:[1,1,1,1]},{name:'D',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,1]},{name:'F',lh:[1,1,1,1],rh:[1,0,0,1]},{name:'G',lh:[1,1,1,1],rh:[0,0,0,1]},{name:'A',lh:[1,1,1,0],rh:[0,0,0,1]},{name:'B',lh:[1,1,0,0],rh:[0,0,0,1]}],'Mid':[{name:'C',lh:[0,1,0,0],rh:[0,0,0,1]},{name:'Db',lh:[0,0,0,0],rh:[0,0,0,1]},{name:'D',lh:[1,0,1,1],rh:[1,1,1,0]},{name:'Eb',lh:[1,0,1,1],rh:[1,1,1,1]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,1]},{name:'F',lh:[1,1,1,1],rh:[1,0,0,1]},{name:'Gb',lh:[1,1,1,1],rh:[0,0,1,1]},{name:'G',lh:[1,1,1,1],rh:[0,0,0,1]},{name:'Ab',lh:[1,1,1,1],rh:[0,0,0,1]},{name:'A',lh:[1,1,1,0],rh:[0,0,0,1]},{name:'Bb',lh:[1,1,0,0],rh:[1,0,0,1]},{name:'B',lh:[1,1,0,0],rh:[0,0,0,1]},{name:'C↑',lh:[0,1,0,0],rh:[0,0,0,1]}],'High':[{name:'C',lh:[0,1,0,0],rh:[0,0,0,1]},{name:'D',lh:[1,0,1,1],rh:[0,0,0,0]},{name:'E',lh:[1,1,1,0],rh:[1,1,0,1]},{name:'F',lh:[1,1,0,1],rh:[1,0,0,1]},{name:'G',lh:[1,0,1,1],rh:[0,0,0,1]},{name:'A',lh:[1,0,1,0],rh:[1,0,0,1]},{name:'B',lh:[1,0,0,0],rh:[0,0,0,1]}]}},
-                        'Oboe':{type:'woodwind',notes:{'Low':[{name:'C',lh:[0,1,1,1],rh:[1,1,1,1]},{name:'D',lh:[0,1,1,1],rh:[1,1,1,0]},{name:'E',lh:[0,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[0,1,1,1],rh:[1,0,0,0]},{name:'G',lh:[0,1,1,1],rh:[0,0,0,0]},{name:'A',lh:[0,1,1,0],rh:[0,0,0,0]},{name:'B',lh:[0,1,0,0],rh:[0,0,0,0]}],'Mid':[{name:'C',lh:[0,0,1,0],rh:[0,0,0,0]},{name:'Db',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'D',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'Eb',lh:[1,1,1,1],rh:[1,1,1,1]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[1,1,1,1],rh:[1,0,0,0]},{name:'Gb',lh:[1,1,1,1],rh:[0,1,0,0]},{name:'G',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'Ab',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'A',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'Bb',lh:[1,1,0,0],rh:[1,0,0,0]},{name:'B',lh:[1,1,0,0],rh:[0,0,0,0]},{name:'C↑',lh:[1,0,1,0],rh:[0,0,0,0]}],'High':[{name:'C',lh:[1,0,1,0],rh:[0,0,0,0]},{name:'D',lh:[1,0,1,1],rh:[0,0,0,0]},{name:'E',lh:[1,0,1,0],rh:[1,0,0,0]},{name:'F',lh:[1,0,1,0],rh:[0,1,0,0]},{name:'G',lh:[1,0,1,0],rh:[0,0,0,0]},{name:'A',lh:[1,0,1,1],rh:[0,0,0,0]},{name:'B',lh:[1,0,0,0],rh:[0,0,0,0]}]}},
-                        'Clarinet':{type:'woodwind',notes:{'Low':[{name:'E',lh:[1,1,1,1],rh:[1,1,1,1]},{name:'F',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'G',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'A',lh:[1,1,1,1],rh:[1,0,0,0]},{name:'B',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'C',lh:[1,1,1,0],rh:[0,0,0,0]}],'Mid':[{name:'C',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'Db',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'D',lh:[1,1,0,0],rh:[0,0,0,0]},{name:'Eb',lh:[1,1,0,0],rh:[0,0,0,0]},{name:'E',lh:[1,0,0,0],rh:[0,0,0,0]},{name:'F',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'Gb',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'G',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'Ab',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'A',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'Bb',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'B',lh:[1,1,1,1],rh:[1,1,1,1]},{name:'C↑',lh:[1,1,1,1],rh:[1,1,1,0]}],'High':[{name:'C',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'D',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'E',lh:[1,1,1,1],rh:[1,0,0,0]},{name:'F',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'G',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'A',lh:[1,1,0,0],rh:[0,0,0,0]}]}},
-                        'Saxophone':{type:'woodwind',notes:{'Low':[{name:'Bb',lh:[0,1,1,1],rh:[1,1,1,1]},{name:'C',lh:[0,1,1,1],rh:[1,1,1,0]},{name:'D',lh:[0,1,1,1],rh:[1,1,1,0]},{name:'E',lh:[0,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[0,1,1,1],rh:[1,0,0,0]}],'Mid':[{name:'G',lh:[0,1,1,1],rh:[0,0,0,0]},{name:'Ab',lh:[0,1,1,1],rh:[0,0,0,0]},{name:'A',lh:[0,1,1,0],rh:[0,0,0,0]},{name:'Bb',lh:[0,1,1,0],rh:[1,0,0,0]},{name:'B',lh:[0,1,0,0],rh:[0,0,0,0]},{name:'C',lh:[0,0,1,0],rh:[0,0,0,0]},{name:'Db',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'D',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'Eb',lh:[1,1,1,1],rh:[1,1,1,1]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[1,1,1,1],rh:[1,0,0,0]},{name:'Gb',lh:[1,1,1,1],rh:[0,1,0,0]},{name:'G↑',lh:[1,1,1,1],rh:[0,0,0,0]}],'High':[{name:'G',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'A',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'B',lh:[1,1,0,0],rh:[0,0,0,0]},{name:'C',lh:[1,0,1,0],rh:[0,0,0,0]},{name:'D',lh:[1,0,0,0],rh:[0,0,0,0]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[1,1,0,1],rh:[1,0,0,0]}]}},
-                        'Trumpet':{type:'valves',notes:{'Low':[{name:'F#',val:[1,1,1]},{name:'G',val:[1,0,1]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'C',val:[0,0,0]}],'Mid':[{name:'C',val:[0,0,0]},{name:'C#/Db',val:[1,1,1]},{name:'D',val:[1,0,1]},{name:'Eb',val:[0,1,1]},{name:'E',val:[1,1,0]},{name:'F',val:[1,0,0]},{name:'F#/Gb',val:[0,1,0]},{name:'G',val:[0,0,0]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}],'High':[{name:'C',val:[0,0,0]},{name:'D',val:[1,0,0]},{name:'E',val:[0,0,0]},{name:'F',val:[1,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[1,1,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}]}},
-                        'French Horn':{type:'valves',notes:{'Low':[{name:'C',val:[0,0,0]},{name:'D',val:[1,0,1]},{name:'E',val:[0,1,0]},{name:'F',val:[0,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[1,1,0]},{name:'B',val:[0,1,0]}],'Mid':[{name:'C',val:[0,0,0]},{name:'Db',val:[1,1,0]},{name:'D',val:[1,0,0]},{name:'Eb',val:[0,1,0]},{name:'E',val:[0,0,0]},{name:'F',val:[1,0,0]},{name:'Gb',val:[0,1,0]},{name:'G',val:[0,0,0]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}],'High':[{name:'C',val:[0,0,0]},{name:'D',val:[1,0,0]},{name:'E',val:[0,0,0]},{name:'F',val:[1,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[1,1,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}]}},
-                        'Tenor Horn':{type:'valves',notes:{'Low':[{name:'F#',val:[1,1,1]},{name:'G',val:[1,0,1]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'C',val:[0,0,0]}],'Mid':[{name:'C',val:[0,0,0]},{name:'C#/Db',val:[1,1,1]},{name:'D',val:[1,0,1]},{name:'Eb',val:[0,1,1]},{name:'E',val:[1,1,0]},{name:'F',val:[1,0,0]},{name:'F#/Gb',val:[0,1,0]},{name:'G',val:[0,0,0]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}],'High':[{name:'C',val:[0,0,0]},{name:'D',val:[1,0,0]},{name:'E',val:[0,0,0]},{name:'F',val:[1,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[1,1,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}]}},
-                        'Baritone':{type:'valves',notes:{'Low':[{name:'E',val:[1,1,1]},{name:'F',val:[1,0,1]},{name:'G',val:[1,1,0]},{name:'Ab',val:[1,0,0]},{name:'A',val:[0,1,0]},{name:'Bb',val:[0,0,0]}],'Mid':[{name:'Bb',val:[0,0,0]},{name:'B',val:[1,1,1]},{name:'C',val:[1,0,1]},{name:'Db',val:[0,1,1]},{name:'D',val:[1,1,0]},{name:'Eb',val:[1,0,0]},{name:'E',val:[0,1,0]},{name:'F',val:[0,0,0]},{name:'Gb',val:[0,1,1]},{name:'G',val:[1,1,0]},{name:'Ab',val:[1,0,0]},{name:'A',val:[0,1,0]},{name:'Bb↑',val:[0,0,0]}],'High':[{name:'Bb',val:[0,0,0]},{name:'C',val:[1,0,0]},{name:'D',val:[1,1,0]},{name:'Eb',val:[1,0,0]},{name:'F',val:[0,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[0,1,0]},{name:'Bb↑',val:[0,0,0]}]}},
-                        'Trombone':{type:'slide',notes:{'Low':[{name:'E',pos:7},{name:'F',pos:6},{name:'G',pos:4},{name:'Ab',pos:3},{name:'A',pos:2},{name:'Bb',pos:1}],'Mid':[{name:'Bb',pos:1},{name:'B',pos:7},{name:'C',pos:6},{name:'Db',pos:5},{name:'D',pos:4},{name:'Eb',pos:3},{name:'E',pos:2},{name:'F',pos:1},{name:'Gb',pos:5},{name:'G',pos:4},{name:'Ab',pos:3},{name:'A',pos:2},{name:'Bb↑',pos:1}],'High':[{name:'Bb',pos:1},{name:'C',pos:3},{name:'D',pos:1},{name:'Eb',pos:3},{name:'F',pos:1},{name:'G',pos:2},{name:'Ab',pos:3},{name:'Bb↑',pos:1}]}},
-                        'Tuba':{type:'valves',notes:{'Low':[{name:'E',val:[1,1,1]},{name:'F',val:[1,0,1]},{name:'G',val:[1,1,0]},{name:'Ab',val:[1,0,0]},{name:'A',val:[0,1,0]},{name:'Bb',val:[0,0,0]}],'Mid':[{name:'Bb',val:[0,0,0]},{name:'B',val:[1,1,1]},{name:'C',val:[1,0,1]},{name:'Db',val:[0,1,1]},{name:'D',val:[1,1,0]},{name:'Eb',val:[1,0,0]},{name:'E',val:[0,1,0]},{name:'F',val:[0,0,0]},{name:'Gb',val:[0,1,1]},{name:'G',val:[1,1,0]},{name:'Ab',val:[1,0,0]},{name:'A',val:[0,1,0]},{name:'Bb↑',val:[0,0,0]}],'High':[{name:'Bb',val:[0,0,0]},{name:'C',val:[1,0,0]},{name:'D',val:[1,1,0]},{name:'Eb',val:[1,0,0]},{name:'F',val:[0,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[0,1,0]},{name:'Bb↑',val:[0,0,0]}]}}
+                        let groupIdx = 0;
+                        if (['Flute', 'Oboe'].includes(inst)) groupIdx = 0; 
+                        else if (['Clarinet', 'Trumpet'].includes(inst)) groupIdx = 1; 
+                        else if (['Saxophone', 'Tenor Horn'].includes(inst)) groupIdx = 2; 
+                        else if (['French Horn'].includes(inst)) groupIdx = 3; 
+                        else if (['Trombone', 'Baritone'].includes(inst)) groupIdx = 4; 
+                        else if (['Tuba'].includes(inst)) groupIdx = 5;
+                        
+                        this.selectedGroup = groupIdx;
+                        this.$nextTick(() => { this.renderWarmups(); this.renderScales(); });
+                        if(!silent) this.triggerToast(this.lang === 'en' ? `Instrument set to ${inst}` : `Інструмент: ${inst}`);
+                    },
+
+                    renderWarmups() {
+                        if (typeof ABCJS !== 'undefined') {
+                            const group = this.instrumentGroups[this.selectedGroup]; const scale = window.innerWidth < 640 ? 0.7 : 0.9; const options = { responsive: 'resize', scale: scale, paddingbottom: 5, paddingtop: 15, paddingleft: 0, paddingright: 0 };
+                            this.exercises.forEach((ex, idx) => { ABCJS.renderAbc(`abc-warmup-${idx}`, `X:${idx+1}\nM:4/4\nQ:1/4=100\nK:${ex.keys[this.selectedGroup]} clef=${group.clef}\n` + ex.abc[this.selectedGroup], options); });
+                        } else {
+                            setTimeout(() => this.renderWarmups(), 200);
+                        }
+                    },
+
+                    renderScales() {
+                        if (typeof ABCJS !== 'undefined') {
+                            const group = this.instrumentGroups[this.selectedGroup]; const scale = window.innerWidth < 640 ? 0.6 : 0.75; const options = { responsive: 'resize', scale: scale, paddingbottom: 5, paddingtop: 15, paddingleft: 0, paddingright: 0 };
+                            this.scales.forEach((sc, idx) => { ABCJS.renderAbc(`abc-scale-${idx}`, `X:${idx+1}\nM:4/4\nQ:1/4=100\nK:${sc.keys[this.selectedGroup]} clef=${group.clef}\n` + sc.abc[this.selectedGroup], options); });
+                        } else {
+                            setTimeout(() => this.renderScales(), 200);
+                        }
+                    },
+
+                    openFullScreen(idx, type) {
+                        this.currentFullScreenIdx = idx; this.currentFullScreenType = type; this.fullScreenModalOpen = true;
+                        this.$nextTick(() => {
+                            const group = this.instrumentGroups[this.selectedGroup]; const dataObj = type === 'exercises' ? this.exercises[idx] : this.scales[idx];
+                            
+                            let midiTrans = 0;
+                            if(this.selectedGroup === 1) midiTrans = -2;
+                            if(this.selectedGroup === 2) midiTrans = -9;
+                            if(this.selectedGroup === 3) midiTrans = -7;
+                            
+                            const header = `X:${idx+1}\nM:4/4\nQ:1/4=100\nK:${dataObj.keys[this.selectedGroup]} clef=${group.clef}\n%%MIDI transpose ${midiTrans}\n`; 
+                            const modalScale = window.innerWidth < 640 ? 1.0 : 1.8;
+                            
+                            document.getElementById('abc-fullscreen').innerHTML = ''; 
+                            var visualObj = ABCJS.renderAbc('abc-fullscreen', header + dataObj.abc[this.selectedGroup], { responsive: 'resize', scale: modalScale, paddingtop: 30, paddingbottom: 30, add_classes: true })[0];
+                            if(this.synthControl) { this.synthControl.pause(); }
+                            this.synthControl = new ABCJS.synth.SynthController(); this.synthControl.load("#audio-control", null, { displayLoop: true, displayRestart: true, displayPlay: true, displayProgress: true, displayWarp: true });
+                            let program = 56; if (group.clef === 'bass') program = 57; if (this.globalInstrument === 'Flute') program = 73; if (this.globalInstrument === 'Clarinet') program = 71; if (this.globalInstrument === 'Saxophone') program = 65; if (this.globalInstrument === 'French Horn') program = 60; if (this.globalInstrument === 'Tuba') program = 58;
+                            var createSynth = new ABCJS.synth.CreateSynth(); createSynth.init({ visualObj: visualObj }).then(() => { this.synthControl.setTune(visualObj, false, { program: program }); }).catch(console.warn);
+                        });
+                    },
+
+                    bpm: 100, isMetronomePlaying: false, timer: null, audioCtx: null, lastTap: 0,
+                    playClick() { if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); const osc = this.audioCtx.createOscillator(); const gain = this.audioCtx.createGain(); osc.connect(gain); gain.connect(this.audioCtx.destination); osc.frequency.value = 1000; gain.gain.value = 1; osc.start(); gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.1); osc.stop(this.audioCtx.currentTime + 0.1); }, 
+                    toggleMetronome() { if (this.isMetronomePlaying) { clearInterval(this.timer); this.isMetronomePlaying = false; } else { this.isMetronomePlaying = true; this.playClick(); this.timer = setInterval(() => this.playClick(), (60 / this.bpm) * 1000); } }, 
+                    updateMetronomeSpeed() { if (this.isMetronomePlaying) { clearInterval(this.timer); this.timer = setInterval(() => this.playClick(), (60 / this.bpm) * 1000); } },
+                    tapTempo() { const now = Date.now(); if (this.lastTap && (now - this.lastTap) < 2000) { this.bpm = Math.min(Math.max(Math.round(60000 / (now - this.lastTap)), 40), 240); this.updateMetronomeSpeed(); } this.lastTap = now; },
+
+                    isFingeringPlaying: false, oscillator: null, gainNode: null, filterNode: null,
+                    playFingeringAudio() { 
+                        if(this.isFingeringPlaying) { this.stopFingeringAudio(); return; } 
+                        if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
+                        
+                        let inst = this.interactiveChart.instrument;
+                        let ranges = ['Low', 'Mid', 'High'];
+                        
+                        const baseMidiMap = { 'Flute': 60, 'Oboe': 60, 'Clarinet': 52, 'Saxophone': 58, 'Trumpet': 54, 'French Horn': 60, 'Tenor Horn': 54, 'Baritone': 40, 'Trombone': 40, 'Tuba': 28 };
+                        const transpositions = { 'Flute': 0, 'Oboe': 0, 'Trombone': 0, 'Baritone': 0, 'Tuba': 0, 'Clarinet': -2, 'Trumpet': -2, 'Saxophone': -9, 'Tenor Horn': -9, 'French Horn': -7 };
+                        
+                        let targetMidi = baseMidiMap[inst];
+                        let currentMidi = targetMidi;
+                        const noteIndexMap = {'C':0, 'C#':1, 'Db':1, 'D':2, 'Eb':3, 'E':4, 'F':5, 'F#':6, 'Gb':6, 'G':7, 'Ab':8, 'A':9, 'Bb':10, 'B':11};
+                        
+                        let firstNote = this.interactiveChart.data[inst].notes['Low'][0].name.split('/')[0].replace('↑', '');
+                        let prevClass = noteIndexMap[firstNote];
+                        let found = false;
+
+                        for (let r of ranges) {
+                            let notesArray = this.interactiveChart.data[inst].notes[r];
+                            if(!notesArray) continue;
+                            for (let i = 0; i < notesArray.length; i++) {
+                                let nName = notesArray[i].name.split('/')[0].replace('↑', '');
+                                let nClass = noteIndexMap[nName];
+                                
+                                let diff = nClass - prevClass;
+                                if (diff < 0) diff += 12; 
+                                if (i === 0 && r === 'Low') diff = 0; 
+                                
+                                currentMidi += diff;
+                                prevClass = nClass;
+                                
+                                if (r === this.interactiveChart.selectedRange && i === this.interactiveChart.selectedNote) {
+                                    targetMidi = currentMidi;
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if(found) break;
+                        }
+                        
+                        let concertMidi = targetMidi + transpositions[inst];
+                        let actualFreq = 440 * Math.pow(2, (concertMidi - 69) / 12);
+                        
+                        this.oscillator = this.audioCtx.createOscillator(); 
+                        this.gainNode = this.audioCtx.createGain(); 
+                        this.filterNode = this.audioCtx.createBiquadFilter(); 
+                        
+                        if (inst === 'Flute') { this.oscillator.type = 'sine'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 2000; } 
+                        else if (inst === 'Clarinet') { this.oscillator.type = 'square'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 1500; } 
+                        else if (inst === 'Oboe') { this.oscillator.type = 'sawtooth'; this.filterNode.type = 'bandpass'; this.filterNode.frequency.value = 1200; } 
+                        else if (['Trumpet', 'Trombone', 'Tenor Horn', 'Baritone', 'Tuba'].includes(inst)) { this.oscillator.type = 'sawtooth'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 2500; } 
+                        else if (inst === 'French Horn') { this.oscillator.type = 'triangle'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 800; } 
+                        else { this.oscillator.type = 'sawtooth'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 3000; } 
+                        
+                        this.oscillator.frequency.setValueAtTime(actualFreq, this.audioCtx.currentTime); 
+                        this.oscillator.connect(this.filterNode); 
+                        this.filterNode.connect(this.gainNode); 
+                        this.gainNode.connect(this.audioCtx.destination); 
+                        this.gainNode.gain.setValueAtTime(0, this.audioCtx.currentTime); 
+                        this.gainNode.gain.linearRampToValueAtTime(0.5, this.audioCtx.currentTime + 0.1); 
+                        this.gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioCtx.currentTime + 1.5); 
+                        
+                        this.oscillator.start(); 
+                        this.isFingeringPlaying = true; 
+                        setTimeout(() => { this.stopFingeringAudio(); }, 1500); 
                     }
                 }
-            }));
+            });
         });
     </script>
 </body>
