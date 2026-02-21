@@ -294,6 +294,10 @@
                 <div class="hidden md:flex items-center gap-10">
                     <button @click="lang = lang === 'en' ? 'ua' : 'en'" class="text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest border border-slate-200 px-4 py-1.5 rounded-full hover:border-brass/50 bg-white"><span :class="lang === 'en' ? 'text-brass font-extrabold' : ''">EN</span> <span class="text-slate-300 px-1">/</span> <span :class="lang === 'ua' ? 'text-brass font-extrabold' : ''">UA</span></button>
                     <div class="flex items-center gap-8">
+                        <a href="/school.html" class="relative group py-2">
+    <span class="font-bold text-xs uppercase tracking-widest text-brass group-hover:text-brassLight transition-colors">School Portal</span>
+    <span class="absolute bottom-0 left-0 w-full h-0.5 bg-brass opacity-50"></span>
+</a>
                         <a href="#setlist" class="relative group py-2"><span class="font-bold text-xs uppercase tracking-widest text-slate-500 group-hover:text-brass transition-colors" x-text="lang === 'en' ? 'Info' : 'Інфо'"></span><span class="absolute bottom-0 left-0 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-full"></span></a>
                         <a href="#tools" class="relative group py-2"><span class="font-bold text-xs uppercase tracking-widest text-slate-500 group-hover:text-brass transition-colors" x-text="lang === 'en' ? 'Tools' : 'Інструменти'"></span><span class="absolute bottom-0 left-0 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-full"></span></a>
                         <a href="#media" class="relative group py-2"><span class="font-bold text-xs uppercase tracking-widest text-slate-500 group-hover:text-brass transition-colors" x-text="lang === 'en' ? 'Media' : 'Медіа'"></span><span class="absolute bottom-0 left-0 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-full"></span></a>
