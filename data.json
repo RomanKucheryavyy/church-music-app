@@ -518,4 +518,9 @@
     "isVisible": false,
     "items": []
   }
+  "schoolSetlist": [
+    { "title": "Юношу Иосифа", "desc_en": "Focus on rhythm.", "desc_ua": "Точність ритму.", "link": "https://ifob.su/band/instrumental/simple/yunoshu-iosifa/" },
+    { "title": "Пока огонь", "desc_en": "Focus on breath support.", "desc_ua": "Увага на дихання.", "link": "https://ifob.su/band/instrumental/simple/poka-ogoni-af/" }
+]
+
 }
