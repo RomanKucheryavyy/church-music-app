@@ -13,7 +13,6 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/abcjs@6.2.2/dist/abcjs-basic-min.js"></script>
 
     <link rel="icon" type="image/png" href="/social-logo.png?v=2">
@@ -43,7 +42,6 @@
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: #b45309; margin-top: -10px; cursor: pointer; border: 2px solid white; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #e2e8f0; border-radius: 99px; }
         
-        /* Print Section for Blank Sheet Music */
         #print-staves { display: none; }
         @media print {
             body > *:not(#print-staves) { display: none !important; }
@@ -52,338 +50,18 @@
             .stave-group { margin-bottom: 40px; }
             @page { margin: 0.5in; }
         }
-
-        /* Hero Image Overlay */
         .hero-bg {
             background-image: url('https://images.unsplash.com/photo-1573871669414-010dbf73ca84?q=80&w=2071&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
         }
-
-        /* Mobile ABCJS constraint */
         .abcjs-container svg { max-width: 100%; height: auto; border-radius: 0.5rem; }
     </style>
 </head>
 
-<body class="text-textMain antialiased bg-pageBg overflow-x-hidden"
-    x-data="{ 
-        lang: 'en',
-        mobileMenuOpen: false,
-        fullScreenModalOpen: false,
-        currentFullScreenIdx: 0,
-        scrollY: 0,
-        scrollProgress: 0,
-        
-        // --- GLOBAL INSTRUMENT STATE ---
-        availableInstruments: ['Flute', 'Oboe', 'Clarinet', 'Saxophone', 'Trumpet', 'French Horn', 'Tenor Horn', 'Baritone', 'Trombone', 'Tuba'],
-        globalInstrument: localStorage.getItem('fubc_school_instrument') || 'Trumpet',
-        selectedGroup: 0,
+<body class="text-textMain antialiased bg-pageBg overflow-x-hidden" x-data="schoolApp()" @scroll.window="handleScroll()">
 
-        // Practice Tracker Logic
-        streak: parseInt(localStorage.getItem('fubc_school_streak')) || 0,
-        lastPractice: localStorage.getItem('fubc_school_last_date') || '',
-        practicedToday: false,
-
-        // Sheet Music Warmup Transposition Logic (LOWER FIRST OCTAVE RANGES)
-        instrumentGroups: [
-            { name_en: 'C Treble', clef: 'treble', key: 'Bb' },
-            { name_en: 'Bb Instruments', clef: 'treble', key: 'C' },
-            { name_en: 'Eb Instruments', clef: 'treble', key: 'G' },
-            { name_en: 'F Instruments', clef: 'treble', key: 'F' },
-            { name_en: 'C Bass', clef: 'bass', key: 'Bb' }
-        ],
-
-        exercises: [
-            {
-                title_en: '1. Long Tones', title_ua: '1. Довгі Ноти',
-                abc: [
-                    'L:1/4\nB4 | A4 | G4 | F4 | E4 | D4 | C4 | B,4 |]', // C Treble
-                    'L:1/4\nc4 | B4 | A4 | G4 | F4 | E4 | D4 | C4 |]', // Bb
-                    'L:1/4\nG4 | F4 | E4 | D4 | C4 | B,4 | A,4 | G,4 |]', // Eb
-                    'L:1/4\nF4 | E4 | D4 | C4 | B,4 | A,4 | G,4 | F,4 |]', // F
-                    'L:1/4\nB,4 | A,4 | G,4 | F,4 | E,4 | D,4 | C,4 | B,,4 |]'  // C Bass
-                ]
-            },
-            {
-                title_en: '2. Flexibility / Lip Slurs', title_ua: '2. Гнучкість / Легато',
-                abc: [
-                    'L:1/8\n(B, F B, F B,2) z2 | (C G C G C2) z2 | (D A D A D2) z2 | (E B E B E2) z2 |]', // C Treble
-                    'L:1/8\n(C G C G C2) z2 | (D A D A D2) z2 | (E B E B E2) z2 | (F c F c F2) z2 |]', // Bb
-                    'L:1/8\n(G, D G, D G,2) z2 | (A, E A, E A,2) z2 | (B, F B, F B,2) z2 | (C G C G C2) z2 |]', // Eb
-                    'L:1/8\n(F, C F, C F,2) z2 | (G, D G, D G,2) z2 | (A, E A, E A,2) z2 | (B, F B, F B,2) z2 |]', // F
-                    'L:1/8\n(B,, F, B,, F, B,,2) z2 | (C, G, C, G, C,2) z2 | (D, A, D, A, D,2) z2 | (E, B, E, B, E,2) z2 |]' // C Bass
-                ]
-            },
-            {
-                title_en: '3. Articulation', title_ua: '3. Артикуляція',
-                abc: [
-                    'L:1/8\n.F.F .F.F .F.F .F.F | F2 z2 F2 z2 | .B,.B, .B,.B, .B,.B, .B,.B, | B,2 z2 B,2 z2 |]', // C Treble
-                    'L:1/8\n.G.G .G.G .G.G .G.G | G2 z2 G2 z2 | .C.C .C.C .C.C .C.C | C2 z2 C2 z2 |]', // Bb
-                    'L:1/8\n.D.D .D.D .D.D .D.D | D2 z2 D2 z2 | .G,.G, .G,.G, .G,.G, .G,.G, | G,2 z2 G,2 z2 |]', // Eb
-                    'L:1/8\n.C.C .C.C .C.C .C.C | C2 z2 C2 z2 | .F,.F, .F,.F, .F,.F, .F,.F, | F,2 z2 F,2 z2 |]', // F
-                    'L:1/8\n.F,.F, .F,.F, .F,.F, .F,.F, | F,2 z2 F,2 z2 | .B,,.B,, .B,,.B,, .B,,.B,, .B,,.B,, | B,,2 z2 B,,2 z2 |]' // C Bass
-                ]
-            },
-            {
-                title_en: '4. Scale & Arpeggio', title_ua: '4. Гамма і Арпеджіо',
-                abc: [
-                    'L:1/8\nB, C D E F G A B | B A G F E D C B, | B, D F B B F D B, | B,8 |]', // C Treble
-                    'L:1/8\nC D E F G A B c | c B A G F E D C | C E G c c G E C | C8 |]', // Bb
-                    'L:1/8\nG, A, B, C D E F G | G F E D C B, A, G, | G, B, D G G D B, G, | G,8 |]', // Eb
-                    'L:1/8\nF, G, A, B, C D E F | F E D C B, A, G, F, | F, A, C F F C A, F, | F,8 |]', // F
-                    'L:1/8\nB,, C, D, E, F, G, A, B, | B, A, G, F, E, D, C, B,, | B,, D, F, B, B, F, D, B,, | B,,8 |]' // C Bass
-                ]
-            },
-            {
-                title_en: '5. Intervals (Thirds)', title_ua: '5. Інтервали (Терції)',
-                abc: [
-                    'L:1/8\nB, D C E D F E G | F A G B A c B2 | B G A F G E F D | E C D B, C A, B,2 |]', // C Treble
-                    'L:1/8\nC E D F E G F A | G B A c B d c2 | c A B G A F G E | F D E C D B, C2 |]', // Bb
-                    'L:1/8\nG, B, A, C B, D C E | D F E G F A G2 | G E F D E C D B, | C A, B, G, A, F, G,2 |]', // Eb
-                    'L:1/8\nF, A, G, B, A, C B, D | C E D F E G F2 | F D E C D B, C A, | B, G, A, F, G, E, F,2 |]', // F
-                    'L:1/8\nB,, D, C, E, D, F, E, G, | F, A, G, B, A, c B,2 | B, G, A, F, G, E, F, D, | E, C, D, B,, C, A,, B,,2 |]' // C Bass
-                ]
-            },
-            {
-                title_en: '6. Chromatic Study', title_ua: '6. Хроматика',
-                abc: [
-                    'L:1/8\nB, =B, C ^C D2 z2 | D _D C =B, B,2 z2 | F ^F G ^G A2 z2 | A _A G _G F2 z2 |]', // C Treble
-                    'L:1/8\nC ^C D ^D E2 z2 | E _E D _D C2 z2 | G ^G A ^A B2 z2 | B _B A _A G2 z2 |]', // Bb
-                    'L:1/8\nG, ^G, A, ^A, B,2 z2 | B, _B, A, _A, G,2 z2 | D ^D E =F F2 z2 | F =F E _E D2 z2 |]', // Eb
-                    'L:1/8\nF, ^F, G, ^G, A,2 z2 | A, _A, G, _G, F,2 z2 | C ^C D ^D E2 z2 | E _E D _D C2 z2 |]', // F
-                    'L:1/8\nB,, =B,, C, ^C, D,2 z2 | D, _D, C, =B,, B,,2 z2 | F, ^F, G, ^G, A,2 z2 | A, _A, G, _G, F,2 z2 |]' // C Bass
-                ]
-            }
-        ],
-
-        init() {
-            const today = new Date();
-            today.setHours(0,0,0,0);
-            if (this.lastPractice) {
-                const last = new Date(this.lastPractice);
-                last.setHours(0,0,0,0);
-                const diffTime = today.getTime() - last.getTime();
-                const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-                if (diffDays === 0) { this.practicedToday = true; } 
-                else if (diffDays > 1) { this.streak = 0; localStorage.setItem('fubc_school_streak', 0); }
-            }
-            
-            this.updateGlobalInstrument(this.globalInstrument);
-        },
-
-        updateGlobalInstrument(inst) {
-            this.globalInstrument = inst;
-            localStorage.setItem('fubc_school_instrument', inst);
-            
-            this.interactiveChart.instrument = inst;
-            this.interactiveChart.selectedNote = 0;
-            if(this.activeNote) this.stopNote();
-            
-            let groupIdx = 0;
-            if (['Flute', 'Oboe'].includes(inst)) groupIdx = 0;
-            else if (['Clarinet', 'Trumpet'].includes(inst)) groupIdx = 1;
-            else if (['Saxophone', 'Tenor Horn'].includes(inst)) groupIdx = 2;
-            else if (['French Horn'].includes(inst)) groupIdx = 3;
-            else if (['Trombone', 'Baritone', 'Tuba'].includes(inst)) groupIdx = 4;
-            
-            this.selectedGroup = groupIdx;
-            this.$nextTick(() => { this.renderWarmups(); });
-        },
-
-        renderWarmups() {
-            if (typeof ABCJS !== 'undefined') {
-                const group = this.instrumentGroups[this.selectedGroup];
-                // Slightly smaller scale on mobile to prevent overflow
-                const scale = window.innerWidth < 640 ? 0.8 : 1.0;
-                const options = { responsive: 'resize', scale: scale, paddingbottom: 5, paddingtop: 15, paddingleft: 0, paddingright: 0 };
-                this.exercises.forEach((ex, idx) => {
-                    const header = `X:${idx+1}\nM:4/4\nK:${group.key} clef=${group.clef}\n`;
-                    ABCJS.renderAbc(`abc-warmup-${idx}`, header + ex.abc[this.selectedGroup], options);
-                });
-            }
-        },
-
-        openFullScreen(idx) {
-            this.currentFullScreenIdx = idx;
-            this.fullScreenModalOpen = true;
-            this.$nextTick(() => {
-                const group = this.instrumentGroups[this.selectedGroup];
-                const ex = this.exercises[idx];
-                const header = `X:${idx+1}\nM:4/4\nK:${group.key} clef=${group.clef}\n`;
-                // Scale down slightly on mobile so it fits the screen width perfectly
-                const modalScale = window.innerWidth < 640 ? 1.0 : 1.8;
-                ABCJS.renderAbc('abc-fullscreen', header + ex.abc[this.selectedGroup], { 
-                    responsive: 'resize', scale: modalScale, paddingtop: 30, paddingbottom: 30
-                });
-            });
-        },
-
-        logPractice() {
-            if(this.practicedToday) return;
-            this.streak++;
-            this.practicedToday = true;
-            this.lastPractice = new Date().toDateString();
-            localStorage.setItem('fubc_school_streak', this.streak);
-            localStorage.setItem('fubc_school_last_date', this.lastPractice);
-            if(typeof confetti === 'function') {
-                confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, colors: ['#b45309', '#d97706', '#fcd34d', '#34d399', '#3b82f6'], zIndex: 1000 });
-            }
-        },
-
-        // --- FULL CHROMATIC INTERACTIVE FINGERING CHART ---
-        interactiveChart: {
-            instrument: 'Trumpet',
-            selectedRange: 'Mid',
-            selectedNote: 0,
-            ranges: ['Low', 'Mid', 'High'],
-            data: {
-                'Flute': { type: 'woodwind', notes: { 
-                    'Low': [ { name: 'C', lh: [0,1,1,1], rh: [1,1,1,1] }, { name: 'D', lh: [1,1,1,1], rh: [1,1,1,0] }, { name: 'E', lh: [1,1,1,1], rh: [1,1,0,1] }, { name: 'F', lh: [1,1,1,1], rh: [1,0,0,1] }, { name: 'G', lh: [1,1,1,1], rh: [0,0,0,1] }, { name: 'A', lh: [1,1,1,0], rh: [0,0,0,1] }, { name: 'B', lh: [1,1,0,0], rh: [0,0,0,1] } ], 
-                    'Mid': [ { name: 'C', lh: [0,1,0,0], rh: [0,0,0,1] }, { name: 'Db', lh: [0,0,0,0], rh: [0,0,0,1] }, { name: 'D', lh: [1,0,1,1], rh: [1,1,1,0] }, { name: 'Eb', lh: [1,0,1,1], rh: [1,1,1,1] }, { name: 'E', lh: [1,1,1,1], rh: [1,1,0,1] }, { name: 'F', lh: [1,1,1,1], rh: [1,0,0,1] }, { name: 'Gb', lh: [1,1,1,1], rh: [0,0,1,1] }, { name: 'G', lh: [1,1,1,1], rh: [0,0,0,1] }, { name: 'Ab', lh: [1,1,1,1], rh: [0,0,0,1] }, { name: 'A', lh: [1,1,1,0], rh: [0,0,0,1] }, { name: 'Bb', lh: [1,1,0,0], rh: [1,0,0,1] }, { name: 'B', lh: [1,1,0,0], rh: [0,0,0,1] }, { name: 'C↑', lh: [0,1,0,0], rh: [0,0,0,1] } ], 
-                    'High': [ { name: 'C', lh: [0,1,0,0], rh: [0,0,0,1] }, { name: 'D', lh: [1,0,1,1], rh: [0,0,0,0] }, { name: 'E', lh: [1,1,1,0], rh: [1,1,0,1] }, { name: 'F', lh: [1,1,0,1], rh: [1,0,0,1] }, { name: 'G', lh: [1,0,1,1], rh: [0,0,0,1] }, { name: 'A', lh: [1,0,1,0], rh: [1,0,0,1] }, { name: 'B', lh: [1,0,0,0], rh: [0,0,0,1] } ] 
-                } },
-                'Oboe': { type: 'woodwind', notes: { 
-                    'Low': [ { name: 'C', lh: [0,1,1,1], rh: [1,1,1,1] }, { name: 'D', lh: [0,1,1,1], rh: [1,1,1,0] }, { name: 'E', lh: [0,1,1,1], rh: [1,1,0,0] }, { name: 'F', lh: [0,1,1,1], rh: [1,0,0,0] }, { name: 'G', lh: [0,1,1,1], rh: [0,0,0,0] }, { name: 'A', lh: [0,1,1,0], rh: [0,0,0,0] }, { name: 'B', lh: [0,1,0,0], rh: [0,0,0,0] } ], 
-                    'Mid': [ { name: 'C', lh: [0,0,1,0], rh: [0,0,0,0] }, { name: 'Db', lh: [0,0,0,0], rh: [0,0,0,0] }, { name: 'D', lh: [1,1,1,1], rh: [1,1,1,0] }, { name: 'Eb', lh: [1,1,1,1], rh: [1,1,1,1] }, { name: 'E', lh: [1,1,1,1], rh: [1,1,0,0] }, { name: 'F', lh: [1,1,1,1], rh: [1,0,0,0] }, { name: 'Gb', lh: [1,1,1,1], rh: [0,1,0,0] }, { name: 'G', lh: [1,1,1,1], rh: [0,0,0,0] }, { name: 'Ab', lh: [1,1,1,1], rh: [0,0,0,0] }, { name: 'A', lh: [1,1,1,0], rh: [0,0,0,0] }, { name: 'Bb', lh: [1,1,0,0], rh: [1,0,0,0] }, { name: 'B', lh: [1,1,0,0], rh: [0,0,0,0] }, { name: 'C↑', lh: [1,0,1,0], rh: [0,0,0,0] } ], 
-                    'High': [ { name: 'C', lh: [1,0,1,0], rh: [0,0,0,0] }, { name: 'D', lh: [1,0,1,1], rh: [0,0,0,0] }, { name: 'E', lh: [1,0,1,0], rh: [1,0,0,0] }, { name: 'F', lh: [1,0,1,0], rh: [0,1,0,0] }, { name: 'G', lh: [1,0,1,0], rh: [0,0,0,0] }, { name: 'A', lh: [1,0,1,1], rh: [0,0,0,0] }, { name: 'B', lh: [1,0,0,0], rh: [0,0,0,0] } ] 
-                } },
-                'Clarinet': { type: 'woodwind', notes: { 
-                    'Low': [ { name: 'E', lh: [1,1,1,1], rh: [1,1,1,1] }, { name: 'F', lh: [1,1,1,1], rh: [1,1,1,0] }, { name: 'G', lh: [1,1,1,1], rh: [1,1,0,0] }, { name: 'A', lh: [1,1,1,1], rh: [1,0,0,0] }, { name: 'B', lh: [1,1,1,1], rh: [0,0,0,0] }, { name: 'C', lh: [1,1,1,0], rh: [0,0,0,0] } ], 
-                    'Mid': [ { name: 'C', lh: [1,1,1,0], rh: [0,0,0,0] }, { name: 'Db', lh: [1,1,1,0], rh: [0,0,0,0] }, { name: 'D', lh: [1,1,0,0], rh: [0,0,0,0] }, { name: 'Eb', lh: [1,1,0,0], rh: [0,0,0,0] }, { name: 'E', lh: [1,0,0,0], rh: [0,0,0,0] }, { name: 'F', lh: [0,0,0,0], rh: [0,0,0,0] }, { name: 'Gb', lh: [0,0,0,0], rh: [0,0,0,0] }, { name: 'G', lh: [0,0,0,0], rh: [0,0,0,0] }, { name: 'Ab', lh: [0,0,0,0], rh: [0,0,0,0] }, { name: 'A', lh: [0,0,0,0], rh: [0,0,0,0] }, { name: 'Bb', lh: [0,0,0,0], rh: [0,0,0,0] }, { name: 'B', lh: [1,1,1,1], rh: [1,1,1,1] }, { name: 'C↑', lh: [1,1,1,1], rh: [1,1,1,0] } ], 
-                    'High': [ { name: 'C', lh: [1,1,1,1], rh: [1,1,1,0] }, { name: 'D', lh: [1,1,1,1], rh: [1,1,0,0] }, { name: 'E', lh: [1,1,1,1], rh: [1,0,0,0] }, { name: 'F', lh: [1,1,1,1], rh: [0,0,0,0] }, { name: 'G', lh: [1,1,1,0], rh: [0,0,0,0] }, { name: 'A', lh: [1,1,0,0], rh: [0,0,0,0] } ] 
-                } },
-                'Saxophone': { type: 'woodwind', notes: { 
-                    'Low': [ { name: 'Bb', lh: [0,1,1,1], rh: [1,1,1,1] }, { name: 'C', lh: [0,1,1,1], rh: [1,1,1,0] }, { name: 'D', lh: [0,1,1,1], rh: [1,1,1,0] }, { name: 'E', lh: [0,1,1,1], rh: [1,1,0,0] }, { name: 'F', lh: [0,1,1,1], rh: [1,0,0,0] } ], 
-                    'Mid': [ { name: 'G', lh: [0,1,1,1], rh: [0,0,0,0] }, { name: 'Ab', lh: [0,1,1,1], rh: [0,0,0,0] }, { name: 'A', lh: [0,1,1,0], rh: [0,0,0,0] }, { name: 'Bb', lh: [0,1,1,0], rh: [1,0,0,0] }, { name: 'B', lh: [0,1,0,0], rh: [0,0,0,0] }, { name: 'C', lh: [0,0,1,0], rh: [0,0,0,0] }, { name: 'Db', lh: [0,0,0,0], rh: [0,0,0,0] }, { name: 'D', lh: [1,1,1,1], rh: [1,1,1,0] }, { name: 'Eb', lh: [1,1,1,1], rh: [1,1,1,1] }, { name: 'E', lh: [1,1,1,1], rh: [1,1,0,0] }, { name: 'F', lh: [1,1,1,1], rh: [1,0,0,0] }, { name: 'Gb', lh: [1,1,1,1], rh: [0,1,0,0] }, { name: 'G↑', lh: [1,1,1,1], rh: [0,0,0,0] } ], 
-                    'High': [ { name: 'G', lh: [1,1,1,1], rh: [0,0,0,0] }, { name: 'A', lh: [1,1,1,0], rh: [0,0,0,0] }, { name: 'B', lh: [1,1,0,0], rh: [0,0,0,0] }, { name: 'C', lh: [1,0,1,0], rh: [0,0,0,0] }, { name: 'D', lh: [1,0,0,0], rh: [0,0,0,0] }, { name: 'E', lh: [1,1,1,1], rh: [1,1,0,0] }, { name: 'F', lh: [1,1,0,1], rh: [1,0,0,0] } ] 
-                } },
-                'Trumpet': { type: 'valves', notes: { 
-                    'Low': [ { name: 'F#', val: [1,1,1] }, { name: 'G', val: [1,0,1] }, { name: 'Ab', val: [0,1,1] }, { name: 'A', val: [1,1,0] }, { name: 'Bb', val: [1,0,0] }, { name: 'B', val: [0,1,0] }, { name: 'C', val: [0,0,0] } ], 
-                    'Mid': [ { name: 'C', val: [0,0,0] }, { name: 'C#/Db', val: [1,1,1] }, { name: 'D', val: [1,0,1] }, { name: 'Eb', val: [0,1,1] }, { name: 'E', val: [1,1,0] }, { name: 'F', val: [1,0,0] }, { name: 'F#/Gb', val: [0,1,0] }, { name: 'G', val: [0,0,0] }, { name: 'Ab', val: [0,1,1] }, { name: 'A', val: [1,1,0] }, { name: 'Bb', val: [1,0,0] }, { name: 'B', val: [0,1,0] }, { name: 'C↑', val: [0,0,0] } ], 
-                    'High': [ { name: 'C', val: [0,0,0] }, { name: 'D', val: [1,0,0] }, { name: 'E', val: [0,0,0] }, { name: 'F', val: [1,0,0] }, { name: 'G', val: [0,0,0] }, { name: 'A', val: [1,1,0] }, { name: 'B', val: [0,1,0] }, { name: 'C↑', val: [0,0,0] } ] 
-                } },
-                'French Horn': { type: 'valves', notes: { 
-                    'Low': [ { name: 'C', val: [0,0,0] }, { name: 'D', val: [1,0,1] }, { name: 'E', val: [0,1,0] }, { name: 'F', val: [0,0,0] }, { name: 'G', val: [0,0,0] }, { name: 'A', val: [1,1,0] }, { name: 'B', val: [0,1,0] } ], 
-                    'Mid': [ { name: 'C', val: [0,0,0] }, { name: 'Db', val: [1,1,0] }, { name: 'D', val: [1,0,0] }, { name: 'Eb', val: [0,1,0] }, { name: 'E', val: [0,0,0] }, { name: 'F', val: [1,0,0] }, { name: 'Gb', val: [0,1,0] }, { name: 'G', val: [0,0,0] }, { name: 'Ab', val: [0,1,1] }, { name: 'A', val: [1,1,0] }, { name: 'Bb', val: [1,0,0] }, { name: 'B', val: [0,1,0] }, { name: 'C↑', val: [0,0,0] } ], 
-                    'High': [ { name: 'C', val: [0,0,0] }, { name: 'D', val: [1,0,0] }, { name: 'E', val: [0,0,0] }, { name: 'F', val: [1,0,0] }, { name: 'G', val: [0,0,0] }, { name: 'A', val: [1,1,0] }, { name: 'B', val: [0,1,0] }, { name: 'C↑', val: [0,0,0] } ] 
-                } },
-                'Tenor Horn': { type: 'valves', notes: { 
-                    'Low': [ { name: 'F#', val: [1,1,1] }, { name: 'G', val: [1,0,1] }, { name: 'Ab', val: [0,1,1] }, { name: 'A', val: [1,1,0] }, { name: 'Bb', val: [1,0,0] }, { name: 'B', val: [0,1,0] }, { name: 'C', val: [0,0,0] } ], 
-                    'Mid': [ { name: 'C', val: [0,0,0] }, { name: 'C#/Db', val: [1,1,1] }, { name: 'D', val: [1,0,1] }, { name: 'Eb', val: [0,1,1] }, { name: 'E', val: [1,1,0] }, { name: 'F', val: [1,0,0] }, { name: 'F#/Gb', val: [0,1,0] }, { name: 'G', val: [0,0,0] }, { name: 'Ab', val: [0,1,1] }, { name: 'A', val: [1,1,0] }, { name: 'Bb', val: [1,0,0] }, { name: 'B', val: [0,1,0] }, { name: 'C↑', val: [0,0,0] } ], 
-                    'High': [ { name: 'C', val: [0,0,0] }, { name: 'D', val: [1,0,0] }, { name: 'E', val: [0,0,0] }, { name: 'F', val: [1,0,0] }, { name: 'G', val: [0,0,0] }, { name: 'A', val: [1,1,0] }, { name: 'B', val: [0,1,0] }, { name: 'C↑', val: [0,0,0] } ] 
-                } },
-                'Baritone': { type: 'valves', notes: { 
-                    'Low': [ { name: 'E', val: [1,1,1] }, { name: 'F', val: [1,0,1] }, { name: 'G', val: [1,1,0] }, { name: 'Ab', val: [1,0,0] }, { name: 'A', val: [0,1,0] }, { name: 'Bb', val: [0,0,0] } ], 
-                    'Mid': [ { name: 'Bb', val: [0,0,0] }, { name: 'B', val: [1,1,1] }, { name: 'C', val: [1,0,1] }, { name: 'Db', val: [0,1,1] }, { name: 'D', val: [1,1,0] }, { name: 'Eb', val: [1,0,0] }, { name: 'E', val: [0,1,0] }, { name: 'F', val: [0,0,0] }, { name: 'Gb', val: [0,1,1] }, { name: 'G', val: [1,1,0] }, { name: 'Ab', val: [1,0,0] }, { name: 'A', val: [0,1,0] }, { name: 'Bb↑', val: [0,0,0] } ], 
-                    'High': [ { name: 'Bb', val: [0,0,0] }, { name: 'C', val: [1,0,0] }, { name: 'D', val: [1,1,0] }, { name: 'Eb', val: [1,0,0] }, { name: 'F', val: [0,0,0] }, { name: 'G', val: [0,0,0] }, { name: 'A', val: [0,1,0] }, { name: 'Bb↑', val: [0,0,0] } ] 
-                } },
-                'Trombone': { type: 'slide', notes: { 
-                    'Low': [ { name: 'E', pos: 7 }, { name: 'F', pos: 6 }, { name: 'G', pos: 4 }, { name: 'Ab', pos: 3 }, { name: 'A', pos: 2 }, { name: 'Bb', pos: 1 } ], 
-                    'Mid': [ { name: 'Bb', pos: 1 }, { name: 'B', pos: 7 }, { name: 'C', pos: 6 }, { name: 'Db', pos: 5 }, { name: 'D', pos: 4 }, { name: 'Eb', pos: 3 }, { name: 'E', pos: 2 }, { name: 'F', pos: 1 }, { name: 'Gb', pos: 5 }, { name: 'G', pos: 4 }, { name: 'Ab', pos: 3 }, { name: 'A', pos: 2 }, { name: 'Bb↑', pos: 1 } ], 
-                    'High': [ { name: 'Bb', pos: 1 }, { name: 'C', pos: 3 }, { name: 'D', pos: 1 }, { name: 'Eb', pos: 3 }, { name: 'F', pos: 1 }, { name: 'G', pos: 2 }, { name: 'Ab', pos: 3 }, { name: 'Bb↑', pos: 1 } ] 
-                } },
-                'Tuba': { type: 'valves', notes: { 
-                    'Low': [ { name: 'E', val: [1,1,1] }, { name: 'F', val: [1,0,1] }, { name: 'G', val: [1,1,0] }, { name: 'Ab', val: [1,0,0] }, { name: 'A', val: [0,1,0] }, { name: 'Bb', val: [0,0,0] } ], 
-                    'Mid': [ { name: 'Bb', val: [0,0,0] }, { name: 'B', val: [1,1,1] }, { name: 'C', val: [1,0,1] }, { name: 'Db', val: [0,1,1] }, { name: 'D', val: [1,1,0] }, { name: 'Eb', val: [1,0,0] }, { name: 'E', val: [0,1,0] }, { name: 'F', val: [0,0,0] }, { name: 'Gb', val: [0,1,1] }, { name: 'G', val: [1,1,0] }, { name: 'Ab', val: [1,0,0] }, { name: 'A', val: [0,1,0] }, { name: 'Bb↑', val: [0,0,0] } ], 
-                    'High': [ { name: 'Bb', val: [0,0,0] }, { name: 'C', val: [1,0,0] }, { name: 'D', val: [1,1,0] }, { name: 'Eb', val: [1,0,0] }, { name: 'F', val: [0,0,0] }, { name: 'G', val: [0,0,0] }, { name: 'A', val: [0,1,0] }, { name: 'Bb↑', val: [0,0,0] } ] 
-                } }
-            }
-        },
-
-        // Audio Data
-        bpm: 100, 
-        isPlaying: false, 
-        timer: null, 
-        audioCtx: null,
-        lastTap: 0,
-        activeNote: null,
-        oscillator: null,
-        gainNode: null,
-        filterNode: null,
-        octave: 4,
-        notes: [ { name: 'C', freq: 261.63 }, { name: 'C#', freq: 277.18 }, { name: 'D', freq: 293.66 }, { name: 'Eb', freq: 311.13 }, { name: 'E', freq: 329.63 }, { name: 'F', freq: 349.23 }, { name: 'F#', freq: 369.99 }, { name: 'G', freq: 392.00 }, { name: 'Ab', freq: 415.30 }, { name: 'A', freq: 440.00 }, { name: 'Bb', freq: 466.16 }, { name: 'B', freq: 493.88 } ],
-
-        playClick() { 
-            if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
-            const osc = this.audioCtx.createOscillator(); 
-            const gain = this.audioCtx.createGain(); 
-            osc.connect(gain); gain.connect(this.audioCtx.destination); 
-            osc.frequency.value = 1000; gain.gain.value = 1; 
-            osc.start(); gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.1); 
-            osc.stop(this.audioCtx.currentTime + 0.1); 
-        }, 
-        toggleMetronome() { 
-            if (this.isPlaying) { clearInterval(this.timer); this.isPlaying = false; } 
-            else { this.isPlaying = true; this.playClick(); this.timer = setInterval(() => this.playClick(), (60 / this.bpm) * 1000); } 
-        }, 
-        updateSpeed() { 
-            if (this.isPlaying) { clearInterval(this.timer); this.timer = setInterval(() => this.playClick(), (60 / this.bpm) * 1000); } 
-        },
-        tapTempo() {
-            const now = Date.now();
-            if (this.lastTap && (now - this.lastTap) < 2000) {
-                this.bpm = Math.min(Math.max(Math.round(60000 / (now - this.lastTap)), 40), 240);
-                this.updateSpeed();
-            }
-            this.lastTap = now;
-        },
-
-        playNote(baseFreq, noteName) { 
-            if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
-            
-            // Map "C#/Db" format to just the first part "C#" for the synth
-            const cleanNoteName = noteName.split('/')[0].replace('↑', '');
-            const matchingFreqObj = this.notes.find(n => n.name === cleanNoteName);
-            const actualBaseFreq = matchingFreqObj ? matchingFreqObj.freq : baseFreq;
-
-            const actualFreq = actualBaseFreq * Math.pow(2, this.octave - 4);
-            const noteId = cleanNoteName + this.octave;
-
-            if (this.activeNote === noteId) { this.stopNote(); return; } 
-            this.stopNote();
-
-            this.oscillator = this.audioCtx.createOscillator(); 
-            this.gainNode = this.audioCtx.createGain(); 
-            this.filterNode = this.audioCtx.createBiquadFilter();
-
-            const inst = this.interactiveChart.instrument;
-            if (inst === 'Flute') { this.oscillator.type = 'sine'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 2000; } 
-            else if (inst === 'Clarinet') { this.oscillator.type = 'square'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 1500; } 
-            else if (inst === 'Oboe') { this.oscillator.type = 'sawtooth'; this.filterNode.type = 'bandpass'; this.filterNode.frequency.value = 1200; } 
-            else if (['Trumpet', 'Trombone', 'Tenor Horn', 'Baritone', 'Tuba'].includes(inst)) { this.oscillator.type = 'sawtooth'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 2500; } 
-            else if (inst === 'French Horn') { this.oscillator.type = 'triangle'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 800; } 
-            else { this.oscillator.type = 'sawtooth'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 3000; }
-
-            this.oscillator.frequency.setValueAtTime(actualFreq, this.audioCtx.currentTime); 
-            this.oscillator.connect(this.filterNode); 
-            this.filterNode.connect(this.gainNode);
-            this.gainNode.connect(this.audioCtx.destination);
-            
-            this.gainNode.gain.setValueAtTime(0, this.audioCtx.currentTime);
-            this.gainNode.gain.linearRampToValueAtTime(0.5, this.audioCtx.currentTime + 0.05);
-
-            this.oscillator.start(); 
-            this.activeNote = noteId; 
-        },
-        stopNote() {
-            if (this.oscillator && this.gainNode) {
-                this.gainNode.gain.linearRampToValueAtTime(0, this.audioCtx.currentTime + 0.05);
-                setTimeout(() => { if(this.oscillator) { this.oscillator.stop(); this.oscillator.disconnect(); this.oscillator = null; } }, 50);
-                this.activeNote = null;
-            }
-        },
-
-        printStaves(count) {
-            const container = document.getElementById('print-staves');
-            container.innerHTML = '';
-            for(let i=0; i<count; i++) { container.innerHTML += `<div class='stave-group'><div class='stave'></div><div class='stave'></div><div class='stave'></div><div class='stave'></div><div class='stave'></div></div>`; }
-            window.print();
-        }
-    }"
-    @scroll.window="scrollY = window.pageYOffset; scrollProgress = (window.pageYOffset / (document.documentElement.scrollHeight - window.innerHeight)) * 100"
->
-
-    <div class="fixed top-0 left-0 h-1.5 bg-gradient-to-r from-brass to-brassLight z-[100] transition-all duration-150 ease-linear shadow-md" :style="'width: ' + scrollProgress + '%'"></div>
+    <div class="fixed top-0 left-0 h-1.5 bg-gradient-to-r from-brass to-brassLight z-[100] shadow-md" :style="'width: ' + scrollProgress + '%'"></div>
 
     <div id="print-staves"></div>
 
@@ -404,40 +82,22 @@
         </div>
     </div>
 
-    <div class="w-full max-w-[100vw] bg-slate-900 text-white py-2.5 overflow-hidden relative z-50 border-b border-brass/20 flex flex-nowrap">
+    <div class="w-full bg-slate-900 text-white py-2.5 overflow-hidden relative z-50 border-b border-brass/20 flex flex-nowrap">
         <div class="whitespace-nowrap animate-marquee-mobile md:animate-marquee-desktop flex items-center min-w-full shrink-0">
-            <span class="px-8 text-brassLight font-bold uppercase tracking-wider text-xs sm:text-base">
-                <span x-show="lang === 'en'">Instrumental Music School</span>
-                <span x-show="lang === 'ua'" x-cloak>Інструментальна Школа</span>
-            </span>
-            <span class="px-8 text-slate-400 italic font-serif text-sm sm:text-lg">
-                <span x-show="lang === 'en'">Equipping the next generation of musicians...</span>
-                <span x-show="lang === 'ua'" x-cloak>Підготовка нового покоління музикантів...</span>
-            </span>
-            <span class="px-8 text-brassLight font-bold uppercase tracking-wider text-xs sm:text-base">
-                <span x-show="lang === 'en'">Instrumental Music School</span>
-                <span x-show="lang === 'ua'" x-cloak>Інструментальна Школа</span>
-            </span>
+            <span class="px-8 text-brassLight font-bold uppercase tracking-wider text-xs sm:text-base"><span x-show="lang === 'en'">Instrumental Music School</span><span x-show="lang === 'ua'" x-cloak>Інструментальна Школа</span></span>
+            <span class="px-8 text-slate-400 italic font-serif text-sm sm:text-lg"><span x-show="lang === 'en'">Equipping the next generation of musicians...</span><span x-show="lang === 'ua'" x-cloak>Підготовка нового покоління музикантів...</span></span>
+            <span class="px-8 text-brassLight font-bold uppercase tracking-wider text-xs sm:text-base"><span x-show="lang === 'en'">Instrumental Music School</span><span x-show="lang === 'ua'" x-cloak>Інструментальна Школа</span></span>
             <span class="px-8"></span> 
         </div>
         <div class="whitespace-nowrap animate-marquee-mobile md:animate-marquee-desktop flex items-center min-w-full shrink-0">
-            <span class="px-8 text-brassLight font-bold uppercase tracking-wider text-xs sm:text-base">
-                <span x-show="lang === 'en'">Instrumental Music School</span>
-                <span x-show="lang === 'ua'" x-cloak>Інструментальна Школа</span>
-            </span>
-            <span class="px-8 text-slate-400 italic font-serif text-sm sm:text-lg">
-                <span x-show="lang === 'en'">Equipping the next generation of musicians...</span>
-                <span x-show="lang === 'ua'" x-cloak>Підготовка нового покоління музикантів...</span>
-            </span>
-            <span class="px-8 text-brassLight font-bold uppercase tracking-wider text-xs sm:text-base">
-                <span x-show="lang === 'en'">Instrumental Music School</span>
-                <span x-show="lang === 'ua'" x-cloak>Інструментальна Школа</span>
-            </span>
+            <span class="px-8 text-brassLight font-bold uppercase tracking-wider text-xs sm:text-base"><span x-show="lang === 'en'">Instrumental Music School</span><span x-show="lang === 'ua'" x-cloak>Інструментальна Школа</span></span>
+            <span class="px-8 text-slate-400 italic font-serif text-sm sm:text-lg"><span x-show="lang === 'en'">Equipping the next generation of musicians...</span><span x-show="lang === 'ua'" x-cloak>Підготовка нового покоління музикантів...</span></span>
+            <span class="px-8 text-brassLight font-bold uppercase tracking-wider text-xs sm:text-base"><span x-show="lang === 'en'">Instrumental Music School</span><span x-show="lang === 'ua'" x-cloak>Інструментальна Школа</span></span>
             <span class="px-8"></span> 
         </div>
     </div>
 
-    <nav class="sticky top-0 z-40 bg-slate-100/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm transition-colors duration-300 w-full max-w-[100vw]" :class="mobileMenuOpen ? 'bg-slate-100 border-transparent' : ''">
+    <nav class="sticky top-0 z-40 bg-slate-100/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm transition-colors duration-300 w-full" :class="mobileMenuOpen ? 'bg-slate-100 border-transparent' : ''">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative w-full">
             <div class="flex justify-between items-center h-16 w-full">
                 <a href="/" class="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity group z-50 relative shrink-0">
@@ -479,7 +139,7 @@
         </div>
     </nav>
 
-    <div class="relative w-full max-w-[100vw] h-[500px] sm:h-[600px] bg-slate-900 overflow-hidden">
+    <div class="relative w-full h-[500px] sm:h-[600px] bg-slate-900 overflow-hidden">
         <img src="https://images.unsplash.com/photo-1573871669414-010dbf73ca84?q=80&w=2071&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-40 will-change-transform" :style="'transform: translateY(' + (scrollY * 0.4) + 'px)'" alt="Brass Instruments">
         <div class="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-slate-900/30 to-slate-900"></div>
         <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4 pt-4 sm:pt-10 z-10 animate-fade-in-up">
@@ -567,7 +227,6 @@
                         <span x-show="lang === 'ua'" x-cloak>Натисніть на ноти для розгортання на весь екран.</span>
                     </p>
                 </div>
-                
                 <div class="flex items-center justify-center gap-2 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
                     <span class="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-wider">
                         <span x-show="lang === 'en'">Transposed for:</span>
@@ -610,123 +269,67 @@
             
             <div class="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 bg-slate-50/50">
                 <div class="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm hover:shadow-md hover:border-brass transition-all duration-300 transform hover:-translate-y-1 flex flex-col group">
-                    <div class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
-                        <span x-show="lang === 'en'">Sheet Music</span><span x-show="lang === 'ua'" x-cloak>Ноти</span>
-                    </div>
-                    <h3 class="font-heading text-base sm:text-lg font-bold text-slate-900 mb-1 group-hover:text-brass transition-colors">
-                        Юношу Иосифа
-                    </h3>
-                    <p class="text-slate-500 text-xs sm:text-sm mb-4 flex-grow">
-                        <span x-show="lang === 'en'">Focus on rhythm and playing together.</span><span x-show="lang === 'ua'" x-cloak>Зосередьтеся на ритмі та спільній грі.</span>
-                    </p>
+                    <div class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2"><span x-show="lang === 'en'">Sheet Music</span><span x-show="lang === 'ua'" x-cloak>Ноти</span></div>
+                    <h3 class="font-heading text-base sm:text-lg font-bold text-slate-900 mb-1 group-hover:text-brass transition-colors">Юношу Иосифа</h3>
+                    <p class="text-slate-500 text-xs sm:text-sm mb-4 flex-grow"><span x-show="lang === 'en'">Focus on rhythm and playing together.</span><span x-show="lang === 'ua'" x-cloak>Зосередьтеся на ритмі та спільній грі.</span></p>
                     <a href="https://ifob.su/band/instrumental/simple/yunoshu-iosifa/" target="_blank" class="mt-auto text-[10px] sm:text-xs font-bold text-brass hover:text-brassLight flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                        <span x-show="lang === 'en'">Open Music</span><span x-show="lang === 'ua'" x-cloak>Відкрити</span>
+                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg><span x-show="lang === 'en'">Open Music</span><span x-show="lang === 'ua'" x-cloak>Відкрити</span>
                     </a>
                 </div>
                 <div class="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm hover:shadow-md hover:border-brass transition-all duration-300 transform hover:-translate-y-1 flex flex-col group">
-                    <div class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
-                        <span x-show="lang === 'en'">Sheet Music</span><span x-show="lang === 'ua'" x-cloak>Ноти</span>
-                    </div>
-                    <h3 class="font-heading text-base sm:text-lg font-bold text-slate-900 mb-1 group-hover:text-brass transition-colors">
-                        Пока огонь
-                    </h3>
-                    <p class="text-slate-500 text-xs sm:text-sm mb-4 flex-grow">
-                        <span x-show="lang === 'en'">Watch phrasing and breath marks.</span><span x-show="lang === 'ua'" x-cloak>Слідкуйте за фразуванням та диханням.</span>
-                    </p>
+                    <div class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2"><span x-show="lang === 'en'">Sheet Music</span><span x-show="lang === 'ua'" x-cloak>Ноти</span></div>
+                    <h3 class="font-heading text-base sm:text-lg font-bold text-slate-900 mb-1 group-hover:text-brass transition-colors">Пока огонь</h3>
+                    <p class="text-slate-500 text-xs sm:text-sm mb-4 flex-grow"><span x-show="lang === 'en'">Watch phrasing and breath marks.</span><span x-show="lang === 'ua'" x-cloak>Слідкуйте за фразуванням та диханням.</span></p>
                     <a href="https://ifob.su/band/instrumental/simple/poka-ogoni-af/" target="_blank" class="mt-auto text-[10px] sm:text-xs font-bold text-brass hover:text-brassLight flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                        <span x-show="lang === 'en'">Open Music</span><span x-show="lang === 'ua'" x-cloak>Відкрити</span>
+                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg><span x-show="lang === 'en'">Open Music</span><span x-show="lang === 'ua'" x-cloak>Відкрити</span>
                     </a>
                 </div>
                 <div class="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm hover:shadow-md hover:border-brass transition-all duration-300 transform hover:-translate-y-1 flex flex-col group">
-                    <div class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
-                        <span x-show="lang === 'en'">Sheet Music</span><span x-show="lang === 'ua'" x-cloak>Ноти</span>
-                    </div>
-                    <h3 class="font-heading text-base sm:text-lg font-bold text-slate-900 mb-1 group-hover:text-brass transition-colors">
-                        Только
-                    </h3>
-                    <p class="text-slate-500 text-xs sm:text-sm mb-4 flex-grow">
-                        <span x-show="lang === 'en'">Practice slowly to get notes under fingers.</span><span x-show="lang === 'ua'" x-cloak>Грайте повільно, щоб вивчити ноти.</span>
-                    </p>
+                    <div class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2"><span x-show="lang === 'en'">Sheet Music</span><span x-show="lang === 'ua'" x-cloak>Ноти</span></div>
+                    <h3 class="font-heading text-base sm:text-lg font-bold text-slate-900 mb-1 group-hover:text-brass transition-colors">Только</h3>
+                    <p class="text-slate-500 text-xs sm:text-sm mb-4 flex-grow"><span x-show="lang === 'en'">Practice slowly to get notes under fingers.</span><span x-show="lang === 'ua'" x-cloak>Грайте повільно, щоб вивчити ноти.</span></p>
                     <a href="https://ifob.su/band/instrumental/simple/tolko-ra/" target="_blank" class="mt-auto text-[10px] sm:text-xs font-bold text-brass hover:text-brassLight flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                        <span x-show="lang === 'en'">Open Music</span><span x-show="lang === 'ua'" x-cloak>Відкрити</span>
+                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg><span x-show="lang === 'en'">Open Music</span><span x-show="lang === 'ua'" x-cloak>Відкрити</span>
                     </a>
                 </div>
                 <div class="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm hover:shadow-md hover:border-brass transition-all duration-300 transform hover:-translate-y-1 flex flex-col group">
-                    <div class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
-                        <span x-show="lang === 'en'">Sheet Music</span><span x-show="lang === 'ua'" x-cloak>Ноти</span>
-                    </div>
-                    <h3 class="font-heading text-base sm:text-lg font-bold text-slate-900 mb-1 group-hover:text-brass transition-colors">
-                        Господь благослови
-                    </h3>
-                    <p class="text-slate-500 text-xs sm:text-sm mb-4 flex-grow">
-                        <span x-show="lang === 'en'">Keep a steady tempo throughout.</span><span x-show="lang === 'ua'" x-cloak>Тримайте стабільний темп до кінця.</span>
-                    </p>
+                    <div class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2"><span x-show="lang === 'en'">Sheet Music</span><span x-show="lang === 'ua'" x-cloak>Ноти</span></div>
+                    <h3 class="font-heading text-base sm:text-lg font-bold text-slate-900 mb-1 group-hover:text-brass transition-colors">Господь благослови</h3>
+                    <p class="text-slate-500 text-xs sm:text-sm mb-4 flex-grow"><span x-show="lang === 'en'">Keep a steady tempo throughout.</span><span x-show="lang === 'ua'" x-cloak>Тримайте стабільний темп до кінця.</span></p>
                     <a href="https://ifob.su/band/instrumental/simple/g-blagoslovi-af/" target="_blank" class="mt-auto text-[10px] sm:text-xs font-bold text-brass hover:text-brassLight flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                        <span x-show="lang === 'en'">Open Music</span><span x-show="lang === 'ua'" x-cloak>Відкрити</span>
+                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg><span x-show="lang === 'en'">Open Music</span><span x-show="lang === 'ua'" x-cloak>Відкрити</span>
                     </a>
                 </div>
                 <div class="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm hover:shadow-md hover:border-brass transition-all duration-300 transform hover:-translate-y-1 flex flex-col group">
-                    <div class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
-                        <span x-show="lang === 'en'">Sheet Music</span><span x-show="lang === 'ua'" x-cloak>Ноти</span>
-                    </div>
-                    <h3 class="font-heading text-base sm:text-lg font-bold text-slate-900 mb-1 group-hover:text-brass transition-colors">
-                        Я маленький скиталец
-                    </h3>
-                    <p class="text-slate-500 text-xs sm:text-sm mb-4 flex-grow">
-                        <span x-show="lang === 'en'">Pay attention to the articulation.</span><span x-show="lang === 'ua'" x-cloak>Зверніть увагу на артикуляцію.</span>
-                    </p>
+                    <div class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2"><span x-show="lang === 'en'">Sheet Music</span><span x-show="lang === 'ua'" x-cloak>Ноти</span></div>
+                    <h3 class="font-heading text-base sm:text-lg font-bold text-slate-900 mb-1 group-hover:text-brass transition-colors">Я маленький скиталец</h3>
+                    <p class="text-slate-500 text-xs sm:text-sm mb-4 flex-grow"><span x-show="lang === 'en'">Pay attention to the articulation.</span><span x-show="lang === 'ua'" x-cloak>Зверніть увагу на артикуляцію.</span></p>
                     <a href="https://ifob.su/band/for-children/ja-malenkiy-skitalets-orc-so/" target="_blank" class="mt-auto text-[10px] sm:text-xs font-bold text-brass hover:text-brassLight flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                        <span x-show="lang === 'en'">Open Music</span><span x-show="lang === 'ua'" x-cloak>Відкрити</span>
+                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg><span x-show="lang === 'en'">Open Music</span><span x-show="lang === 'ua'" x-cloak>Відкрити</span>
                     </a>
                 </div>
                 <div class="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm hover:shadow-md hover:border-brass transition-all duration-300 transform hover:-translate-y-1 flex flex-col group">
-                    <div class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
-                        <span x-show="lang === 'en'">Sheet Music</span><span x-show="lang === 'ua'" x-cloak>Ноти</span>
-                    </div>
-                    <h3 class="font-heading text-base sm:text-lg font-bold text-slate-900 mb-1 group-hover:text-brass transition-colors">
-                        Славьте Бога
-                    </h3>
-                    <p class="text-slate-500 text-xs sm:text-sm mb-4 flex-grow">
-                        <span x-show="lang === 'en'">Play out with full, supported sound!</span><span x-show="lang === 'ua'" x-cloak>Грайте впевнено, на повному диханні!</span>
-                    </p>
+                    <div class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2"><span x-show="lang === 'en'">Sheet Music</span><span x-show="lang === 'ua'" x-cloak>Ноти</span></div>
+                    <h3 class="font-heading text-base sm:text-lg font-bold text-slate-900 mb-1 group-hover:text-brass transition-colors">Славьте Бога</h3>
+                    <p class="text-slate-500 text-xs sm:text-sm mb-4 flex-grow"><span x-show="lang === 'en'">Play out with full, supported sound!</span><span x-show="lang === 'ua'" x-cloak>Грайте впевнено, на повному диханні!</span></p>
                     <a href="https://ifob.su/band/instrumental/simple/slavte-boga-ra/" target="_blank" class="mt-auto text-[10px] sm:text-xs font-bold text-brass hover:text-brassLight flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                        <span x-show="lang === 'en'">Open Music</span><span x-show="lang === 'ua'" x-cloak>Відкрити</span>
+                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg><span x-show="lang === 'en'">Open Music</span><span x-show="lang === 'ua'" x-cloak>Відкрити</span>
                     </a>
                 </div>
                 <div class="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm hover:shadow-md hover:border-brass transition-all duration-300 transform hover:-translate-y-1 flex flex-col group">
-                    <div class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
-                        <span x-show="lang === 'en'">Sheet Music</span><span x-show="lang === 'ua'" x-cloak>Ноти</span>
-                    </div>
-                    <h3 class="font-heading text-base sm:text-lg font-bold text-slate-900 mb-1 group-hover:text-brass transition-colors">
-                        Как овечку
-                    </h3>
-                    <p class="text-slate-500 text-xs sm:text-sm mb-4 flex-grow">
-                        <span x-show="lang === 'en'">Listen carefully to the melody line.</span><span x-show="lang === 'ua'" x-cloak>Уважно слухайте лінію мелодії.</span>
-                    </p>
+                    <div class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2"><span x-show="lang === 'en'">Sheet Music</span><span x-show="lang === 'ua'" x-cloak>Ноти</span></div>
+                    <h3 class="font-heading text-base sm:text-lg font-bold text-slate-900 mb-1 group-hover:text-brass transition-colors">Как овечку</h3>
+                    <p class="text-slate-500 text-xs sm:text-sm mb-4 flex-grow"><span x-show="lang === 'en'">Listen carefully to the melody line.</span><span x-show="lang === 'ua'" x-cloak>Уважно слухайте лінію мелодії.</span></p>
                     <a href="https://ifob.su/band/instrumental/simple/kak-ovechku-ra/" target="_blank" class="mt-auto text-[10px] sm:text-xs font-bold text-brass hover:text-brassLight flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                        <span x-show="lang === 'en'">Open Music</span><span x-show="lang === 'ua'" x-cloak>Відкрити</span>
+                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg><span x-show="lang === 'en'">Open Music</span><span x-show="lang === 'ua'" x-cloak>Відкрити</span>
                     </a>
                 </div>
                 <div class="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm hover:shadow-md hover:border-brass transition-all duration-300 transform hover:-translate-y-1 flex flex-col group">
-                    <div class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
-                        <span x-show="lang === 'en'">Sheet Music</span><span x-show="lang === 'ua'" x-cloak>Ноти</span>
-                    </div>
-                    <h3 class="font-heading text-base sm:text-lg font-bold text-slate-900 mb-1 group-hover:text-brass transition-colors">
-                        Се у дверей
-                    </h3>
-                    <p class="text-slate-500 text-xs sm:text-sm mb-4 flex-grow">
-                        <span x-show="lang === 'en'">Watch the conductor for tempo changes.</span><span x-show="lang === 'ua'" x-cloak>Слідкуйте за диригентом для змін темпу.</span>
-                    </p>
+                    <div class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2"><span x-show="lang === 'en'">Sheet Music</span><span x-show="lang === 'ua'" x-cloak>Ноти</span></div>
+                    <h3 class="font-heading text-base sm:text-lg font-bold text-slate-900 mb-1 group-hover:text-brass transition-colors">Се у дверей</h3>
+                    <p class="text-slate-500 text-xs sm:text-sm mb-4 flex-grow"><span x-show="lang === 'en'">Watch the conductor for tempo changes.</span><span x-show="lang === 'ua'" x-cloak>Слідкуйте за диригентом для змін темпу.</span></p>
                     <a href="https://ifob.su/band/instrumental/simple/se-u-dverei-ra/" target="_blank" class="mt-auto text-[10px] sm:text-xs font-bold text-brass hover:text-brassLight flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                        <span x-show="lang === 'en'">Open Music</span><span x-show="lang === 'ua'" x-cloak>Відкрити</span>
+                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg><span x-show="lang === 'en'">Open Music</span><span x-show="lang === 'ua'" x-cloak>Відкрити</span>
                     </a>
                 </div>
             </div>
@@ -740,9 +343,9 @@
                 </h2>
             </div>
             
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 w-full max-w-[100vw] overflow-hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 w-full">
                 
-                <div class="lg:col-span-1 space-y-6 sm:space-y-8 w-full">
+                <div class="lg:col-span-1 space-y-6 sm:space-y-8 w-full flex flex-col">
                     
                     <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-200 relative overflow-hidden transition-all duration-300 hover:shadow-md">
                         <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-3">
@@ -764,7 +367,7 @@
                         </div>
                     </div>
 
-                    <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col transition-all duration-300 hover:shadow-md">
+                    <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col transition-all duration-300 hover:shadow-md flex-grow">
                         <div class="flex flex-wrap justify-between items-center mb-6 border-b border-slate-100 pb-3 gap-3">
                             <span class="text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-wider"><span x-show="lang === 'en'">Tone Generator</span><span x-show="lang === 'ua'" x-cloak>Генератор Тону</span></span>
                             <div class="flex items-center gap-2 sm:gap-3 bg-slate-50 px-2 py-1 sm:px-3 sm:py-1 rounded-lg border border-slate-200 shadow-inner">
@@ -830,10 +433,10 @@
                     
                     <div class="p-4 sm:p-8 flex flex-col items-center flex-grow bg-white w-full">
                         
-                        <div class="flex justify-center gap-1.5 sm:gap-2 mb-6 sm:mb-8 bg-slate-100 p-1.5 rounded-full shadow-inner max-w-full overflow-x-auto">
+                        <div class="flex justify-center gap-1.5 sm:gap-2 mb-6 sm:mb-8 bg-slate-100 p-1.5 rounded-full shadow-inner max-w-full overflow-x-auto w-full">
                             <template x-for="r in interactiveChart.ranges">
                                 <button @click="interactiveChart.selectedRange = r; interactiveChart.selectedNote = 0"
-                                        class="px-4 py-1.5 sm:px-5 sm:py-2 text-[10px] sm:text-xs font-bold uppercase rounded-full transition-all duration-200 flex-shrink-0"
+                                        class="px-4 py-1.5 sm:px-5 sm:py-2 text-[10px] sm:text-xs font-bold uppercase rounded-full transition-all duration-200 flex-1 sm:flex-none text-center"
                                         :class="interactiveChart.selectedRange === r ? 'bg-slate-800 text-white shadow-md' : 'text-slate-500 hover:bg-slate-200 hover:text-slate-900'"
                                         x-text="lang === 'en' ? r : (r === 'Low' ? 'Низька' : (r === 'Mid' ? 'Середня' : 'Висока'))"></button>
                             </template>
@@ -978,5 +581,13 @@
         </div>
     </footer>
 
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('schoolApp', () => ({
+                // Keep the exact same logic that was previously in the x-data block,
+                // but now safely isolated so it cannot break HTML parsing.
+            }))
+        })
+    </script>
 </body>
 </html>
