@@ -2,7 +2,7 @@
 <html lang="en" class="scroll-smooth bg-[#f8fafc]">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FUBC Band | Official Site</title>
     
     <meta name="title" content="FUBC Band | Official Site">
@@ -25,7 +25,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -40,6 +40,17 @@
     <link rel="icon" type="image/png" href="/social-logo.png?v=2">
     <link rel="canonical" href="https://www.fubcband.com">
 
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "FUBC Band",
+      "url": "https://www.fubcband.com",
+      "logo": "https://www.fubcband.com/social-logo.png",
+      "description": "First Ukrainian Baptist Church Band Ministry"
+    }
+    </script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -50,11 +61,9 @@
                         'marquee-mobile': 'marquee 25s linear infinite',
                         'marquee-desktop': 'marquee 45s linear infinite',
                         'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'fade-in-up': 'fadeInUp 0.6s ease-out forwards'
                     },
                     keyframes: {
-                        marquee: { '0%': { transform: 'translateX(0%)' }, '100%': { transform: 'translateX(-100%)' } },
-                        fadeInUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } }
+                        marquee: { '0%': { transform: 'translateX(0%)' }, '100%': { transform: 'translateX(-100%)' } }
                     }
                 }
             }
@@ -76,15 +85,178 @@
     </style>
 </head>
 
-<body class="text-textMain antialiased bg-pageBg overflow-x-hidden" x-data="fubcApp" @scroll.window="scrollY = window.pageYOffset; scrollProgress = (window.pageYOffset / (document.documentElement.scrollHeight - window.innerHeight)) * 100">
+<body class="text-textMain antialiased bg-pageBg"
+    x-data="{ 
+        lang: 'en', 
+        showLibrary: false, 
+        searchQuery: '',
+        submitStatus: 'idle', 
+        verse: null,
+        mobileMenuOpen: false,
+        scrollY: 0, 
+        scrollProgress: 0,
+        isLoading: true, 
+
+        settings: { isRehearsalCanceled: false, conductorNote: '', nextRehearsalTime: '9:00 PM' },
+        events: [], 
+        currentSetlist: [],
+        allSongs: [],
+        program: { isVisible: false, date: '', items: [] },
+
+        verses: [
+            { en: 'Make a joyful noise unto the Lord...', ua: 'Викликніть Господу, уся земле...' },
+            { en: 'I will sing to the LORD as long as I live...', ua: 'Я буду співати Господеві за життя свого...' },
+            { en: 'Praise him with the sounding of the trumpet...', ua: 'Хваліть Його звуком трубним...' }
+        ],
+
+        async init() {
+            this.verse = this.verses[Math.floor(Math.random() * this.verses.length)];
+            try {
+                const response = await fetch('/data.json?t=' + new Date().getTime());
+                if (response.ok) {
+                    const json = await response.json();
+                    this.settings = { ...this.settings, ...json.settings };
+                    this.events = json.events || [];
+                    this.currentSetlist = json.currentSetlist || [];
+                    this.allSongs = json.allSongs || [];
+                    this.program = json.serviceProgram || { isVisible: false, date: '', items: [] };
+                }
+            } catch (e) { console.log('Using built-in data'); }
+            
+            setTimeout(() => this.isLoading = false, 300);
+        },
+
+        get sortedSchedule() {
+            let mergedEvents = [];
+            const currentYear = new Date().getFullYear();
+
+            let d = new Date();
+            let day = d.getDay();
+            let hour = d.getHours();
+            let min = d.getMinutes();
+            let daysToAdd = 0;
+
+            if (day === 5) {
+                if (hour < 21 || (hour === 21 && min < 15)) {
+                    daysToAdd = 0; 
+                } else {
+                    daysToAdd = 7; 
+                }
+            } else {
+                daysToAdd = (5 - day + 7) % 7;
+            }
+            d.setDate(d.getDate() + daysToAdd);
+
+            for (let i = 0; i < 3; i++) {
+                let rehDate = new Date(d); 
+                rehDate.setHours(21, 0, 0, 0); 
+                
+                mergedEvents.push({
+                    type: 'rehearsal',
+                    dateObj: rehDate, 
+                    dateString: rehDate.toLocaleDateString(this.lang === 'en' ? 'en-US' : 'uk-UA', { month: 'short', day: 'numeric' }),
+                    title_en: 'Weekly Rehearsal',
+                    title_ua: 'Щотижнева Репетиція',
+                    time: this.settings.nextRehearsalTime,
+                    isTonight: (i === 0 && daysToAdd === 0)
+                });
+                d.setDate(d.getDate() + 7);
+            }
+
+            this.events.forEach(e => {
+                let evtDate = new Date(e.date + ', ' + currentYear);
+                
+                let timeParts = e.time.match(/(\d+):(\d+)\s*(AM|PM)/i);
+                if (timeParts) {
+                    let h = parseInt(timeParts[1]);
+                    if (timeParts[3].toUpperCase() === 'PM' && h < 12) h += 12;
+                    if (timeParts[3].toUpperCase() === 'AM' && h === 12) h = 0;
+                    evtDate.setHours(h, parseInt(timeParts[2]), 0, 0);
+                } else {
+                    evtDate.setHours(9, 0, 0, 0);
+                }
+
+                mergedEvents.push({
+                    type: 'event',
+                    dateObj: evtDate,
+                    dateString: e.date,
+                    title_en: e.title_en,
+                    title_ua: e.title_ua,
+                    time: e.time,
+                    day: e.day, 
+                    isTonight: false
+                });
+            });
+
+            return mergedEvents.sort((a, b) => a.dateObj - b.dateObj);
+        },
+
+        get nextEvent() { return this.sortedSchedule[0] || {}; },
+        get futureEvents() { return this.sortedSchedule.slice(1); },
+
+        get availableDates() {
+            let dates = [];
+            const nextReh = this.sortedSchedule.find(e => e.type === 'rehearsal');
+            if (nextReh && !this.settings.isRehearsalCanceled) {
+                dates.push({ 
+                    val: nextReh.dateString + ' (Rehearsal)', 
+                    label: nextReh.dateString + (this.lang === 'en' ? ' - Rehearsal' : ' - Репетиція') 
+                });
+            }
+            this.events.forEach(e => {
+                dates.push({ val: e.date + ' (' + e.title_en + ')', label: e.date + ' - ' + (this.lang === 'en' ? e.title_en : e.title_ua) });
+            });
+            return dates;
+        },
+
+        copySetlist() {
+            let text = '🎵 Setlist:\n';
+            this.sortedSetlist.forEach(s => text += `- ${s.title}\n`);
+            navigator.clipboard.writeText(text);
+            alert('Setlist copied!');
+        },
+
+        submitForm() {
+            this.submitStatus = 'submitting';
+            const formData = new FormData(this.$refs.form);
+            fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(formData).toString() })
+            .then(() => {
+                this.submitStatus = 'success';
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.7 }, colors: ['#b45309', '#d97706', '#ffffff'] });
+                this.$refs.form.reset();
+                setTimeout(() => this.submitStatus = 'idle', 5000);
+            })
+            .catch(() => { alert('Connection error.'); this.submitStatus = 'idle'; });
+        },
+
+        // --- STRICT JSON ORDER MAINTAINED HERE ---
+        get sortedSetlist() {
+            return this.currentSetlist.map(song => {
+                const masterSong = this.allSongs.find(s => 
+                    (s.n && song.binderNumber && String(s.n) === String(song.binderNumber)) || 
+                    (s.u && song.title && String(s.u).toLowerCase() === String(song.title).toLowerCase())
+                );
+                
+                return {
+                    ...song,
+                    link: song.link || (masterSong ? masterSong.link : ''),
+                    chords: song.chords || (masterSong ? masterSong.chords : '')
+                };
+            });
+        },
+
+        get filteredSongs() { if (this.searchQuery === '') return this.allSongs; const q = this.searchQuery.toLowerCase(); return this.allSongs.filter(s => (s.n && s.n.toString().includes(q)) || (s.u && s.u.toLowerCase().includes(q))); }
+    }"
+    @scroll.window="scrollY = window.pageYOffset; scrollProgress = (window.pageYOffset / (document.documentElement.scrollHeight - window.innerHeight)) * 100"
+>
 
     <div class="fixed top-0 left-0 h-1.5 bg-gradient-to-r from-brass to-brassLight z-[100] transition-all duration-150 ease-linear shadow-md" :style="'width: ' + scrollProgress + '%'"></div>
 
-    <div class="w-full bg-slate-900 text-white py-2.5 overflow-hidden relative z-50 border-b border-brass/20 flex flex-nowrap">
+    <div class="bg-slate-900 text-white py-2.5 overflow-hidden relative z-50 border-b border-brass/20 flex">
         <div class="whitespace-nowrap animate-marquee-mobile md:animate-marquee-desktop flex items-center min-w-full shrink-0">
             <span class="px-8 flex items-center">
                 <span class="text-brassLight font-bold uppercase tracking-wider mr-2">Next Event:</span> 
-                <span x-show="nextEvent.isTonight" class="inline-flex items-center gap-1.5 bg-red-600/20 border border-red-500/50 text-red-400 px-2 py-0.5 rounded mr-2 animate-pulse" x-cloak>
+                <span x-show="nextEvent.isTonight" class="inline-flex items-center gap-1.5 bg-red-600/20 border border-red-500/50 text-red-400 px-2 py-0.5 rounded mr-2 animate-pulse">
                     <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span><span class="text-[10px] font-extrabold tracking-widest">TONIGHT</span>
                 </span>
                 <span x-text="nextEvent.dateString + ' @ ' + nextEvent.time"></span>
@@ -96,7 +268,7 @@
         <div class="whitespace-nowrap animate-marquee-mobile md:animate-marquee-desktop flex items-center min-w-full shrink-0">
             <span class="px-8 flex items-center">
                 <span class="text-brassLight font-bold uppercase tracking-wider mr-2">Next Event:</span> 
-                <span x-show="nextEvent.isTonight" class="inline-flex items-center gap-1.5 bg-red-600/20 border border-red-500/50 text-red-400 px-2 py-0.5 rounded mr-2 animate-pulse" x-cloak>
+                <span x-show="nextEvent.isTonight" class="inline-flex items-center gap-1.5 bg-red-600/20 border border-red-500/50 text-red-400 px-2 py-0.5 rounded mr-2 animate-pulse">
                     <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span><span class="text-[10px] font-extrabold tracking-widest">TONIGHT</span>
                 </span>
                 <span x-text="nextEvent.dateString + ' @ ' + nextEvent.time"></span>
@@ -107,57 +279,46 @@
         </div>
     </div>
 
-    <nav class="sticky top-0 z-40 bg-slate-100/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm transition-colors duration-300 w-full" :class="mobileMenuOpen ? 'bg-slate-100 border-transparent' : ''">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative w-full">
-            <div class="flex justify-between items-center h-16 w-full">
-                <a href="#" @click.prevent="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity group z-50 relative shrink-0">
-                    <div class="font-heading font-bold text-lg sm:text-xl md:text-2xl tracking-[0.1em] sm:tracking-[0.15em] text-slate-900 leading-none">
-                        FUBC <span class="text-brass block text-[9px] sm:text-[10px] md:text-xs font-semibold tracking-[0.2em] sm:tracking-[0.35em] mt-0.5 group-hover:text-brassLight transition-colors">BAND</span>
-                    </div>
+    <nav class="sticky top-0 z-40 bg-slate-100/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm transition-colors duration-300" :class="mobileMenuOpen ? 'bg-slate-100 border-transparent' : ''">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="#" class="flex items-center gap-3 hover:opacity-80 transition-opacity group z-50 relative">
+                    <div class="font-heading font-bold text-xl sm:text-2xl tracking-[0.15em] text-slate-900 leading-none">FUBC <span class="text-brass block text-[10px] sm:text-xs font-semibold tracking-[0.35em] mt-0.5 group-hover:text-brassLight transition-colors">BAND</span></div>
                 </a>
+                <div class="hidden md:flex items-center gap-10">
+                    <button @click="lang = lang === 'en' ? 'ua' : 'en'" class="text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest border border-slate-200 px-4 py-1.5 rounded-full hover:border-brass/50 bg-white"><span :class="lang === 'en' ? 'text-brass font-extrabold' : ''">EN</span> <span class="text-slate-300 px-1">/</span> <span :class="lang === 'ua' ? 'text-brass font-extrabold' : ''">UA</span></button>
+                    <div class="flex items-center gap-8">
+                        <a href="#setlist" class="relative group py-2"><span class="font-bold text-xs uppercase tracking-widest text-slate-500 group-hover:text-brass transition-colors" x-text="lang === 'en' ? 'Info' : 'Інфо'"></span><span class="absolute bottom-0 left-0 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-full"></span></a>
+                        <a href="#tools" class="relative group py-2"><span class="font-bold text-xs uppercase tracking-widest text-slate-500 group-hover:text-brass transition-colors" x-text="lang === 'en' ? 'Tools' : 'Інструменти'"></span><span class="absolute bottom-0 left-0 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-full"></span></a>
+                        <a href="#media" class="relative group py-2"><span class="font-bold text-xs uppercase tracking-widest text-slate-500 group-hover:text-brass transition-colors" x-text="lang === 'en' ? 'Media' : 'Медіа'"></span><span class="absolute bottom-0 left-0 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-full"></span></a>
+                        
+                        <a href="/school.html" class="text-xs font-bold text-white bg-slate-900 px-5 py-2.5 rounded-full hover:bg-brass transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-md uppercase tracking-widest flex items-center gap-2 ml-2">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                            <span x-show="lang === 'en'">School</span>
+                            <span x-show="lang === 'ua'" x-cloak>Школа</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="md:hidden flex items-center gap-4">
+                    <button @click="lang = lang === 'en' ? 'ua' : 'en'" class="text-[10px] font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest border border-slate-200 px-3 py-1.5 rounded-full bg-white/50"><span :class="lang === 'en' ? 'text-brass font-extrabold' : ''">EN</span><span class="text-slate-300 px-1">/</span><span :class="lang === 'ua' ? 'text-brass font-extrabold' : ''">UA</span></button>
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="p-2 text-slate-800 hover:text-brass transition-colors focus:outline-none"><svg x-show="!mobileMenuOpen" class="w-7 h-7 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg><svg x-show="mobileMenuOpen" class="w-7 h-7 transform transition-transform duration-300 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" x-cloak><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                </div>
+            </div>
+        </div>
+        <div class="fixed top-16 left-0 w-full h-auto bg-slate-100 border-b-4 border-brass shadow-2xl md:hidden flex flex-col px-6 pb-6 transition-all duration-300 origin-top" x-show="mobileMenuOpen" x-transition:enter="opacity-0 scale-y-0" x-transition:enter-end="opacity-100 scale-y-100" x-transition:leave="opacity-100 scale-y-100" x-transition:leave-end="opacity-0 scale-y-0" x-cloak>
+            <div class="flex flex-col items-center justify-center space-y-3 mt-6">
+                <a href="#setlist" @click="mobileMenuOpen = false" class="group relative"><span class="text-xl font-heading font-bold text-slate-800 group-hover:text-brass transition-colors uppercase tracking-widest" x-text="lang === 'en' ? 'Info' : 'Інфо'"></span><span class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-full"></span></a>
+                <a href="#tools" @click="mobileMenuOpen = false" class="group relative"><span class="text-xl font-heading font-bold text-slate-800 group-hover:text-brass transition-colors uppercase tracking-widest" x-text="lang === 'en' ? 'Tools' : 'Інструменти'"></span><span class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-full"></span></a>
+                <a href="#media" @click="mobileMenuOpen = false" class="group relative"><span class="text-xl font-heading font-bold text-slate-800 group-hover:text-brass transition-colors uppercase tracking-widest" x-text="lang === 'en' ? 'Media' : 'Медіа'"></span><span class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-full"></span></a>
                 
-                <div class="md:hidden flex items-center gap-2 sm:gap-4 relative z-50 shrink-0">
-                    <button @click="lang = lang === 'en' ? 'ua' : 'en'" class="text-[10px] font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest border border-slate-200 px-2.5 py-1.5 rounded-full bg-slate-50 flex-shrink-0">
-                        <span :class="lang === 'en' ? 'text-brass font-extrabold' : ''">EN</span><span class="text-slate-300 px-1">/</span><span :class="lang === 'ua' ? 'text-brass font-extrabold' : ''">UA</span>
-                    </button>
-                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="p-2 text-slate-800 hover:text-brass transition-colors focus:outline-none flex-shrink-0">
-                        <svg x-show="!mobileMenuOpen" class="w-6 h-6 sm:w-7 sm:h-7 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-                        <svg x-show="mobileMenuOpen" class="w-6 h-6 sm:w-7 sm:h-7 transform transition-transform duration-300 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" x-cloak><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </button>
-                </div>
-
-                <div class="hidden md:flex items-center gap-6 relative z-50 shrink-0">
-                    <button @click="lang = lang === 'en' ? 'ua' : 'en'" class="text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest border border-slate-200 px-4 py-1.5 rounded-full hover:border-brass/50 bg-slate-50 transition-all duration-200 hover:shadow-sm">
-                        <span :class="lang === 'en' ? 'text-brass font-extrabold' : ''">EN</span> <span class="text-slate-300 px-1">/</span> <span :class="lang === 'ua' ? 'text-brass font-extrabold' : ''">UA</span>
-                    </button>
-                    <a href="#setlist" class="font-bold text-xs uppercase tracking-widest text-slate-500 hover:text-brass transition-colors"><span x-show="lang === 'en'">Info</span><span x-show="lang === 'ua'" x-cloak>Інфо</span></a>
-                    <a href="#tools" class="font-bold text-xs uppercase tracking-widest text-slate-500 hover:text-brass transition-colors"><span x-show="lang === 'en'">Tools</span><span x-show="lang === 'ua'" x-cloak>Інструменти</span></a>
-                    <a href="#media" class="font-bold text-xs uppercase tracking-widest text-slate-500 hover:text-brass transition-colors"><span x-show="lang === 'en'">Media</span><span x-show="lang === 'ua'" x-cloak>Медіа</span></a>
-                    
-                    <a href="/school.html" class="text-xs font-bold text-white bg-slate-900 px-5 py-2.5 rounded-full hover:bg-brass transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-md uppercase tracking-widest flex items-center gap-2">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
-                        <span x-show="lang === 'en'">Music School</span>
-                        <span x-show="lang === 'ua'" x-cloak>Школа</span>
-                    </a>
-                </div>
+                <div class="w-full h-px bg-slate-200 my-2"></div>
+                <a href="/school.html" class="w-full flex justify-center items-center gap-2 text-sm font-bold text-white bg-slate-900 px-8 py-3.5 rounded-full hover:bg-brass transition-colors uppercase tracking-widest shadow-sm">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                    <span x-show="lang === 'en'">Music School</span>
+                    <span x-show="lang === 'ua'" x-cloak>Школа</span>
+                </a>
             </div>
-            
-            <div class="absolute top-full left-0 w-full h-auto bg-slate-100 border-b-4 border-brass shadow-2xl md:hidden flex flex-col px-6 pb-6 transition-all duration-300 origin-top z-30" x-show="mobileMenuOpen" x-transition:enter="opacity-0 scale-y-0" x-transition:enter-end="opacity-100 scale-y-100" x-transition:leave="opacity-100 scale-y-100" x-transition:leave-end="opacity-0 scale-y-0" x-cloak>
-                <div class="flex flex-col items-center justify-center space-y-5 mt-6">
-                    <a href="#setlist" @click="mobileMenuOpen = false" class="text-xl font-heading font-bold text-slate-800 hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Info</span><span x-show="lang === 'ua'" x-cloak>Інфо</span></a>
-                    <a href="#tools" @click="mobileMenuOpen = false" class="text-xl font-heading font-bold text-slate-800 hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Tools</span><span x-show="lang === 'ua'" x-cloak>Інструменти</span></a>
-                    <a href="#media" @click="mobileMenuOpen = false" class="text-xl font-heading font-bold text-slate-800 hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Media</span><span x-show="lang === 'ua'" x-cloak>Медіа</span></a>
-                    <div class="w-full h-px bg-slate-200 my-2"></div>
-                    <a href="/school.html" class="w-full flex justify-center items-center gap-2 text-sm font-bold text-white bg-slate-900 px-8 py-3.5 rounded-full hover:bg-brass transition-colors uppercase tracking-widest shadow-sm">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
-                        <span x-show="lang === 'en'">Music School</span>
-                        <span x-show="lang === 'ua'" x-cloak>Школа</span>
-                    </a>
-                </div>
-                <div class="mt-6 pt-4 border-t border-slate-200 flex flex-col items-center">
-                    <button @click="document.querySelector('form[name=attendance]').scrollIntoView({behavior: 'smooth'}); mobileMenuOpen = false;" class="text-[10px] font-bold text-brass uppercase tracking-widest hover:underline flex items-center gap-2"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg><span x-text="lang === 'en' ? 'Report Absence' : 'Повідомити про відсутність'"></span></button>
-                </div>
-            </div>
+            <div class="mt-6 pt-4 border-t border-slate-200 flex flex-col items-center"><button @click="document.querySelector('form[name=attendance]').scrollIntoView({behavior: 'smooth'}); mobileMenuOpen = false;" class="text-[10px] font-bold text-brass uppercase tracking-widest hover:underline flex items-center gap-2"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg><span x-text="lang === 'en' ? 'Report Absence' : 'Повідомити про відсутність'"></span></button></div>
         </div>
     </nav>
 
@@ -208,48 +369,19 @@
 
         <section id="setlist" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden scroll-mt-32 reveal-hidden" x-data="{ shown: false }" x-intersect.threshold.05.once="shown = true" :class="shown ? 'reveal-visible' : ''">
             <div class="px-6 py-8 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
-                <div>
-                    <h2 class="font-heading text-2xl font-bold text-slate-900">
-                        <span x-show="lang === 'en'">Performance Setlist</span><span x-show="lang === 'ua'" x-cloak>Програма Виступу</span>
-                    </h2>
-                    <p class="text-textMuted text-sm mt-1 font-medium">
-                        <span x-show="lang === 'en'" x-text="nextPerformance && nextPerformance.dateString ? 'For ' + nextPerformance.title_en + ' (' + nextPerformance.dateString + ')' : 'Upcoming Service Material'"></span>
-                        <span x-show="lang === 'ua'" x-cloak x-text="nextPerformance && nextPerformance.dateString ? 'На ' + nextPerformance.title_ua + ' (' + nextPerformance.dateString + ')' : 'Матеріал найближчого служіння'"></span>
-                    </p>
-                </div>
+                <div><h2 class="font-heading text-2xl font-bold text-slate-900"><span x-show="lang === 'en'">Performance Setlist</span><span x-show="lang === 'ua'" x-cloak>Програма Виступу</span></h2><p class="text-textMuted text-sm mt-1 font-medium"><span x-show="lang === 'en'">Upcoming Service Material</span><span x-show="lang === 'ua'" x-cloak>Матеріал найближчого служіння</span></p></div>
                 <div class="flex items-center gap-4">
                     <button @click="copySetlist()" class="text-xs font-bold text-slate-400 hover:text-brass transition-colors uppercase tracking-widest">Copy</button>
                     <button @click="showLibrary = true" class="text-sm font-semibold text-brass hover:text-brassLight transition-colors flex items-center gap-2 group"><span x-show="lang === 'en'">View Full Library</span><span x-show="lang === 'ua'" x-cloak>Відкрити Архів</span><span class="group-hover:translate-x-1 transition-transform">→</span></button>
                 </div>
             </div>
-            
             <div x-show="isLoading" class="p-10 text-center text-slate-400 font-mono text-sm animate-pulse">Loading setlist...</div>
-            
             <div x-show="!isLoading" class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50/50">
-                <template x-for="song in mappedSetlist" :key="song.title">
+                <template x-for="song in sortedSetlist" :key="song.title">
                     <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
                         <div class="absolute left-0 top-0 bottom-0 w-1 bg-brass opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div class="flex justify-between items-start mb-6">
-                            <div>
-                                <h3 class="font-heading text-lg font-bold text-slate-900 group-hover:text-brass transition-colors" x-text="song.title"></h3>
-                                <p class="text-slate-500 text-sm mt-1" x-text="song.sub"></p>
-                            </div>
-                            <span class="px-3 py-1 rounded-md bg-slate-100 text-xs font-bold text-slate-600 border border-slate-200" x-text="song.binderNumber && song.binderNumber !== 'New' ? '#' + song.binderNumber : 'New'"></span>
-                        </div>
-                        <div class="flex gap-3" x-show="song.link || song.chords">
-                            <template x-if="song.link">
-                                <a :href="song.link" target="_blank" class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-slate-900 hover:bg-brass text-white text-sm font-bold transition-all shadow-md">
-                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                    <span x-show="lang === 'en'">Listen</span><span x-show="lang === 'ua'" x-cloak>Слухати</span>
-                                </a>
-                            </template>
-                            <template x-if="song.chords">
-                                <a :href="song.chords" target="_blank" class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-slate-900 text-sm font-bold transition-all">
-                                    <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                    <span x-show="lang === 'en'">Notes</span><span x-show="lang === 'ua'" x-cloak>Ноти</span>
-                                </a>
-                            </template>
-                        </div>
+                        <div class="flex justify-between items-start mb-6"><div><h3 class="font-heading text-lg font-bold text-slate-900 group-hover:text-brass transition-colors" x-text="song.title"></h3><p class="text-slate-500 text-sm mt-1" x-text="song.sub"></p></div><span class="px-3 py-1 rounded-md bg-slate-100 text-xs font-bold text-slate-600 border border-slate-200" x-text="song.binderNumber && song.binderNumber !== 'New' ? '#' + song.binderNumber : 'New'"></span></div>
+                        <div class="flex gap-3" x-show="song.link || song.chords"><template x-if="song.link"><a :href="song.link" target="_blank" class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-slate-900 hover:bg-brass text-white text-sm font-bold transition-all shadow-md"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span x-show="lang === 'en'">Listen</span><span x-show="lang === 'ua'" x-cloak>Слухати</span></a></template><template x-if="song.chords"><a :href="song.chords" target="_blank" class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-slate-900 text-sm font-bold transition-all"><svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><span x-show="lang === 'en'">Notes</span><span x-show="lang === 'ua'" x-cloak>Ноти</span></a></template></div>
                     </div>
                 </template>
             </div>
@@ -262,12 +394,12 @@
                     <div x-show="isLoading" class="p-4 text-center text-slate-400 font-mono text-xs">Syncing calendar...</div>
                     
                     <div x-show="!isLoading" class="flex items-center gap-5 p-4 rounded-xl border border-slate-100 bg-slate-50 relative overflow-hidden transition-all hover:shadow-md">
-                        <div x-show="nextEvent.type === 'rehearsal' && nextEvent.isTonight" class="absolute top-0 right-0 p-2"><span class="text-[9px] bg-red-100 text-red-600 px-2 py-1 rounded font-extrabold tracking-wider animate-pulse uppercase" x-cloak>Tonight</span></div>
+                        <div x-show="nextEvent.type === 'rehearsal' && nextEvent.isTonight" class="absolute top-0 right-0 p-2"><span class="text-[9px] bg-red-100 text-red-600 px-2 py-1 rounded font-extrabold tracking-wider animate-pulse uppercase">Tonight</span></div>
                         <div class="h-14 w-16 min-w-[4rem] rounded-lg bg-white flex flex-col items-center justify-center text-center border border-slate-200 shadow-sm"><span class="text-[9px] text-brass font-bold uppercase tracking-tight" x-text="nextEvent.dateString?.split(' ')[0]"></span><span class="text-lg text-slate-900 font-extrabold leading-none" x-text="nextEvent.dateString?.split(' ')[1]"></span></div>
                         <div>
                             <h3 class="font-bold text-slate-900" x-text="lang === 'en' ? nextEvent.title_en : nextEvent.title_ua"></h3>
                             <p class="text-slate-500 text-sm" x-text="(nextEvent.type === 'rehearsal' ? 'Friday' : (nextEvent.day || '')) + ' • ' + nextEvent.time"></p>
-                            <span x-show="nextEvent.type === 'rehearsal' && settings.isRehearsalCanceled" class="inline-block mt-1 px-2 py-0.5 bg-red-100 text-red-600 text-[10px] font-bold uppercase rounded" x-cloak>Canceled</span>
+                            <span x-show="nextEvent.type === 'rehearsal' && settings.isRehearsalCanceled" class="inline-block mt-1 px-2 py-0.5 bg-red-100 text-red-600 text-[10px] font-bold uppercase rounded">Canceled</span>
                         </div>
                     </div>
 
@@ -282,11 +414,11 @@
 
             <section class="bg-slate-900 rounded-2xl shadow-lg border border-slate-800 overflow-hidden relative reveal-hidden" x-data="{ shown: false }" x-intersect.threshold.05.once="shown = true" :class="shown ? 'reveal-visible' : ''">
                 <div class="absolute top-0 right-0 p-32 bg-brass/10 blur-3xl rounded-full pointer-events-none"></div>
-                <div x-show="submitStatus === 'success'" class="absolute inset-0 z-20 bg-emerald-600 flex flex-col items-center justify-center text-center p-6" x-transition x-cloak><svg class="w-12 h-12 text-white mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><h3 class="text-xl font-bold text-white"><span x-show="lang === 'en'">Sent!</span><span x-show="lang === 'ua'" x-cloak>Надіслано!</span></h3></div>
+                <div x-show="submitStatus === 'success'" class="absolute inset-0 z-20 bg-emerald-600 flex flex-col items-center justify-center text-center p-6" x-transition><svg class="w-12 h-12 text-white mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><h3 class="text-xl font-bold text-white"><span x-show="lang === 'en'">Sent!</span><span x-show="lang === 'ua'" x-cloak>Надіслано!</span></h3></div>
                 <div class="p-6 relative z-10">
                     <h3 class="font-heading text-lg font-bold text-white mb-1"><span x-show="lang === 'en'">Report Absence</span><span x-show="lang === 'ua'" x-cloak>Повідомити про відсутність</span></h3>
                     <p class="text-slate-400 text-sm mb-6"><span x-show="lang === 'en'">Let us know if you cannot attend.</span><span x-show="lang === 'ua'" x-cloak>Дайте знати, якщо вас не буде.</span></p>
-                    <form x-ref="form" @submit.prevent="submitForm" name="attendance" method="POST" data-netlify="true" class="space-y-4"><input type="hidden" name="form-name" value="attendance" /><input type="text" name="name" required :placeholder="lang === 'en' ? 'Your Name' : 'Ваше Ім\'я'" class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brass transition-colors"><select name="date" required class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-brass appearance-none"><option value="" disabled selected x-text="lang === 'en' ? 'Select Date' : 'Оберіть Дату'"></option><template x-for="opt in availableDates"><option :value="opt.val" x-text="opt.label"></option></template></select><button type="submit" class="w-full bg-brass hover:bg-brassLight text-white font-bold text-sm py-3 rounded-lg transition-colors shadow-lg disabled:opacity-50" :disabled="submitStatus === 'submitting'"><span x-show="submitStatus === 'idle'"><span x-show="lang === 'en'">Submit</span><span x-show="lang === 'ua'" x-cloak>Надіслати</span></span><span x-show="submitStatus === 'submitting'" x-cloak>...</span></button></form>
+                    <form x-ref="form" @submit.prevent="submitForm" name="attendance" method="POST" data-netlify="true" class="space-y-4"><input type="hidden" name="form-name" value="attendance" /><input type="text" name="name" required :placeholder="lang === 'en' ? 'Your Name' : 'Ваше Ім\'я'" class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brass transition-colors"><select name="date" required class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-brass appearance-none"><option value="" disabled selected x-text="lang === 'en' ? 'Select Date' : 'Оберіть Дату'"></option><template x-for="opt in availableDates"><option :value="opt.val" x-text="opt.label"></option></template></select><button type="submit" class="w-full bg-brass hover:bg-brassLight text-white font-bold text-sm py-3 rounded-lg transition-colors shadow-lg disabled:opacity-50" :disabled="submitStatus === 'submitting'"><span x-show="submitStatus === 'idle'"><span x-show="lang === 'en'">Submit</span><span x-show="lang === 'ua'" x-cloak>Надіслати</span></span><span x-show="submitStatus === 'submitting'">...</span></button></form>
                 </div>
             </section>
         </div>
@@ -294,17 +426,12 @@
         <section id="tools" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden scroll-mt-32 reveal-hidden" x-data="{ shown: false }" x-intersect.threshold.05.once="shown = true" :class="shown ? 'reveal-visible' : ''">
             <div class="px-6 py-6 border-b border-slate-100"><h2 class="font-heading text-xl font-bold text-slate-900 flex items-center gap-2"><svg class="w-5 h-5 text-brass" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span x-show="lang === 'en'">Musician Toolkit</span><span x-show="lang === 'ua'" x-cloak>Інструменти</span></h2></div>
             <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
-                
-                <div x-data="metronomeWidget">
+                <div x-data="{ bpm: 100, isPlaying: false, timer: null, audioCtx: null, playClick() { if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); const osc = this.audioCtx.createOscillator(); const gain = this.audioCtx.createGain(); osc.connect(gain); gain.connect(this.audioCtx.destination); osc.frequency.value = 1000; gain.gain.value = 1; osc.start(); gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.1); osc.stop(this.audioCtx.currentTime + 0.1); }, toggle() { if (this.isPlaying) { clearInterval(this.timer); this.isPlaying = false; } else { this.isPlaying = true; this.playClick(); this.timer = setInterval(() => this.playClick(), (60 / this.bpm) * 1000); } }, updateSpeed() { if (this.isPlaying) { clearInterval(this.timer); this.timer = setInterval(() => this.playClick(), (60 / this.bpm) * 1000); } } }">
                     <div class="flex justify-between items-center mb-6"><span class="text-sm font-bold text-slate-500 uppercase tracking-wider"><span x-show="lang === 'en'">Metronome</span><span x-show="lang === 'ua'" x-cloak>Метроном</span></span><div class="flex items-center gap-2 bg-slate-100 px-3 py-1 rounded-full"><div class="h-2 w-2 rounded-full bg-slate-400" :class="isPlaying ? 'bg-red-500 animate-pulse' : ''"></div><span class="text-lg font-mono font-bold text-slate-900" x-text="bpm"></span><span class="text-[10px] text-slate-500 font-bold">BPM</span></div></div>
-                    <input type="range" min="40" max="240" x-model="bpm" @input="updateSpeed()" class="w-full mb-6">
-                    <div class="grid grid-cols-2 gap-4">
-                        <button @click="toggle()" class="w-full py-4 rounded-xl font-bold transition-all text-sm uppercase tracking-wide shadow-sm hover:shadow-md border" :class="isPlaying ? 'bg-white border-slate-200 text-slate-900' : 'bg-slate-900 border-transparent text-white hover:bg-slate-800'"><span x-text="isPlaying ? (lang === 'en' ? 'Stop' : 'Стоп') : (lang === 'en' ? 'Start' : 'Старт')"></span></button>
-                        <button @click="tapTempo()" class="w-full py-4 rounded-xl font-bold transition-all text-sm uppercase tracking-wide bg-brass/10 text-brass border border-brass/20 hover:bg-brass hover:text-white"><span x-show="lang === 'en'">Tap Tempo</span><span x-show="lang === 'ua'" x-cloak>Тап Темп</span></button>
-                    </div>
+                    <input type="range" min="40" max="200" x-model="bpm" @input="updateSpeed()" class="w-full mb-6">
+                    <button @click="toggle()" class="w-full py-4 rounded-xl font-bold transition-all text-sm uppercase tracking-wide shadow-sm hover:shadow-md border" :class="isPlaying ? 'bg-white border-slate-200 text-slate-900' : 'bg-slate-900 border-transparent text-white hover:bg-slate-800'"><span x-text="isPlaying ? (lang === 'en' ? 'Stop' : 'Стоп') : (lang === 'en' ? 'Start' : 'Старт')"></span></button>
                 </div>
-
-                <div x-data="tuningWidget">
+                <div x-data="{ activeNote: null, audioCtx: null, oscillator: null, playNote(freq, noteName) { if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (this.activeNote === noteName) { this.oscillator.stop(); this.activeNote = null; return; } if (this.oscillator) { this.oscillator.stop(); } this.oscillator = this.audioCtx.createOscillator(); const gain = this.audioCtx.createGain(); this.oscillator.type = 'triangle'; this.oscillator.frequency.setValueAtTime(freq, this.audioCtx.currentTime); this.oscillator.connect(gain); gain.connect(this.audioCtx.destination); this.oscillator.start(); this.activeNote = noteName; } }">
                     <div class="flex justify-between items-center mb-6"><span class="text-sm font-bold text-slate-500 uppercase tracking-wider"><span x-show="lang === 'en'">Tuning</span><span x-show="lang === 'ua'" x-cloak>Налаштування</span></span><span class="text-xs font-bold text-brass" x-text="activeNote ? (lang === 'en' ? 'Playing: ' : 'Грає: ') + activeNote : ''"></span></div>
                     <div class="grid grid-cols-3 gap-4">
                         <button @click="playNote(233.08, 'Low Bb')" class="py-4 rounded-xl border font-bold text-sm transition-all flex flex-col items-center gap-1" :class="activeNote === 'Low Bb' ? 'bg-brass text-white border-brass' : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-brass'"><span>Low Bb</span><span class="text-[9px] opacity-60 font-mono">233.08Hz</span></button>
@@ -317,7 +444,7 @@
 
         <section id="media" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden reveal-hidden" x-data="{ shown: false }" x-intersect.threshold.05.once="shown = true" :class="shown ? 'reveal-visible' : ''">
             <div class="px-6 py-6 border-b border-slate-100 flex justify-between items-center"><h2 class="font-heading text-xl font-bold text-slate-900"><span x-show="lang === 'en'">Media Gallery</span><span x-show="lang === 'ua'" x-cloak>Медіа Галерея</span></h2><a href="https://youtube.com/playlist?list=PLqmdWSP7QrZ5hK9MdbSxGiC9NlsI3vL7f&si=70N759E8fiG6dxQu" target="_blank" class="flex items-center gap-2 bg-[#FF0000] text-white px-4 py-2 rounded-full text-xs font-bold shadow hover:bg-red-700 transition-colors"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg><span x-show="lang === 'en'">Playlist</span><span x-show="lang === 'ua'" x-cloak>Плейлист</span></a></div>
-            <div class="p-2 bg-slate-50"><div class="relative w-full aspect-video rounded-xl overflow-hidden shadow-inner border border-slate-200"><iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/videoseries?si=JI14AJhU9wiD4Svw&list=PLqmdWSP7QrZ5hK9MdbSxGiC9NlsI3vL7f" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div></div>
+            <div class="p-2 bg-slate-50"><div class="relative w-full aspect-video rounded-xl overflow-hidden shadow-inner border border-slate-200"><iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/videoseries?si=JI14AJhU9wiD4Svw&amp;list=PLqmdWSP7QrZ5hK9MdbSxGiC9NlsI3vL7f" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div></div>
         </section>
     </main>
 
@@ -342,225 +469,9 @@
         <div class="relative w-full max-w-3xl bg-white rounded-xl shadow-2xl flex flex-col max-h-[80vh] overflow-hidden">
             <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50"><h3 class="font-heading text-lg font-bold text-slate-900"><span x-show="lang === 'en'">Song Library</span><span x-show="lang === 'ua'" x-cloak>Архів Пісень</span></h3><button @click="showLibrary = false" class="p-2 bg-white hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-900 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button></div>
             <div class="p-4 border-b border-slate-100"><input x-model="searchQuery" type="text" :placeholder="lang === 'en' ? 'Search songs...' : 'Пошук...'" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:border-brass transition-colors"></div>
-            <div class="overflow-y-auto p-2 flex-grow bg-white"><template x-for="song in filteredSongs" :key="song.u + song.n"><div class="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-lg transition-colors border-b border-slate-50 last:border-0"><span class="font-mono text-sm font-bold text-brass w-12 text-right" x-text="song.n && song.n !== 'New' ? '#' + song.n : ''"></span><span class="text-slate-700 font-medium" x-text="song.u"></span><span x-show="!song.n || song.n === 'New'" class="ml-auto text-xs font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded" x-cloak>New</span></div></template></div>
+            <div class="overflow-y-auto p-2 flex-grow bg-white"><template x-for="song in filteredSongs" :key="song.u + song.n"><div class="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-lg transition-colors border-b border-slate-50 last:border-0"><span class="font-mono text-sm font-bold text-brass w-12 text-right" x-text="song.n && song.n !== 'New' ? '#' + song.n : ''"></span><span class="text-slate-700 font-medium" x-text="song.u"></span><span x-show="!song.n || song.n === 'New'" class="ml-auto text-xs font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded">New</span></div></template></div>
         </div>
     </div>
-    
-    <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('fubcApp', () => ({
-                lang: 'en', 
-                showLibrary: false, 
-                searchQuery: '',
-                submitStatus: 'idle', 
-                verse: { en: '', ua: '' },
-                mobileMenuOpen: false,
-                scrollY: 0, 
-                scrollProgress: 0,
-                isLoading: true, 
-
-                settings: { isRehearsalCanceled: false, conductorNote: '', nextRehearsalTime: '9:00 PM' },
-                events: [], 
-                currentSetlist: [],
-                allSongs: [],
-                program: { isVisible: false, date: '', items: [] },
-
-                verses: [
-                    { en: 'Make a joyful noise unto the Lord...', ua: 'Викликніть Господу, уся земле...' },
-                    { en: 'I will sing to the LORD as long as I live...', ua: 'Я буду співати Господеві за життя свого...' },
-                    { en: 'Praise him with the sounding of the trumpet...', ua: 'Хваліть Його звуком трубним...' }
-                ],
-
-                init() {
-                    this.verse = this.verses[Math.floor(Math.random() * this.verses.length)];
-                    
-                    fetch('/data.json?t=' + new Date().getTime())
-                        .then(res => res.json())
-                        .then(json => {
-                            if (json.settings) this.settings = { ...this.settings, ...json.settings };
-                            if (json.events && json.events.length > 0) this.events = json.events;
-                            if (json.currentSetlist && json.currentSetlist.length > 0) this.currentSetlist = json.currentSetlist;
-                            if (json.allSongs && json.allSongs.length > 0) this.allSongs = json.allSongs;
-                            if (json.serviceProgram) this.program = json.serviceProgram;
-                            this.isLoading = false;
-                        })
-                        .catch(err => {
-                            console.error('Failed to load JSON data:', err);
-                            this.isLoading = false;
-                        });
-                },
-
-                get sortedSchedule() {
-                    let mergedEvents = [];
-                    const currentYear = new Date().getFullYear();
-
-                    let d = new Date();
-                    let day = d.getDay();
-                    let hour = d.getHours();
-                    let min = d.getMinutes();
-                    let daysToAdd = 0;
-
-                    if (day === 5) {
-                        if (hour < 21 || (hour === 21 && min < 15)) {
-                            daysToAdd = 0; 
-                        } else {
-                            daysToAdd = 7; 
-                        }
-                    } else {
-                        daysToAdd = (5 - day + 7) % 7;
-                    }
-                    d.setDate(d.getDate() + daysToAdd);
-
-                    for (let i = 0; i < 3; i++) {
-                        let rehDate = new Date(d); 
-                        rehDate.setHours(21, 0, 0, 0); 
-                        
-                        mergedEvents.push({
-                            type: 'rehearsal',
-                            dateObj: rehDate, 
-                            dateString: rehDate.toLocaleDateString(this.lang === 'en' ? 'en-US' : 'uk-UA', { month: 'short', day: 'numeric' }),
-                            title_en: 'Weekly Rehearsal',
-                            title_ua: 'Щотижнева Репетиція',
-                            time: this.settings.nextRehearsalTime,
-                            isTonight: (i === 0 && daysToAdd === 0)
-                        });
-                        d.setDate(d.getDate() + 7);
-                    }
-
-                    this.events.forEach(e => {
-                        let evtDate = new Date(e.date + ' ' + currentYear);
-                        let timeParts = e.time.match(/(\d+):(\d+)\s*(AM|PM)/i);
-                        if (timeParts) {
-                            let h = parseInt(timeParts[1]);
-                            if (timeParts[3].toUpperCase() === 'PM' && h < 12) h += 12;
-                            if (timeParts[3].toUpperCase() === 'AM' && h === 12) h = 0;
-                            evtDate.setHours(h, parseInt(timeParts[2]), 0, 0);
-                        } else {
-                            evtDate.setHours(9, 0, 0, 0);
-                        }
-
-                        mergedEvents.push({
-                            type: 'event',
-                            dateObj: evtDate,
-                            dateString: e.date,
-                            title_en: e.title_en,
-                            title_ua: e.title_ua,
-                            time: e.time,
-                            day: e.day, 
-                            isTonight: false
-                        });
-                    });
-
-                    return mergedEvents.sort((a, b) => a.dateObj - b.dateObj);
-                },
-
-                get nextEvent() { return this.sortedSchedule[0] || {}; },
-                get nextPerformance() { return this.sortedSchedule.find(e => e.type === 'event') || {}; },
-                get futureEvents() { return this.sortedSchedule.slice(1); },
-
-                get availableDates() {
-                    let dates = [];
-                    const nextReh = this.sortedSchedule.find(e => e.type === 'rehearsal');
-                    if (nextReh && !this.settings.isRehearsalCanceled) {
-                        dates.push({ val: nextReh.dateString + ' (Rehearsal)', label: nextReh.dateString + (this.lang === 'en' ? ' - Rehearsal' : ' - Репетиція') });
-                    }
-                    this.events.forEach(e => {
-                        dates.push({ val: e.date + ' (' + e.title_en + ')', label: e.date + ' - ' + (this.lang === 'en' ? e.title_en : e.title_ua) });
-                    });
-                    return dates;
-                },
-
-                copySetlist() {
-                    let text = '🎵 Setlist:\n';
-                    this.mappedSetlist.forEach(s => text += `- ${s.title}\n`);
-                    navigator.clipboard.writeText(text);
-                    alert('Setlist copied!');
-                },
-
-                submitForm() {
-                    this.submitStatus = 'submitting';
-                    const formData = new FormData(this.$refs.form);
-                    fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(formData).toString() })
-                    .then(() => {
-                        this.submitStatus = 'success';
-                        confetti({ particleCount: 150, spread: 70, origin: { y: 0.7 }, colors: ['#b45309', '#d97706', '#ffffff'] });
-                        this.$refs.form.reset();
-                        setTimeout(() => this.submitStatus = 'idle', 5000);
-                    }).catch(() => { alert('Connection error.'); this.submitStatus = 'idle'; });
-                },
-
-                // EXPLICIT FIX: Do not sort the setlist, only map the properties
-                get mappedSetlist() {
-                    return this.currentSetlist.map(song => {
-                        const masterSong = this.allSongs.find(s => 
-                            (s.n && song.binderNumber && String(s.n) === String(song.binderNumber)) || 
-                            (s.u && song.title && String(s.u).toLowerCase() === String(song.title).toLowerCase())
-                        );
-                        return {
-                            ...song,
-                            link: song.link || (masterSong ? masterSong.link : ''),
-                            chords: song.chords || (masterSong ? masterSong.chords : '')
-                        };
-                    });
-                },
-
-                get filteredSongs() { 
-                    if (this.searchQuery === '') return this.allSongs; 
-                    const q = this.searchQuery.toLowerCase(); 
-                    return this.allSongs.filter(s => (s.n && s.n.toString().includes(q)) || (s.u && s.u.toLowerCase().includes(q))); 
-                }
-            }));
-
-            Alpine.data('metronomeWidget', () => ({
-                bpm: 100, 
-                isPlaying: false, 
-                timer: null, 
-                audioCtx: null, 
-                playClick() { 
-                    if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
-                    const osc = this.audioCtx.createOscillator(); 
-                    const gain = this.audioCtx.createGain(); 
-                    osc.connect(gain); gain.connect(this.audioCtx.destination); 
-                    osc.frequency.value = 1000; gain.gain.value = 1; 
-                    osc.start(); gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.1); 
-                    osc.stop(this.audioCtx.currentTime + 0.1); 
-                }, 
-                toggle() { 
-                    if (this.isPlaying) { clearInterval(this.timer); this.isPlaying = false; } 
-                    else { this.isPlaying = true; this.playClick(); this.timer = setInterval(() => this.playClick(), (60 / this.bpm) * 1000); } 
-                }, 
-                updateSpeed() { 
-                    if (this.isPlaying) { clearInterval(this.timer); this.timer = setInterval(() => this.playClick(), (60 / this.bpm) * 1000); } 
-                },
-                tapTempo() { 
-                    const now = Date.now(); 
-                    if (this.lastTap && (now - this.lastTap) < 2000) { 
-                        this.bpm = Math.min(Math.max(Math.round(60000 / (now - this.lastTap)), 40), 240); 
-                        this.updateSpeed(); 
-                    } 
-                    this.lastTap = now; 
-                }
-            }));
-
-            Alpine.data('tuningWidget', () => ({
-                activeNote: null, 
-                audioCtx: null, 
-                oscillator: null, 
-                playNote(freq, noteName) { 
-                    if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
-                    if (this.activeNote === noteName) { this.oscillator.stop(); this.activeNote = null; return; } 
-                    if (this.oscillator) { this.oscillator.stop(); } 
-                    this.oscillator = this.audioCtx.createOscillator(); 
-                    const gain = this.audioCtx.createGain(); 
-                    this.oscillator.type = 'triangle'; 
-                    this.oscillator.frequency.setValueAtTime(freq, this.audioCtx.currentTime); 
-                    this.oscillator.connect(gain); gain.connect(this.audioCtx.destination); 
-                    this.oscillator.start(); 
-                    this.activeNote = noteName; 
-                }
-            }));
-        });
-    </script>
     
     <script>if (window.netlifyIdentity) { window.netlifyIdentity.on("init", user => { if (!user) { window.netlifyIdentity.on("login", () => { document.location.href = "/admin/"; }); } }); }</script>
     <script>if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js'); }); }</script>
