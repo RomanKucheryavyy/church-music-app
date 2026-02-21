@@ -934,6 +934,9 @@
                 ],
 
                 async init() {
+                    // Update instrument first!
+                    this.updateGlobalInstrument(this.globalInstrument, true);
+                    
                     const supabaseUrl = 'https://levtwocaqocalknouepf.supabase.co';
                     const supabaseKey = 'sb_publishable_BpPAx20IJLbntNt5pjZiAQ_jG3b4Joh';
                     this.supabase = supabase.createClient(supabaseUrl, supabaseKey);
@@ -973,7 +976,6 @@
                         }
                     } catch(e) {}
                     
-                    this.updateGlobalInstrument(this.globalInstrument, true);
                     this.fetchLeaderboard();
                 },
 
@@ -1080,7 +1082,7 @@
                 printStaves(count) { const container = document.getElementById('print-staves'); container.innerHTML = ''; for(let i=0; i<count; i++) { container.innerHTML += `<div class='stave-group'><div class='stave'></div><div class='stave'></div><div class='stave'></div><div class='stave'></div><div class='stave'></div></div>`; } window.print(); },
 
                 interactiveChart: {
-                    instrument: 'Trumpet', selectedRange: 'Mid', selectedNote: 0, ranges: ['Low', 'Mid', 'High'],
+                    instrument: localStorage.getItem('fubc_school_instrument') || 'Trumpet', selectedRange: 'Mid', selectedNote: 0, ranges: ['Low', 'Mid', 'High'],
                     data: {
                         'Flute':{type:'woodwind',notes:{'Low':[{name:'C',lh:[0,1,1,1],rh:[1,1,1,1]},{name:'D',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,1]},{name:'F',lh:[1,1,1,1],rh:[1,0,0,1]},{name:'G',lh:[1,1,1,1],rh:[0,0,0,1]},{name:'A',lh:[1,1,1,0],rh:[0,0,0,1]},{name:'B',lh:[1,1,0,0],rh:[0,0,0,1]}],'Mid':[{name:'C',lh:[0,1,0,0],rh:[0,0,0,1]},{name:'Db',lh:[0,0,0,0],rh:[0,0,0,1]},{name:'D',lh:[1,0,1,1],rh:[1,1,1,0]},{name:'Eb',lh:[1,0,1,1],rh:[1,1,1,1]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,1]},{name:'F',lh:[1,1,1,1],rh:[1,0,0,1]},{name:'Gb',lh:[1,1,1,1],rh:[0,0,1,1]},{name:'G',lh:[1,1,1,1],rh:[0,0,0,1]},{name:'Ab',lh:[1,1,1,1],rh:[0,0,0,1]},{name:'A',lh:[1,1,1,0],rh:[0,0,0,1]},{name:'Bb',lh:[1,1,0,0],rh:[1,0,0,1]},{name:'B',lh:[1,1,0,0],rh:[0,0,0,1]},{name:'C↑',lh:[0,1,0,0],rh:[0,0,0,1]}],'High':[{name:'C',lh:[0,1,0,0],rh:[0,0,0,1]},{name:'D',lh:[1,0,1,1],rh:[0,0,0,0]},{name:'E',lh:[1,1,1,0],rh:[1,1,0,1]},{name:'F',lh:[1,1,0,1],rh:[1,0,0,1]},{name:'G',lh:[1,0,1,1],rh:[0,0,0,1]},{name:'A',lh:[1,0,1,0],rh:[1,0,0,1]},{name:'B',lh:[1,0,0,0],rh:[0,0,0,1]}]}},
                         'Oboe':{type:'woodwind',notes:{'Low':[{name:'C',lh:[0,1,1,1],rh:[1,1,1,1]},{name:'D',lh:[0,1,1,1],rh:[1,1,1,0]},{name:'E',lh:[0,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[0,1,1,1],rh:[1,0,0,0]},{name:'G',lh:[0,1,1,1],rh:[0,0,0,0]},{name:'A',lh:[0,1,1,0],rh:[0,0,0,0]},{name:'B',lh:[0,1,0,0],rh:[0,0,0,0]}],'Mid':[{name:'C',lh:[0,0,1,0],rh:[0,0,0,0]},{name:'Db',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'D',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'Eb',lh:[1,1,1,1],rh:[1,1,1,1]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[1,1,1,1],rh:[1,0,0,0]},{name:'Gb',lh:[1,1,1,1],rh:[0,1,0,0]},{name:'G',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'Ab',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'A',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'Bb',lh:[1,1,0,0],rh:[1,0,0,0]},{name:'B',lh:[1,1,0,0],rh:[0,0,0,0]},{name:'C↑',lh:[1,0,1,0],rh:[0,0,0,0]}],'High':[{name:'C',lh:[1,0,1,0],rh:[0,0,0,0]},{name:'D',lh:[1,0,1,1],rh:[0,0,0,0]},{name:'E',lh:[1,0,1,0],rh:[1,0,0,0]},{name:'F',lh:[1,0,1,0],rh:[0,1,0,0]},{name:'G',lh:[1,0,1,0],rh:[0,0,0,0]},{name:'A',lh:[1,0,1,1],rh:[0,0,0,0]},{name:'B',lh:[1,0,0,0],rh:[0,0,0,0]}]}},
