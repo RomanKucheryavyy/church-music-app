@@ -1,9 +1,9 @@
 {
   "settings": {
-    "isRehearsalCanceled": false,
+    "isRehearsalCanceled": true,
     "nextRehearsalDate": "",
     "nextRehearsalTime": "9:00 PM",
-    "conductorNote": "Focus on Ныне я Его дитя"
+    "conductorNote": ""
   },
   "events": [
     {
@@ -36,16 +36,17 @@
       "binderNumber": ""
     },
     {
-      "binderNumber": "39",
-      "title": "За все Тобі я дякую",
-      "sub": "I thank You for everything"
-    },
-    {
       "title": "Миллионы людей",
       "binderNumber": "73",
       "sub": "Millions of people",
       "link": "https://www.youtube.com/watch?v=lSO6geUuSes",
       "chords": "https://mscmusic.org/works/MXO-04800"
+    },
+    {
+      "title": "Звучит труба",
+      "binderNumber": "57",
+      "link": "https://www.windorchestra.net/prazdniktrub/2005-mp3",
+      "chords": "https://www.windorchestra.net/prazdniktrub/2005-mp3"
     }
   ],
   "allSongs": [
@@ -275,7 +276,9 @@
     },
     {
       "n": "57",
-      "u": "Звучит труба"
+      "u": "Звучит труба",
+      "link": "https://www.windorchestra.net/prazdniktrub/2005-mp3",
+      "chords": "https://www.windorchestra.net/prazdniktrub/2005-mp3"
     },
     {
       "n": "58",
@@ -514,12 +517,22 @@
     }
   ],
   "serviceProgram": {
-    "date": "",
-    "isVisible": false,
+    "date": "2026-02-22",
+    "isVisible": true,
     "items": []
   },
   "schoolSetlist": [
-    { "title": "Юношу Иосифа", "desc_en": "Focus on rhythm.", "desc_ua": "Точність ритму.", "link": "https://ifob.su/band/instrumental/simple/yunoshu-iosifa/" },
-    { "title": "Пока огонь", "desc_en": "Focus on breath support.", "desc_ua": "Увага на дихання.", "link": "https://ifob.su/band/instrumental/simple/poka-ogoni-af/" }
+    {
+      "title": "Юношу Иосифа",
+      "desc_en": "Focus on rhythm.",
+      "desc_ua": "Точність ритму.",
+      "link": "https://ifob.su/band/instrumental/simple/yunoshu-iosifa/"
+    },
+    {
+      "title": "Пока огонь",
+      "desc_en": "Focus on breath support.",
+      "desc_ua": "Увага на дихання.",
+      "link": "https://ifob.su/band/instrumental/simple/poka-ogoni-af/"
+    }
   ]
 }
