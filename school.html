@@ -15,6 +15,8 @@
     <script src="https://cdn.jsdelivr.net/npm/abcjs@6.2.2/dist/abcjs-basic-min.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/abcjs@6.2.2/abcjs-audio.min.css">
     
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <link rel="icon" type="image/png" href="/social-logo.png?v=2">
@@ -51,7 +53,6 @@
         .hero-bg { background-image: url('https://images.unsplash.com/photo-1573871669414-010dbf73ca84?q=80&w=2071&auto=format&fit=crop'); background-size: cover; background-position: center; }
         .abcjs-container svg { max-width: 100%; height: auto; border-radius: 0.5rem; }
         
-        /* Custom ABCJS Audio Player Overrides */
         .abcjs-inline-audio { background-color: #0f172a !important; border-radius: 12px !important; padding: 12px 24px !important; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important; margin: 0 auto !important; max-width: 500px; display: flex; align-items: center; justify-content: center; border: 2px solid #b45309 !important; }
         .abcjs-btn { color: white !important; fill: white !important; background-color: #1e293b !important; border-radius: 50% !important; transition: all 0.2s ease !important; }
         .abcjs-btn:hover { background-color: #b45309 !important; transform: scale(1.05); }
@@ -82,8 +83,9 @@
                     
                     <input x-show="authMode === 'register'" x-model="authForm.code" type="text" placeholder="Class Access Code" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-bold text-slate-700 focus:border-brass focus:outline-none uppercase tracking-widest text-center" x-cloak>
                     
-                    <button @click="handleAuth()" class="w-full bg-slate-900 text-white font-bold uppercase tracking-widest text-xs py-4 rounded-xl hover:bg-brass transition-colors shadow-md mt-4">
-                        <span x-text="authMode === 'login' ? 'Secure Login' : 'Create Account'"></span>
+                    <button @click="handleAuth()" class="w-full bg-slate-900 text-white font-bold uppercase tracking-widest text-xs py-4 rounded-xl hover:bg-brass transition-colors shadow-md mt-4 relative disabled:opacity-50" :disabled="authLoading">
+                        <span x-show="!authLoading" x-text="authMode === 'login' ? 'Secure Login' : 'Create Account'"></span>
+                        <span x-show="authLoading" x-cloak>Processing...</span>
                     </button>
                 </div>
                 
@@ -110,8 +112,8 @@
                         <div class="bg-slate-50 border border-slate-100 p-4 rounded-2xl flex flex-col items-center justify-center text-center shadow-sm">
                             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Time</span>
                             <div class="text-3xl font-black text-slate-900 leading-none">
-                                <span x-text="Math.floor((currentUser?.totalMinutes || 0) / 60)"></span><span class="text-sm font-bold text-slate-500 ml-1">h</span>
-                                <span x-text="(currentUser?.totalMinutes || 0) % 60"></span><span class="text-sm font-bold text-slate-500 ml-1">m</span>
+                                <span x-text="Math.floor((currentUser?.total_minutes || 0) / 60)"></span><span class="text-sm font-bold text-slate-500 ml-1">h</span>
+                                <span x-text="(currentUser?.total_minutes || 0) % 60"></span><span class="text-sm font-bold text-slate-500 ml-1">m</span>
                             </div>
                         </div>
                         <div class="bg-slate-50 border border-slate-100 p-4 rounded-2xl flex flex-col items-center justify-center text-center shadow-sm">
@@ -172,7 +174,7 @@
     <nav class="sticky top-0 z-40 bg-slate-100/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm transition-colors duration-300 w-full max-w-[100vw]" :class="mobileMenuOpen ? 'bg-slate-100 border-transparent' : ''">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative w-full">
             <div class="flex justify-between items-center h-16 w-full">
-                <a href="#" @click.prevent="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity group z-50 relative shrink-0">
+                <a href="/" class="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity group z-50 relative shrink-0">
                     <div class="font-heading font-bold text-lg sm:text-xl md:text-2xl tracking-[0.1em] sm:tracking-[0.15em] text-slate-900 leading-none">
                         FUBC <span class="text-brass block text-[9px] sm:text-[10px] md:text-xs font-semibold tracking-[0.2em] sm:tracking-[0.35em] mt-0.5 group-hover:text-brassLight transition-colors">MUSIC SCHOOL</span>
                     </div>
@@ -260,8 +262,47 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 animate-fade-in-up" style="animation-delay: 0.2s;">
-            <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 sm:p-8 flex flex-col justify-between relative overflow-hidden transition-all duration-300 hover:shadow-lg">
-                <div class="flex justify-between items-start mb-4 border-b border-slate-100 pb-4">
+            <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden transition-all duration-300 hover:shadow-lg">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="font-heading font-bold text-slate-900 text-base sm:text-lg">
+                            <span x-show="lang === 'en'">Weekly Progress</span><span x-show="lang === 'ua'" x-cloak>Прогрес за тиждень</span>
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-1">
+                            <span x-show="lang === 'en'">Build your habit!</span><span x-show="lang === 'ua'" x-cloak>Формуйте звичку!</span>
+                        </p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-2xl sm:text-3xl font-black text-brass leading-none" x-text="currentUser ? currentUser.streak : streak"></div>
+                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest"><span x-show="lang === 'en'">Day Streak</span><span x-show="lang === 'ua'" x-cloak>Днів поспіль</span></span>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100 mb-4">
+                    <template x-for="(day, index) in weekDays" :key="index">
+                        <div class="flex flex-col items-center gap-1.5">
+                            <span class="text-[10px] font-bold text-slate-400" x-text="day"></span>
+                            <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-colors duration-300"
+                                 :class="hasPracticedOnDay(index) ? 'bg-emerald-100 text-emerald-600 border border-emerald-200' : (index === currentDayOfWeek ? 'bg-white border-2 border-slate-300' : 'bg-white border border-slate-200')">
+                                <svg x-show="hasPracticedOnDay(index)" class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                
+                <button @click="logPractice()" class="w-full py-3 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-widest transition-all duration-300 shadow-sm border"
+                    :class="practicedToday ? 'bg-emerald-50 text-emerald-700 border-emerald-200 cursor-default' : 'bg-slate-900 border-transparent text-white hover:bg-brass hover:shadow-md'">
+                    <span x-show="!practicedToday">
+                        <span x-show="lang === 'en'">Mark as Practiced ✓</span><span x-show="lang === 'ua'" x-cloak>Я займався сьогодні ✓</span>
+                    </span>
+                    <span x-show="practicedToday">
+                        <span x-show="lang === 'en'">Done for today!</span><span x-show="lang === 'ua'" x-cloak>Готово на сьогодні!</span>
+                    </span>
+                </button>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 sm:p-8 flex flex-col relative overflow-hidden transition-all duration-300 hover:shadow-lg">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b border-slate-100 pb-4">
                     <div>
                         <h3 class="font-heading font-bold text-slate-900 text-lg sm:text-2xl">
                             <span x-show="lang === 'en'">Guided Session</span><span x-show="lang === 'ua'" x-cloak>Таймер Занять</span>
@@ -289,27 +330,6 @@
                     </div>
                     <button @click="toggleSession()" class="w-full sm:w-auto bg-slate-900 text-white px-8 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-brass transition-all duration-300 shadow-md flex-shrink-0" x-text="sessionActive ? (lang === 'en' ? 'Pause Timer' : 'Пауза') : (lang === 'en' ? 'Start Timer' : 'Старт')"></button>
                 </div>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 sm:p-8 flex flex-col justify-center items-center text-center relative overflow-hidden transition-all duration-300 hover:shadow-lg">
-                <div class="w-16 h-16 bg-brass/10 rounded-full flex items-center justify-center flex-shrink-0 mb-4">
-                    <svg class="w-8 h-8 text-brass" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" /><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z" /></svg>
-                </div>
-                <h3 class="font-heading font-bold text-slate-900 text-lg mb-1">
-                    <span x-show="lang === 'en'">Quick Log</span><span x-show="lang === 'ua'" x-cloak>Швидкий запис</span>
-                </h3>
-                <p class="text-sm text-slate-500 mb-6">
-                    <span x-show="lang === 'en'">Practiced without the timer? Keep your streak alive.</span><span x-show="lang === 'ua'" x-cloak>Займалися без таймера? Збережіть свій прогрес.</span>
-                </p>
-                <button @click="logPractice()" class="w-full py-3.5 rounded-xl font-bold text-sm uppercase tracking-widest transition-all duration-300 shadow-md border transform hover:scale-[1.02]"
-                    :class="practicedToday ? 'bg-emerald-50 text-emerald-700 border-emerald-200 cursor-default shadow-none' : 'bg-brass border-brass text-white hover:bg-brassLight'">
-                    <span x-show="!practicedToday">
-                        <span x-show="lang === 'en'">I Practiced Today ✓</span><span x-show="lang === 'ua'" x-cloak>Я займався сьогодні ✓</span>
-                    </span>
-                    <span x-show="practicedToday">
-                        <span x-show="lang === 'en'">Streak Saved!</span><span x-show="lang === 'ua'" x-cloak>Прогрес збережено!</span>
-                    </span>
-                </button>
             </div>
         </div>
 
@@ -546,8 +566,13 @@
 
                         <div class="w-full max-w-lg bg-slate-50 border border-slate-200 shadow-inner rounded-2xl p-6 sm:p-10 flex flex-col justify-center items-center min-h-[200px] sm:min-h-[260px] overflow-hidden relative">
                             
+                            <button @click="playFingeringAudio()" class="absolute top-4 right-4 bg-white border border-slate-200 hover:border-brass hover:text-brass text-slate-500 rounded-full p-2 sm:px-4 sm:py-2 shadow-sm flex items-center gap-2 transition-all duration-200 z-10 focus:outline-none" :class="isFingeringPlaying ? 'text-brass border-brass bg-brass/5 shadow-inner' : ''">
+                                <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                <span class="text-[10px] sm:text-xs font-bold uppercase tracking-widest hidden sm:block"><span x-show="lang === 'en'">Play Pitch</span><span x-show="lang === 'ua'" x-cloak>Звук</span></span>
+                            </button>
+
                             <template x-if="interactiveChart.data[interactiveChart.instrument].type === 'valves'">
-                                <div class="flex gap-4 sm:gap-8 mt-2 mb-6">
+                                <div class="flex gap-4 sm:gap-8 mt-4 sm:mt-0">
                                     <template x-for="(v, i) in interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].val">
                                         <div class="flex flex-col items-center gap-3 sm:gap-4">
                                             <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full border-[4px] sm:border-[5px] shadow-md transition-all duration-300"
@@ -559,7 +584,7 @@
                             </template>
                             
                             <template x-if="interactiveChart.data[interactiveChart.instrument].type === 'slide'">
-                                <div class="flex flex-col items-center w-full max-w-md mt-2 mb-6">
+                                <div class="flex flex-col items-center w-full max-w-md mt-4 sm:mt-0">
                                     <span class="text-5xl sm:text-6xl font-black text-brass mb-2 transition-all duration-300" x-text="interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].pos"></span>
                                     <span class="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-widest mb-6 sm:mb-8">
                                         <span x-show="lang === 'en'">Position</span><span x-show="lang === 'ua'" x-cloak>Позиція</span>
@@ -577,7 +602,7 @@
                             </template>
                             
                             <template x-if="interactiveChart.data[interactiveChart.instrument].type === 'woodwind'">
-                                <div class="flex flex-col sm:flex-row items-center gap-6 sm:gap-10 mt-2 mb-6">
+                                <div class="flex flex-col sm:flex-row items-center gap-6 sm:gap-10 mt-6 sm:mt-0">
                                     <div class="flex items-center gap-2 sm:gap-4 bg-white px-3 py-3 sm:px-5 sm:py-4 rounded-2xl border border-slate-200 shadow-sm">
                                         <span class="text-xs sm:text-sm font-bold text-slate-400 w-6 sm:w-8 text-right">LH</span>
                                         <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-[3px] sm:border-[4px] shadow-sm transition-all duration-300 flex-shrink-0"
@@ -605,12 +630,6 @@
                                     </div>
                                 </div>
                             </template>
-
-                            <button @click="playFingeringAudio()" class="mt-auto bg-white border-2 hover:border-brass text-slate-500 hover:text-brass rounded-full px-6 py-2.5 shadow-sm flex items-center gap-2 transition-all duration-200 z-10 font-bold uppercase tracking-widest text-xs" :class="isFingeringPlaying ? 'text-brass border-brass bg-brass/10 scale-95' : 'border-slate-200'">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                <span><span x-show="lang === 'en'">Play Pitch</span><span x-show="lang === 'ua'" x-cloak>Звук</span></span>
-                            </button>
-                            
                         </div>
                     </div>
                 </div>
@@ -680,6 +699,9 @@
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('schoolApp', () => ({
+                // Initialize Supabase Client
+                supabase: null,
+                
                 lang: 'en',
                 mobileMenuOpen: false,
                 
@@ -695,59 +717,93 @@
                 authMode: 'login', // 'login' or 'register'
                 authForm: { name: '', pin: '', code: '' },
                 adminAccessCode: 'FUBC26', // Secret code for kids to register
+                authLoading: false,
                 
-                currentUser: JSON.parse(localStorage.getItem('fubc_cloud_user')) || null,
+                currentUser: null,
                 
-                // When you are ready to use Supabase, you will replace these functions 
-                // to actually fetch/save from the database instead of localStorage!
                 // --- DATABASE CLOUD SYNC ---
-                handleAuth() {
+                async handleAuth() {
                     if(!this.authForm.name || !this.authForm.pin) return alert("Please enter name and PIN.");
+                    if(!this.supabase) {
+                        alert("Database not connected yet! Waiting for keys.");
+                        return;
+                    }
+
+                    this.authLoading = true;
                     
                     if(this.authMode === 'register') {
-                        if(this.authForm.code.toUpperCase() !== this.adminAccessCode) return alert("Invalid Access Code");
+                        if(this.authForm.code.toUpperCase() !== this.adminAccessCode) {
+                            this.authLoading = false;
+                            return alert("Invalid Access Code");
+                        }
                         
-                        // Fake DB Creation
-                        this.currentUser = {
-                            id: Date.now(),
+                        // Check if user exists
+                        const { data: existing } = await this.supabase.from('students').select('*').eq('name', this.authForm.name);
+                        if(existing && existing.length > 0) {
+                            this.authLoading = false;
+                            return alert("Name already taken. Please login or use a different name.");
+                        }
+
+                        const newUser = {
                             name: this.authForm.name,
                             pin: this.authForm.pin,
-                            totalMinutes: 0,
+                            total_minutes: 0,
                             streak: 0,
-                            lastDate: '',
+                            last_date: '',
                             log: []
                         };
-                        this.saveUserToCloud();
+
+                        const { data, error } = await this.supabase.from('students').insert([newUser]).select().single();
+                        
+                        if (error) { 
+                            alert("Error creating account: " + error.message); 
+                            this.authLoading = false;
+                            return; 
+                        }
+                        
+                        this.currentUser = data;
+                        localStorage.setItem('fubc_cloud_user', JSON.stringify(this.currentUser));
                         this.loadUserDataLocally();
                     } else {
-                        // Fake DB Fetch (Would be a Supabase check here)
-                        // If pin is correct, log them in!
-                        let fakeDbUser = JSON.parse(localStorage.getItem('fubc_cloud_user'));
-                        if(fakeDbUser && fakeDbUser.name.toLowerCase() === this.authForm.name.toLowerCase() && fakeDbUser.pin === this.authForm.pin) {
-                            this.currentUser = fakeDbUser;
-                            this.loadUserDataLocally();
-                        } else {
+                        const { data, error } = await this.supabase.from('students').select('*').eq('name', this.authForm.name).eq('pin', this.authForm.pin).single();
+                        
+                        if (error || !data) {
                             alert("Incorrect Name or PIN. Or account does not exist.");
+                        } else {
+                            this.currentUser = data;
+                            localStorage.setItem('fubc_cloud_user', JSON.stringify(this.currentUser));
+                            this.loadUserDataLocally();
                         }
                     }
+                    this.authLoading = false;
                 },
                 
-                saveUserToCloud() {
-                    // This is where you would do: await supabase.from('students').insert([this.currentUser])
+                async saveUserToCloud() {
                     localStorage.setItem('fubc_cloud_user', JSON.stringify(this.currentUser));
+                    if (!this.supabase) return;
+
+                    const { error } = await this.supabase.from('students').update({
+                        total_minutes: this.currentUser.total_minutes,
+                        streak: this.currentUser.streak,
+                        last_date: this.currentUser.last_date,
+                        log: this.currentUser.log
+                    }).eq('id', this.currentUser.id);
+
+                    if(error) console.error("Failed to sync to cloud:", error);
                 },
 
                 logout() {
                     this.currentUser = null;
+                    localStorage.removeItem('fubc_cloud_user');
                     this.authForm = { name: '', pin: '', code: '' };
                 },
 
                 loadUserDataLocally() {
                     this.studentName = this.currentUser.name;
-                    this.totalMinutes = this.currentUser.totalMinutes;
+                    this.totalMinutes = this.currentUser.total_minutes;
                     this.streak = this.currentUser.streak;
-                    this.lastPractice = this.currentUser.lastDate;
-                    this.practicedLog = this.currentUser.log;
+                    this.lastPractice = this.currentUser.last_date;
+                    this.practicedLog = this.currentUser.log || [];
                 },
                 // -----------------------------
 
@@ -760,7 +816,7 @@
                 },
 
                 getRankName() {
-                    let hrs = (this.currentUser ? this.currentUser.totalMinutes : this.totalMinutes) / 60;
+                    let hrs = (this.currentUser ? this.currentUser.total_minutes : this.totalMinutes) / 60;
                     if(hrs < 1) return this.lang === 'en' ? 'Beginner' : 'Початківець';
                     if(hrs < 5) return this.lang === 'en' ? 'Apprentice' : 'Учень';
                     if(hrs < 20) return this.lang === 'en' ? 'Musician' : 'Музикант';
@@ -768,7 +824,7 @@
                     return this.lang === 'en' ? 'Maestro' : 'Маестро';
                 },
                 getRankColor() {
-                    let hrs = (this.currentUser ? this.currentUser.totalMinutes : this.totalMinutes) / 60;
+                    let hrs = (this.currentUser ? this.currentUser.total_minutes : this.totalMinutes) / 60;
                     if(hrs < 5) return 'text-slate-500';
                     if(hrs < 20) return 'text-emerald-500';
                     if(hrs < 50) return 'text-blue-500';
@@ -800,6 +856,7 @@
 
                 hasPracticedOnDay(dayIndex) {
                     const logToCheck = this.currentUser ? this.currentUser.log : this.practicedLog;
+                    if (!logToCheck) return false;
                     const today = new Date();
                     const dayDiff = today.getDay() - dayIndex;
                     const targetDate = new Date(today);
@@ -833,7 +890,7 @@
                     { title: "Се у дверей", desc_en: "Watch for tempo shifts.", desc_ua: "Увага на зміни темпу.", link: "https://ifob.su/band/instrumental/simple/se-u-dverei-ra/" }
                 ],
 
-                // WARMUPS (Mapped to specific instrument pedagogical ranges)
+                // WARMUPS
                 exercises: [
                     { 
                         title_en: '1. Long Tones', title_ua: '1. Довгі Ноти',
@@ -891,12 +948,12 @@
                         title_en: 'Concert Bb Major Scale', title_ua: 'Сі-бемоль мажор (Concert Bb)',
                         keys: ['Bb', 'C', 'G', 'F', 'Bb', 'Bb'],
                         abc: [
-                            'L:1/8\nB c d e f g a b | b a g f e d c B | B8 |]', // Flute Bb
-                            'L:1/8\nC D E F G A B c | c B A G F E D C | C8 |]', // Clarinet C
-                            'L:1/8\nG A B c d e f g | g f e d c B A G | G8 |]', // Sax G
-                            'L:1/8\nF G A B c d e f | f e d c B A G F | F8 |]', // Horn F
-                            'L:1/8\nB,, C, D, E, F, G, A, B, | B, A, G, F, E, D, C, B,, | B,,8 |]', // Trombone Bb2
-                            'L:1/8\nB,,, C,, D,, E,, F,, G,, A,, B,, | B,, A,, G,, F,, E,, D,, C,, B,,, | B,,,8 |]' // Tuba Bb1
+                            'L:1/8\nB c d e f g a b | b a g f e d c B | B8 |]', 
+                            'L:1/8\nC D E F G A B c | c B A G F E D C | C8 |]', 
+                            'L:1/8\nG A B c d e f g | g f e d c B A G | G8 |]', 
+                            'L:1/8\nF G A B c d e f | f e d c B A G F | F8 |]', 
+                            'L:1/8\nB,, C, D, E, F, G, A, B, | B, A, G, F, E, D, C, B,, | B,,8 |]', 
+                            'L:1/8\nB,,, C,, D,, E,, F,, G,, A,, B,, | B,, A,, G,, F,, E,, D,, C,, B,,, | B,,,8 |]'
                         ]
                     },
                     {
@@ -950,14 +1007,25 @@
                 ],
 
                 async init() {
-                    if (this.currentUser) {
+                    // SETUP SUPABASE CONNECTION
+                    const supabaseUrl = 'https://levtwocaqocalknouepf.supabase.co';
+                    const supabaseKey = 'sb_publishable_BpPAx20IJLbntNt5pjZiAQ_jG3b4Joh';
+                    
+                    if(supabaseUrl !== 'https://levtwocaqocalknouepf.supabase.co') {
+                        this.supabase = supabase.createClient(supabaseUrl, supabaseKey);
+                    }
+
+                    // Check for logged in cloud user
+                    let storedCloudUser = localStorage.getItem('fubc_cloud_user');
+                    if (storedCloudUser) {
+                        this.currentUser = JSON.parse(storedCloudUser);
                         this.loadUserDataLocally();
                     }
 
                     const today = new Date();
                     today.setHours(0,0,0,0);
 
-                    let logArr = this.currentUser ? this.currentUser.log : this.practicedLog;
+                    let logArr = this.currentUser ? (this.currentUser.log || []) : this.practicedLog;
 
                     const lastPracticedStr = logArr[logArr.length - 1];
                     if (lastPracticedStr) {
@@ -971,7 +1039,7 @@
                         }
                     }
 
-                    let lastPrac = this.currentUser ? this.currentUser.lastDate : this.lastPractice;
+                    let lastPrac = this.currentUser ? this.currentUser.last_date : this.lastPractice;
                     if (lastPrac) {
                         const last = new Date(lastPrac);
                         last.setHours(0,0,0,0);
@@ -1021,7 +1089,7 @@
                                 
                                 let minsToAdd = Math.round(this.sessionPhases[this.sessionPhase].duration / 60);
                                 if(this.currentUser) {
-                                    this.currentUser.totalMinutes += minsToAdd;
+                                    this.currentUser.total_minutes += minsToAdd;
                                     this.saveUserToCloud();
                                 } else {
                                     this.totalMinutes += minsToAdd;
@@ -1047,7 +1115,7 @@
                         if(elapsedSeconds > 60) {
                             let minsToAdd = Math.floor(elapsedSeconds / 60);
                             if(this.currentUser) {
-                                this.currentUser.totalMinutes += minsToAdd;
+                                this.currentUser.total_minutes += minsToAdd;
                                 this.saveUserToCloud();
                             } else {
                                 this.totalMinutes += minsToAdd;
@@ -1153,9 +1221,10 @@
                     
                     if(this.currentUser) {
                         this.currentUser.streak++;
-                        this.currentUser.lastDate = todayStr;
+                        this.currentUser.last_date = todayStr;
+                        if(!this.currentUser.log) this.currentUser.log = [];
                         if(!this.currentUser.log.includes(todayStr)) this.currentUser.log.push(todayStr);
-                        this.currentUser.totalMinutes += 30; // Baseline bump for clicking button
+                        this.currentUser.total_minutes += 30; // Baseline bump for clicking button
                         this.saveUserToCloud();
                     } else {
                         this.streak++;
@@ -1359,7 +1428,7 @@
                         this.submitStatus = 'success';
                         confetti({ particleCount: 150, spread: 70, origin: { y: 0.7 }, colors: ['#b45309', '#d97706', '#ffffff'], zIndex: 1000 });
                         this.$refs.testForm.reset();
-                        setTimeout(() => this.submitStatus = 'idle', 5000);
+                        setTimeout(() => { this.submitStatus = 'idle'; }, 5000);
                     }).catch(() => { alert('Upload failed. Check your connection or file size.'); this.submitStatus = 'idle'; });
                 },
 
