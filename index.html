@@ -62,14 +62,11 @@
     </script>
     <style>
         [x-cloak] { display: none !important; }
-        
         input[type=range] { -webkit-appearance: none; background: transparent; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: #b45309; margin-top: -10px; cursor: pointer; border: 2px solid white; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #e2e8f0; border-radius: 99px; }
-        
         .reveal-hidden { opacity: 0; transform: translateY(40px); transition: all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
         .reveal-visible { opacity: 1; transform: translateY(0); }
-        
         @media print { nav, footer, .bg-slate-900, #tools, section[class*="bg-slate-900"], button, .fixed { display: none !important; } body { background: white; color: black; } }
     </style>
 </head>
@@ -271,11 +268,16 @@
         <section id="tools" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden scroll-mt-32 reveal-hidden" x-data="{ shown: false }" x-intersect.threshold.05.once="shown = true" :class="shown ? 'reveal-visible' : ''">
             <div class="px-6 py-6 border-b border-slate-100"><h2 class="font-heading text-xl font-bold text-slate-900 flex items-center gap-2"><svg class="w-5 h-5 text-brass" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span x-show="lang === 'en'">Musician Toolkit</span><span x-show="lang === 'ua'" x-cloak>Інструменти</span></h2></div>
             <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+                
                 <div x-data="metronomeWidget">
                     <div class="flex justify-between items-center mb-6"><span class="text-sm font-bold text-slate-500 uppercase tracking-wider"><span x-show="lang === 'en'">Metronome</span><span x-show="lang === 'ua'" x-cloak>Метроном</span></span><div class="flex items-center gap-2 bg-slate-100 px-3 py-1 rounded-full"><div class="h-2 w-2 rounded-full bg-slate-400" :class="isPlaying ? 'bg-red-500 animate-pulse' : ''"></div><span class="text-lg font-mono font-bold text-slate-900" x-text="bpm"></span><span class="text-[10px] text-slate-500 font-bold">BPM</span></div></div>
-                    <input type="range" min="40" max="200" x-model="bpm" @input="updateSpeed()" class="w-full mb-6">
-                    <button @click="toggle()" class="w-full py-4 rounded-xl font-bold transition-all text-sm uppercase tracking-wide shadow-sm hover:shadow-md border" :class="isPlaying ? 'bg-white border-slate-200 text-slate-900' : 'bg-slate-900 border-transparent text-white hover:bg-slate-800'"><span x-text="isPlaying ? (lang === 'en' ? 'Stop' : 'Стоп') : (lang === 'en' ? 'Start' : 'Старт')"></span></button>
+                    <input type="range" min="40" max="240" x-model="bpm" @input="updateSpeed()" class="w-full mb-6">
+                    <div class="grid grid-cols-2 gap-4">
+                        <button @click="toggle()" class="w-full py-4 rounded-xl font-bold transition-all text-sm uppercase tracking-wide shadow-sm hover:shadow-md border" :class="isPlaying ? 'bg-white border-slate-200 text-slate-900' : 'bg-slate-900 border-transparent text-white hover:bg-slate-800'"><span x-text="isPlaying ? (lang === 'en' ? 'Stop' : 'Стоп') : (lang === 'en' ? 'Start' : 'Старт')"></span></button>
+                        <button @click="tapTempo()" class="w-full py-4 rounded-xl font-bold transition-all text-sm uppercase tracking-wide bg-brass/10 text-brass border border-brass/20 hover:bg-brass hover:text-white"><span x-show="lang === 'en'">Tap Tempo</span><span x-show="lang === 'ua'" x-cloak>Тап Темп</span></button>
+                    </div>
                 </div>
+
                 <div x-data="tuningWidget">
                     <div class="flex justify-between items-center mb-6"><span class="text-sm font-bold text-slate-500 uppercase tracking-wider"><span x-show="lang === 'en'">Tuning</span><span x-show="lang === 'ua'" x-cloak>Налаштування</span></span><span class="text-xs font-bold text-brass" x-text="activeNote ? (lang === 'en' ? 'Playing: ' : 'Грає: ') + activeNote : ''"></span></div>
                     <div class="grid grid-cols-3 gap-4">
@@ -303,7 +305,7 @@
             </div>
             <div class="pt-6 border-t border-slate-100 flex flex-col gap-2">
                 <p class="text-xs text-slate-400">© 2026 First Ukrainian Baptist Church Band.</p>
-                <p class="text-[10px] sm:text-xs text-slate-400 mt-2 uppercase tracking-widest font-bold">Created and designed by Roman Kucheryavyy</p>
+                <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Designed and built by Roman Kucheryavyy</p>
                 <a href="/privacy.html" class="text-xs text-slate-400 hover:text-brass transition-colors underline">Privacy Policy</a>
             </div>
         </div>
@@ -325,16 +327,32 @@
                 showLibrary: false, 
                 searchQuery: '',
                 submitStatus: 'idle', 
-                verse: null,
+                verse: { en: '', ua: '' },
                 mobileMenuOpen: false,
                 scrollY: 0, 
                 scrollProgress: 0,
                 isLoading: true, 
 
                 settings: { isRehearsalCanceled: false, conductorNote: '', nextRehearsalTime: '9:00 PM' },
-                events: [], 
-                currentSetlist: [],
-                allSongs: [],
+                
+                // --- DEFAULT FALLBACK DATA (For local testing without a server) ---
+                events: [
+                    { date: "Feb 22", title_en: "Sunday Service", title_ua: "Недільне Богослужіння", time: "10:00 AM", day: "Sunday" }
+                ], 
+                currentSetlist: [
+                    { title: "Я Иду Земньіми Битвами", sub: "Pay attention to dynamics", binderNumber: "New" },
+                    { title: "Ныне я Его дитя", sub: "Standard tempo", binderNumber: "New" },
+                    { title: "Юношу Иосифа", sub: "Rhythmic precision focus.", binderNumber: "45" },
+                    { title: "Пока огонь", sub: "Focus on breath support.", binderNumber: "12" },
+                    { title: "Господь благослови", sub: "Maintain steady tempo.", binderNumber: "34" }
+                ],
+                allSongs: [
+                    { n: "New", u: "Я Иду Земньіми Битвами", link: "https://ifob.su/band/instrumental/simple/ya-idu-zemnymi-bitvami/" },
+                    { n: "New", u: "Ныне я Его дитя", link: "https://ifob.su/band/instrumental/simple/nyne-ya-ego-ditya/" },
+                    { n: "45", u: "Юношу Иосифа", link: "https://ifob.su/band/instrumental/simple/yunoshu-iosifa/" },
+                    { n: "12", u: "Пока огонь", link: "https://ifob.su/band/instrumental/simple/poka-ogoni-af/" },
+                    { n: "34", u: "Господь благослови", link: "https://ifob.su/band/instrumental/simple/g-blagoslovi-af/" }
+                ],
                 program: { isVisible: false, date: '', items: [] },
 
                 verses: [
@@ -343,23 +361,24 @@
                     { en: 'Praise him with the sounding of the trumpet...', ua: 'Хваліть Його звуком трубним...' }
                 ],
 
-                async init() {
+                init() {
                     this.verse = this.verses[Math.floor(Math.random() * this.verses.length)];
-                    try {
-                        const response = await fetch('/data.json?t=' + new Date().getTime());
-                        if (response.ok) {
-                            const json = await response.json();
-                            if (json.settings) this.settings = { ...this.settings, ...json.settings };
-                            if (json.events) this.events = json.events;
-                            if (json.currentSetlist) this.currentSetlist = json.currentSetlist;
-                            if (json.allSongs) this.allSongs = json.allSongs;
-                            if (json.serviceProgram) this.program = json.serviceProgram;
-                        }
-                    } catch (e) { 
-                        console.log('Using built-in data or offline mode', e); 
-                    }
                     
-                    setTimeout(() => { this.isLoading = false; }, 300);
+                    // Try to fetch live data, but silently keep fallbacks if it fails (CORS block on local machine)
+                    fetch('/data.json?t=' + new Date().getTime())
+                        .then(res => res.json())
+                        .then(json => {
+                            if (json.settings) this.settings = { ...this.settings, ...json.settings };
+                            if (json.events && json.events.length > 0) this.events = json.events;
+                            if (json.currentSetlist && json.currentSetlist.length > 0) this.currentSetlist = json.currentSetlist;
+                            if (json.allSongs && json.allSongs.length > 0) this.allSongs = json.allSongs;
+                            if (json.serviceProgram) this.program = json.serviceProgram;
+                            this.isLoading = false;
+                        })
+                        .catch(err => {
+                            console.log('Running locally without a server. Using embedded fallback data.');
+                            this.isLoading = false;
+                        });
                 },
 
                 get sortedSchedule() {
@@ -399,32 +418,29 @@
                         d.setDate(d.getDate() + 7);
                     }
 
-                    if(this.events && this.events.length > 0) {
-                        this.events.forEach(e => {
-                            let evtDate = new Date(e.date + ' ' + currentYear);
-                            
-                            let timeParts = e.time.match(/(\d+):(\d+)\s*(AM|PM)/i);
-                            if (timeParts) {
-                                let h = parseInt(timeParts[1]);
-                                if (timeParts[3].toUpperCase() === 'PM' && h < 12) h += 12;
-                                if (timeParts[3].toUpperCase() === 'AM' && h === 12) h = 0;
-                                evtDate.setHours(h, parseInt(timeParts[2]), 0, 0);
-                            } else {
-                                evtDate.setHours(9, 0, 0, 0);
-                            }
+                    this.events.forEach(e => {
+                        let evtDate = new Date(e.date + ' ' + currentYear);
+                        let timeParts = e.time.match(/(\d+):(\d+)\s*(AM|PM)/i);
+                        if (timeParts) {
+                            let h = parseInt(timeParts[1]);
+                            if (timeParts[3].toUpperCase() === 'PM' && h < 12) h += 12;
+                            if (timeParts[3].toUpperCase() === 'AM' && h === 12) h = 0;
+                            evtDate.setHours(h, parseInt(timeParts[2]), 0, 0);
+                        } else {
+                            evtDate.setHours(9, 0, 0, 0);
+                        }
 
-                            mergedEvents.push({
-                                type: 'event',
-                                dateObj: evtDate,
-                                dateString: e.date,
-                                title_en: e.title_en,
-                                title_ua: e.title_ua,
-                                time: e.time,
-                                day: e.day, 
-                                isTonight: false
-                            });
+                        mergedEvents.push({
+                            type: 'event',
+                            dateObj: evtDate,
+                            dateString: e.date,
+                            title_en: e.title_en,
+                            title_ua: e.title_ua,
+                            time: e.time,
+                            day: e.day, 
+                            isTonight: false
                         });
-                    }
+                    });
 
                     return mergedEvents.sort((a, b) => a.dateObj - b.dateObj);
                 },
@@ -437,16 +453,11 @@
                     let dates = [];
                     const nextReh = this.sortedSchedule.find(e => e.type === 'rehearsal');
                     if (nextReh && !this.settings.isRehearsalCanceled) {
-                        dates.push({ 
-                            val: nextReh.dateString + ' (Rehearsal)', 
-                            label: nextReh.dateString + (this.lang === 'en' ? ' - Rehearsal' : ' - Репетиція') 
-                        });
+                        dates.push({ val: nextReh.dateString + ' (Rehearsal)', label: nextReh.dateString + (this.lang === 'en' ? ' - Rehearsal' : ' - Репетиція') });
                     }
-                    if(this.events) {
-                        this.events.forEach(e => {
-                            dates.push({ val: e.date + ' (' + e.title_en + ')', label: e.date + ' - ' + (this.lang === 'en' ? e.title_en : e.title_ua) });
-                        });
-                    }
+                    this.events.forEach(e => {
+                        dates.push({ val: e.date + ' (' + e.title_en + ')', label: e.date + ' - ' + (this.lang === 'en' ? e.title_en : e.title_ua) });
+                    });
                     return dates;
                 },
 
@@ -466,28 +477,22 @@
                         confetti({ particleCount: 150, spread: 70, origin: { y: 0.7 }, colors: ['#b45309', '#d97706', '#ffffff'] });
                         this.$refs.form.reset();
                         setTimeout(() => this.submitStatus = 'idle', 5000);
-                    })
-                    .catch(() => { alert('Connection error.'); this.submitStatus = 'idle'; });
+                    }).catch(() => { alert('Connection error.'); this.submitStatus = 'idle'; });
                 },
 
                 get sortedSetlist() {
-                    if (!this.currentSetlist || !this.allSongs) return [];
-
-                    const smartSetlist = this.currentSetlist.map(song => {
+                    // Do NOT sort alphabetically, keep the exact order from data.json
+                    return this.currentSetlist.map(song => {
                         const masterSong = this.allSongs.find(s => 
                             (s.n && song.binderNumber && String(s.n) === String(song.binderNumber)) || 
                             (s.u && song.title && String(s.u).toLowerCase() === String(song.title).toLowerCase())
                         );
-                        
                         return {
                             ...song,
                             link: song.link || (masterSong ? masterSong.link : ''),
                             chords: song.chords || (masterSong ? masterSong.chords : '')
                         };
                     });
-
-                    // Returning it exactly as entered in data.json (removing the arbitrary sort!)
-                    return smartSetlist;
                 },
 
                 get filteredSongs() { 
