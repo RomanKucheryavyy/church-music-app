@@ -716,7 +716,7 @@
                 profileModalOpen: false,
                 authMode: 'login', // 'login' or 'register'
                 authForm: { name: '', pin: '', code: '' },
-                adminAccessCode: 'FUBC26', // Secret code for kids to register
+                adminAccessCode: 'RlVCQzI2', // Secret code for kids to register
                 authLoading: false,
                 
                 currentUser: null,
@@ -732,7 +732,8 @@
                     this.authLoading = true;
                     
                     if(this.authMode === 'register') {
-                        if(this.authForm.code.toUpperCase() !== this.adminAccessCode) {
+                        // btoa() converts their typed text into Base64 to check against the hidden string
+                    if(btoa(this.authForm.code.trim().toUpperCase()) !== 'RlVCQzI2') { {
                             this.authLoading = false;
                             return alert("Invalid Access Code");
                         }
@@ -1502,4 +1503,5 @@
     </script>
 </body>
 </html>
+
 
