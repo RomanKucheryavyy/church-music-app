@@ -323,7 +323,7 @@
                     <h3 class="font-bold text-xs sm:text-sm uppercase tracking-widest text-slate-400 mb-4 sm:mb-6 flex items-center gap-2">
                         <svg class="w-4 h-4 text-orange-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd" /></svg>
                         <span x-show="lang === 'en'">Longest Streaks</span><span x-show="lang === 'ua'" x-cloak>Найдовші Серії</span>
-                    </h3>
+                    </div>
                     <div class="space-y-3 sm:space-y-4">
                         <template x-for="(student, idx) in topStreak" :key="idx">
                             <div class="flex items-center justify-between group">
@@ -673,7 +673,7 @@
                         </div>
                         
                         <div class="flex flex-wrap gap-1.5 sm:gap-3 justify-center mb-6 sm:mb-8 w-full max-w-2xl min-h-[40px]">
-                            <template x-for="(note, index) in interactiveChart.data[interactiveChart.instrument]?.notes[interactiveChart.selectedRange] || []">
+                            <template x-for="(note, index) in interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange]">
                                 <button @click="interactiveChart.selectedNote = index; stopFingeringAudio();"
                                     :class="interactiveChart.selectedNote === index ? 'bg-gradient-to-b from-brass to-brassLight text-white shadow-[0_4px_10px_rgba(180,83,9,0.4)] scale-110 border-transparent z-10' : 'bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-900 border-slate-200 hover:border-slate-300 shadow-sm'"
                                     class="px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl font-bold text-[11px] sm:text-sm transition-all duration-300 border relative"
@@ -689,7 +689,7 @@
                                 <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest hidden sm:block"><span x-show="lang === 'en'">Play Pitch</span><span x-show="lang === 'ua'" x-cloak>Звук</span></span>
                             </button>
 
-                            <template x-if="interactiveChart.data[interactiveChart.instrument]?.type === 'valves'">
+                            <template x-if="interactiveChart.data[interactiveChart.instrument].type === 'valves'">
                                 <div class="flex gap-4 sm:gap-10 mt-4 sm:mt-0">
                                     <template x-for="(v, i) in interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].val">
                                         <div class="flex flex-col items-center gap-3 sm:gap-5">
@@ -701,7 +701,7 @@
                                 </div>
                             </template>
                             
-                            <template x-if="interactiveChart.data[interactiveChart.instrument]?.type === 'slide'">
+                            <template x-if="interactiveChart.data[interactiveChart.instrument].type === 'slide'">
                                 <div class="flex flex-col items-center w-full max-w-lg mt-4 sm:mt-0">
                                     <span class="text-4xl sm:text-8xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-brass to-yellow-500 mb-1 sm:mb-2 transition-all duration-300 drop-shadow-md" x-text="interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].pos"></span>
                                     <span class="text-[9px] sm:text-xs font-bold text-slate-300 uppercase tracking-[0.3em] mb-6 sm:mb-10">
@@ -719,7 +719,7 @@
                                 </div>
                             </template>
                             
-                            <template x-if="interactiveChart.data[interactiveChart.instrument]?.type === 'woodwind'">
+                            <template x-if="interactiveChart.data[interactiveChart.instrument].type === 'woodwind'">
                                 <div class="flex flex-col items-center w-full justify-center relative">
                                     <div class="bg-slate-50 p-4 sm:p-6 rounded-[2rem] border border-slate-200 shadow-inner flex flex-col gap-4 sm:gap-6 relative w-full sm:w-auto">
                                         
@@ -932,18 +932,18 @@
 
                     // FIX 3: Transposed down 1 octave for Trombone (Grp 4) and 2 octaves for Tuba (Grp 5)
                     exercises: [
-                        { title_en: '1. Long Tones', title_ua: '1. Довгі Ноти', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/4\nb\' a\' g\' f\'|e\' d\' c\' b|b4 z4|]','L:1/4\nc\' b a g|f e d c|c4 z4|]','L:1/4\ng\' f\' e\' d\'|c\' b a g|g4 z4|]','L:1/4\nf e d c|B A G F|F4 z4|]','L:1/4\nB A G F|E D C B,|B,4 z4|]','L:1/4\nB, A, G, F,|E, D, C, B,,|B,,4 z4|]'] },
-                        { title_en: '2. Flexibility', title_ua: '2. Гнучкість', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\n(b f\' b f\' b2) z2|(c\' g\' c\' g\' c\'2) z2|(d\' a\' d\' a\' d\'2) z2|(e\' b\' e\' b\' e\'2) z2|]','L:1/8\n(c g c g c2) z2|(d a d a d2) z2|(e b e b e2) z2|(f c\' f c\' f2) z2|]','L:1/8\n(g d\' g d\' g2) z2|(a e\' a e\' a2) z2|(b f\' b f\' b2) z2|(c\' g\' c\' g\' c\'2) z2|]','L:1/8\n(F c F c F2) z2|(G d G d G2) z2|(A e A e A2) z2|(B f B f B2) z2|]','L:1/8\n(B, F B, F B,2) z2|(C G C G C2) z2|(D A D A D2) z2|(E B E B E2) z2|]','L:1/8\n(B,, F, B,, F, B,,2) z2|(C, G, C, G, C,2) z2|(D, A, D, A, D,2) z2|(E, B, E, B, E,2) z2|]'] },
-                        { title_en: '3. Articulation', title_ua: '3. Артикуляція', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\n.b.b .b.b .b.b .b.b|b2 z2 b2 z2|.f\'.f\' .f\'.f\' .f\'.f\' .f\'.f\'|f\'2 z2 f\'2 z2|]','L:1/8\n.c.c .c.c .c.c .c.c|c2 z2 c2 z2|.g.g .g.g .g.g .g.g|g2 z2 g2 z2|]','L:1/8\n.g.g .g.g .g.g .g.g|g2 z2 g2 z2|.d\'.d\' .d\'.d\' .d\'.d\' .d\'.d\'|d\'2 z2 d\'2 z2|]','L:1/8\n.F.F .F.F .F.F .F.F|F2 z2 F2 z2|.c.c .c.c .c.c .c.c|c2 z2 c2 z2|]','L:1/8\n.B,.B, .B,.B, .B,.B, .B,.B,|B,2 z2 B,2 z2|.F.F .F.F .F.F .F.F|F2 z2 F2 z2|]','L:1/8\n.B,,.B,, .B,,.B,, .B,,.B,, .B,,.B,,|B,,2 z2 B,,2 z2|.F,.F, .F,.F, .F,.F, .F,.F,|F,2 z2 F,2 z2|]'] },
-                        { title_en: '4. Arpeggios', title_ua: '4. Арпеджіо', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\nb d\' f\' b\' b\' f\' d\' b|b8|c\' e\' g\' c\'\' c\'\' g\' e\' c\'|c\'8|]','L:1/8\nc e g c\' c\' g e c|c8|d f a d\' d\' a f d|d8|]','L:1/8\ng b d\' g\' g\' d\' b g|g8|a c\' e\' a\' a\' e\' c\' a|a8|]','L:1/8\nF A c f f c A F|F8|G B d g g d B G|G8|]','L:1/8\nB, D F B B F D B,|B,8|C E G c c G E C|C8|]','L:1/8\nB,, D, F, B, B, F, D, B,,|B,,8|C, E, G, C C G, E, C,|C,8|]'] }
+                        { title_en: '1. Long Tones', title_ua: '1. Довгі Ноти', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/4\nb a g f|e d c B|B4 z4|]','L:1/4\nc\' b a g|f e d c|c4 z4|]','L:1/4\ng f e d|c B A G|G4 z4|]','L:1/4\nf e d c|B A G F|F4 z4|]','L:1/4\nB A G F|E D C B,|B,4 z4|]','L:1/4\nB, A, G, F,|E, D, C, B,,|B,,4 z4|]'] },
+                        { title_en: '2. Flexibility', title_ua: '2. Гнучкість', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\n(B f B f B2) z2|(c g c g c2) z2|(d a d a d2) z2|(e b e b e2) z2|]','L:1/8\n(c g c g c2) z2|(d a d a d2) z2|(e b e b e2) z2|(f c\' f c\' f2) z2|]','L:1/8\n(G d G d G2) z2|(A e A e A2) z2|(B f B f B2) z2|(c g c g c2) z2|]','L:1/8\n(F c F c F2) z2|(G d G d G2) z2|(A e A e A2) z2|(B f B f B2) z2|]','L:1/8\n(B, F B, F B,2) z2|(C G C G C2) z2|(D A D A D2) z2|(E B E B E2) z2|]','L:1/8\n(B,, F, B,, F, B,,2) z2|(C, G, C, G, C,2) z2|(D, A, D, A, D,2) z2|(E, B, E, B, E,2) z2|]'] },
+                        { title_en: '3. Articulation', title_ua: '3. Артикуляція', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\n.B.B .B.B .B.B .B.B|B2 z2 B2 z2|.f.f .f.f .f.f .f.f|f2 z2 f2 z2|]','L:1/8\n.c.c .c.c .c.c .c.c|c2 z2 c2 z2|.g.g .g.g .g.g .g.g|g2 z2 g2 z2|]','L:1/8\n.G.G .G.G .G.G .G.G|G2 z2 G2 z2|.d.d .d.d .d.d .d.d|d2 z2 d2 z2|]','L:1/8\n.F.F .F.F .F.F .F.F|F2 z2 F2 z2|.c.c .c.c .c.c .c.c|c2 z2 c2 z2|]','L:1/8\n.B,.B, .B,.B, .B,.B, .B,.B,|B,2 z2 B,2 z2|.F.F .F.F .F.F .F.F|F2 z2 F2 z2|]','L:1/8\n.B,,.B,, .B,,.B,, .B,,.B,, .B,,.B,,|B,,2 z2 B,,2 z2|.F,.F, .F,.F, .F,.F, .F,.F,|F,2 z2 F,2 z2|]'] },
+                        { title_en: '4. Arpeggios', title_ua: '4. Арпеджіо', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\nB d f b b f d B|B8|c e g c\' c\' g e c|c8|]','L:1/8\nc e g c\' c\' g e c|c8|d f a d\' d\' a f d|d8|]','L:1/8\nG B d g g d B G|G8|A c e a a e c A|A8|]','L:1/8\nF A c f f c A F|F8|G B d g g d B G|G8|]','L:1/8\nB, D F B B F D B,|B,8|C E G c c G E C|C8|]','L:1/8\nB,, D, F, B, B, F, D, B,,|B,,8|C, E, G, C C G, E, C,|C,8|]'] }
                     ],
                     scales: [
-                        { title_en: 'Concert C Major', title_ua: 'До мажор (C)', keys: ['C','D','A','G','C','C'], abc: [`L:1/8\nc d e f g a b c'|c' b a g f e d c|c8|]`,`L:1/8\nd e f g a b c' d'|d' c' b a g f e d|d8|]`,`L:1/8\na b c' d' e' f' g' a'|a' g' f' e' d' c' b a|a8|]`,`L:1/8\nG A B c d e f g|g f e d c B A G|G8|]`,`L:1/8\nC D E F G A B c|c B A G F E D C|C8|]`,`L:1/8\nC, D, E, F, G, A, B, C|C B, A, G, F, E, D, C,|C,8|]`]},
+                        { title_en: 'Concert C Major', title_ua: 'До мажор (C)', keys: ['C','D','A','G','C','C'], abc: [`L:1/8\nc d e f g a b c'|c' b a g f e d c|c8|]`,`L:1/8\nd e f g a b c' d'|d' c' b a g f e d|d8|]`,`L:1/8\nA B c d e f g a|a g f e d c B A|A8|]`,`L:1/8\nG A B c d e f g|g f e d c B A G|G8|]`,`L:1/8\nC D E F G A B c|c B A G F E D C|C8|]`,`L:1/8\nC, D, E, F, G, A, B, C|C B, A, G, F, E, D, C,|C,8|]`]},
                         { title_en: 'Concert F Major', title_ua: 'Фа мажор (F)', keys: ['F','G','D','C','F','F'], abc: [`L:1/8\nf g a b c' d' e' f'|f' e' d' c' b a g f|f8|]`,`L:1/8\ng a b c' d' e' f' g'|g' f' e' d' c' b a g|g8|]`,`L:1/8\nd e f g a b c' d'|d' c' b a g f e d|d8|]`,`L:1/8\nc d e f g a b c'|c' b a g f e d c|c8|]`,`L:1/8\nF, G, A, B, C D E F|F E D C B, A, G, F,|F,8|]`,`L:1/8\nF,, G,, A,, B,, C, D, E, F,|F, E, D, C, B,, A,, G,, F,,|F,,8|]`]},
-                        { title_en: 'Concert Bb Major', title_ua: 'Сі-бемоль мажор (Bb)', keys: ['Bb','C','G','F','Bb','Bb'], abc: [`L:1/8\nb c' d' e' f' g' a' b'|b' a' g' f' e' d' c' b|b8|]`,`L:1/8\nc d e f g a b c'|c' b a g f e d c|c8|]`,`L:1/8\ng a b c' d' e' f' g'|g' f' e' d' c' b a g|g8|]`,`L:1/8\nF G A B c d e f|f e d c B A G F|F8|]`,`L:1/8\nB, C D E F G A B|B A G F E D C B,|B,8|]`,`L:1/8\nB,, C, D, E, F, G, A, B,|B, A, G, F, E, D, C, B,,|B,,8|]`]},
+                        { title_en: 'Concert Bb Major', title_ua: 'Сі-бемоль мажор (Bb)', keys: ['Bb','C','G','F','Bb','Bb'], abc: [`L:1/8\nb c' d' e' f' g' a' b'|b' a' g' f' e' d' c' b|b8|]`,`L:1/8\nc d e f g a b c'|c' b a g f e d c|c8|]`,`L:1/8\nG A B c d e f g|g f e d c B A G|G8|]`,`L:1/8\nF G A B c d e f|f e d c B A G F|F8|]`,`L:1/8\nB, C D E F G A B|B A G F E D C B,|B,8|]`,`L:1/8\nB,, C, D, E, F, G, A, B,|B, A, G, F, E, D, C, B,,|B,,8|]`]},
                         { title_en: 'Concert Eb Major', title_ua: 'Мі-бемоль мажор (Eb)', keys: ['Eb','F','C','Bb','Eb','Eb'], abc: [`L:1/8\ne f g a b c' d' e'|e' d' c' b a g f e|e8|]`,`L:1/8\nf g a b c' d' e' f'|f' e' d' c' b a g f|f8|]`,`L:1/8\nc d e f g a b c'|c' b a g f e d c|c8|]`,`L:1/8\nB c d e f g a b|b a g f e d c B|B8|]`,`L:1/8\nE, F, G, A, B, C D E|E D C B, A, G, F, E,|E,8|]`,`L:1/8\nE,, F,, G,, A,, B,, C, D, E,|E, D, C, B,, A,, G,, F,, E,,|E,,8|]`]},
                         { title_en: 'Concert Ab Major', title_ua: 'Ля-бемоль мажор (Ab)', keys: ['Ab','Bb','F','Eb','Ab','Ab'], abc: [`L:1/8\na b c' d' e' f' g' a'|a' g' f' e' d' c' b a|a8|]`,`L:1/8\nb c' d' e' f' g' a' b'|b' a' g' f' e' d' c' b|b8|]`,`L:1/8\nf g a b c' d' e' f'|f' e' d' c' b a g f|f8|]`,`L:1/8\ne f g a b c' d' e'|e' d' c' b a g f e|e8|]`,`L:1/8\nA, B, C D E F G A|A G F E D C B, A,|A,8|]`,`L:1/8\nA,, B,, C, D, E, F, G, A,|A, G, F, E, D, C, B,, A,,|A,,8|]`]},
-                        { title_en: 'Concert Db Major', title_ua: 'Ре-бемоль мажор (Db)', keys: ['Db','Eb','Bb','Ab','Db','Db'], abc: [`L:1/8\nd e f g a b c' d'|d' c' b a g f e d|d8|]`,`L:1/8\ne f g a b c' d' e'|e' d' c' b a g f e|e8|]`,`L:1/8\nb c' d' e' f' g' a' b'|b' a' g' f' e' d' c' b|b8|]`,`L:1/8\nA B c d e f g a|a g f e d c B A|A8|]`,`L:1/8\nD, E, F, G, A, B, C D|D C B, A, G, F, E, D,|D,8|]`,`L:1/8\nD,, E,, F,, G,, A,, B,, C, D,|D, C, B,, A,, G,, F,, E,, D,,|D,,8|]`]},
+                        { title_en: 'Concert Db Major', title_ua: 'Ре-бемоль мажор (Db)', keys: ['Db','Eb','Bb','Ab','Db','Db'], abc: [`L:1/8\nd e f g a b c' d'|d' c' b a g f e d|d8|]`,`L:1/8\ne f g a b c' d' e'|e' d' c' b a g f e|e8|]`,`L:1/8\nB c d e f g a b|b a g f e d c B|B8|]`,`L:1/8\nA B c d e f g a|a g f e d c B A|A8|]`,`L:1/8\nD, E, F, G, A, B, C D|D C B, A, G, F, E, D,|D,8|]`,`L:1/8\nD,, E,, F,, G,, A,, B,, C, D,|D, C, B,, A,, G,, F,, E,, D,,|D,,8|]`]},
                         { title_en: 'Concert Gb Major', title_ua: 'Соль-бемоль мажор (Gb)', keys: ['Gb','Ab','Eb','Db','Gb','Gb'], abc: [`L:1/8\ng a b c' d' e' f' g'|g' f' e' d' c' b a g|g8|]`,`L:1/8\na b c' d' e' f' g' a'|a' g' f' e' d' c' b a|a8|]`,`L:1/8\ne f g a b c' d' e'|e' d' c' b a g f e|e8|]`,`L:1/8\nd e f g a b c' d'|d' c' b a g f e d|d8|]`,`L:1/8\nG, A, B, C D E F G|G F E D C B, A, G,|G,8|]`,`L:1/8\nG,, A,, B,, C, D, E, F, G,|G, F, E, D, C, B,, A,, G,,|G,,8|]`]},
                         { title_en: 'Concert B Major', title_ua: 'Сі мажор (B)', keys: ['B','Db','Ab','Gb','B','B'], abc: [`L:1/8\nb c' d' e' f' g' a' b'|b' a' g' f' e' d' c' b|b8|]`,`L:1/8\nd e f g a b c' d'|d' c' b a g f e d|d8|]`,`L:1/8\na b c' d' e' f' g' a'|a' g' f' e' d' c' b a|a8|]`,`L:1/8\ng a b c' d' e' f' g'|g' f' e' d' c' b a g|g8|]`,`L:1/8\nB, C D E F G A B|B A G F E D C B,|B,8|]`,`L:1/8\nB,, C, D, E, F, G, A, B,|B, A, G, F, E, D, C, B,,|B,,8|]`]},
                         { title_en: 'Concert E Major', title_ua: 'Мі мажор (E)', keys: ['E','Gb','Db','B','E','E'], abc: [`L:1/8\ne f g a b c' d' e'|e' d' c' b a g f e|e8|]`,`L:1/8\ng a b c' d' e' f' g'|g' f' e' d' c' b a g|g8|]`,`L:1/8\nd e f g a b c' d'|d' c' b a g f e d|d8|]`,`L:1/8\nB c d e f g a b|b a g f e d c B|B8|]`,`L:1/8\nE, F, G, A, B, C D E|E D C B, A, G, F, E,|E,8|]`,`L:1/8\nE,, F,, G,, A,, B,, C, D, E,|E, D, C, B,, A,, G,, F,, E,,|E,,8|]`]},
@@ -1025,7 +1025,7 @@
                         } else { this.startSessionPhase(this.sessionPhase); }
                     },
 
-                    // FIX 2: Added the interactiveChart resets below to prevent the chart from crashing
+                    // FIX 2: Reset Fingering Chart selections on instrument change to prevent index bounds crash
                     updateGlobalInstrument(inst, silent=false) {
                         this.globalInstrument = inst; 
                         localStorage.setItem('fubc_school_instrument', inst);
