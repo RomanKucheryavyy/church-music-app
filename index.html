@@ -2,24 +2,54 @@
 <html lang="en" class="scroll-smooth bg-[#f8fafc]">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Instrumental Music School | FUBC Band</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FUBC Band | Official Site</title>
     
+    <meta name="title" content="FUBC Band | Official Site">
+    <meta name="description" content="First Ukrainian Baptist Church Band Ministry - Schedule, Setlists, and Musician Tools.">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.fubcband.com/">
+    <meta property="og:title" content="FUBC Band | Official Site">
+    <meta property="og:description" content="First Ukrainian Baptist Church Band Ministry - Schedule, Setlists, and Musician Tools.">
+    <meta property="og:image" content="https://www.fubcband.com/social-logo.png?v=2">
+
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://www.fubcband.com/">
+    <meta property="twitter:title" content="FUBC Band | Official Site">
+    <meta property="twitter:description" content="First Ukrainian Baptist Church Band Ministry - Schedule, Setlists, and Musician Tools.">
+    <meta property="twitter:image" content="https://www.fubcband.com/social-logo.png?v=2">
+    
+    <meta name="thumbnail" content="https://www.fubcband.com/social-logo.png?v=2" />
+    <meta name="robots" content="max-image-preview:large">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    
-    <script src="https://cdn.jsdelivr.net/npm/abcjs@6.2.2/dist/abcjs-basic-min.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/abcjs@6.2.2/abcjs-audio.min.css">
-    
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="apple-touch-icon" href="/social-logo.png?v=2">
     <link rel="icon" type="image/png" href="/social-logo.png?v=2">
+    <link rel="canonical" href="https://www.fubcband.com">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "FUBC Band",
+      "url": "https://www.fubcband.com",
+      "logo": "https://www.fubcband.com/social-logo.png",
+      "description": "First Ukrainian Baptist Church Band Ministry"
+    }
+    </script>
 
     <script>
         tailwind.config = {
@@ -27,12 +57,13 @@
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'], heading: ['Montserrat', 'sans-serif'] },
                     colors: { pageBg: '#f8fafc', textMain: '#0f172a', textMuted: '#64748b', brass: '#b45309', brassLight: '#d97706', surface: '#ffffff' },
-                    animation: { 
-                        'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    animation: {
+                        'marquee-mobile': 'marquee 25s linear infinite',
+                        'marquee-desktop': 'marquee 45s linear infinite',
+                        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                     },
                     keyframes: {
-                        fadeInUp: { '0%': { opacity: '0', transform: 'translateY(30px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } }
+                        marquee: { '0%': { transform: 'translateX(0%)' }, '100%': { transform: 'translateX(-100%)' } }
                     }
                 }
             }
@@ -41,1653 +72,417 @@
     <style>
         [x-cloak] { display: none !important; }
         
-        /* Premium Custom Range Slider */
+        /* Clean Input Styles */
         input[type=range] { -webkit-appearance: none; background: transparent; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 28px; width: 28px; border-radius: 50%; background: linear-gradient(135deg, #d97706 0%, #b45309 100%); margin-top: -12px; cursor: pointer; border: 3px solid white; box-shadow: 0 4px 10px rgba(180, 83, 9, 0.4); transition: transform 0.1s; }
-        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.1); }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: #e2e8f0; border-radius: 99px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: #b45309; margin-top: -10px; cursor: pointer; border: 2px solid white; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #e2e8f0; border-radius: 99px; }
         
-        #print-staves { display: none; }
-        @media print { body > *:not(#print-staves) { display: none !important; } #print-staves { display: block !important; background: white; width: 100%; } .stave { border-bottom: 1px solid black; margin-bottom: 8px; height: 1px; width: 100%; } .stave-group { margin-bottom: 40px; } @page { margin: 0.5in; } }
+        /* Smooth Scroll Animation */
+        .reveal-hidden { opacity: 0; transform: translateY(40px); transition: all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+        .reveal-visible { opacity: 1; transform: translateY(0); }
         
-        .abcjs-container svg { max-width: 100%; height: auto; border-radius: 0.5rem; }
-        
-        /* Sleek Audio Player Customization */
-        .abcjs-inline-audio { background: linear-gradient(145deg, #0f172a, #1e293b) !important; border-radius: 16px !important; padding: 12px 24px !important; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important; margin: 0 auto !important; max-width: 100%; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1) !important; }
-        .abcjs-btn { color: white !important; fill: white !important; background-color: rgba(255,255,255,0.1) !important; border-radius: 50% !important; transition: all 0.2s ease !important; }
-        .abcjs-btn:hover { background-color: #b45309 !important; transform: scale(1.1); box-shadow: 0 0 15px rgba(180, 83, 9, 0.6); }
-        .abcjs-time-display { color: #f8fafc !important; font-family: ui-monospace, monospace !important; font-weight: bold !important; font-size: 14px !important;}
-        .abcjs-midi-progress-background { background-color: #334155 !important; border: none !important; height: 6px !important; border-radius: 3px !important; }
-        .abcjs-midi-progress-indicator { background: linear-gradient(90deg, #d97706, #b45309) !important; height: 6px !important; border-radius: 3px !important; box-shadow: 0 0 10px rgba(217, 119, 6, 0.5); }
+        @media print { nav, footer, .bg-slate-900, #tools, section[class*="bg-slate-900"], button, .fixed { display: none !important; } body { background: white; color: black; } }
     </style>
 </head>
 
-<body class="text-textMain antialiased bg-pageBg overflow-x-hidden" x-data="schoolApp" @scroll.window="scrollY = window.pageYOffset; scrollProgress = (window.pageYOffset / (document.documentElement.scrollHeight - window.innerHeight)) * 100">
+<body class="text-textMain antialiased bg-pageBg"
+    x-data="{ 
+        lang: 'en', 
+        showLibrary: false, 
+        searchQuery: '',
+        submitStatus: 'idle', 
+        verse: null,
+        mobileMenuOpen: false,
+        scrollY: 0, 
+        scrollProgress: 0,
+        isLoading: true, 
 
-    <div class="fixed top-0 left-0 h-1.5 bg-gradient-to-r from-yellow-400 via-brassLight to-brass z-[100] shadow-[0_0_10px_rgba(180,83,9,0.5)] transition-all duration-150 ease-linear" :style="'width: ' + scrollProgress + '%'"></div>
-    <div id="print-staves"></div>
+        settings: { isRehearsalCanceled: false, conductorNote: '', nextRehearsalTime: '9:00 PM' },
+        events: [], 
+        currentSetlist: [],
+        allSongs: [],
+        program: { isVisible: false, date: '', items: [] },
 
-    <div x-show="profileModalOpen" x-transition.opacity class="fixed inset-0 z-[120] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-4 w-full h-full" x-cloak>
-        <div @click.away="profileModalOpen = false" x-transition.scale.origin.bottom class="bg-white/95 backdrop-blur-xl rounded-3xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl overflow-hidden relative ring-1 ring-white/50">
+        verses: [
+            { en: 'Make a joyful noise unto the Lord...', ua: 'Викликніть Господу, уся земле...' },
+            { en: 'I will sing to the LORD as long as I live...', ua: 'Я буду співати Господеві за життя свого...' },
+            { en: 'Praise him with the sounding of the trumpet...', ua: 'Хваліть Його звуком трубним...' }
+        ],
+
+        async init() {
+            this.verse = this.verses[Math.floor(Math.random() * this.verses.length)];
+            try {
+                const response = await fetch('/data.json?t=' + new Date().getTime());
+                if (response.ok) {
+                    const json = await response.json();
+                    this.settings = { ...this.settings, ...json.settings };
+                    this.events = json.events || [];
+                    this.currentSetlist = json.currentSetlist || [];
+                    this.allSongs = json.allSongs || [];
+                    this.program = json.serviceProgram || { isVisible: false, date: '', items: [] };
+                }
+            } catch (e) { console.log('Using built-in data'); }
             
-            <div x-show="!currentUser" class="p-6 sm:p-12 flex flex-col items-center justify-center text-center">
-                <div class="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-brass/20 to-brass/5 rounded-full flex items-center justify-center mb-6 shadow-inner ring-1 ring-brass/20">
-                    <svg class="w-10 h-10 sm:w-12 sm:h-12 text-brass" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                </div>
-                <h2 class="text-2xl sm:text-3xl font-black font-heading text-slate-900 mb-2 tracking-tight">Student Portal</h2>
-                <p class="text-xs sm:text-sm text-slate-500 mb-8 font-medium" x-text="authMode === 'login' ? 'Enter your name and 4-digit PIN.' : 'Use the Access Code provided by the conductor.'"></p>
-                
-                <div class="w-full max-w-xs space-y-4">
-                    <input x-model="authForm.name" type="text" placeholder="First Name" class="w-full bg-white/80 border-2 border-slate-100 rounded-xl px-5 py-4 text-sm font-bold text-slate-700 focus:border-brass focus:ring-4 focus:ring-brass/10 focus:outline-none transition-all shadow-sm">
-                    <input x-model="authForm.pin" type="password" placeholder="4-Digit PIN" pattern="\d{4}" maxlength="4" class="w-full bg-white/80 border-2 border-slate-100 rounded-xl px-5 py-4 text-xl focus:border-brass focus:ring-4 focus:ring-brass/10 focus:outline-none text-center tracking-[0.75em] font-mono text-slate-900 font-black shadow-sm transition-all">
-                    
-                    <div x-show="authMode === 'register'">
-                        <input x-model="authForm.code" type="text" placeholder="Class Access Code" class="w-full bg-white/80 border-2 border-slate-100 rounded-xl px-5 py-4 text-sm font-bold text-slate-700 focus:border-brass focus:ring-4 focus:ring-brass/10 focus:outline-none uppercase tracking-widest text-center shadow-sm transition-all mt-4" x-cloak>
-                    </div>
-                    
-                    <button @click="handleAuth()" class="w-full bg-gradient-to-r from-slate-900 to-slate-800 text-white font-bold uppercase tracking-widest text-xs py-4 rounded-xl hover:from-brass hover:to-brassLight transition-all duration-300 shadow-[0_8px_20px_-6px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_20px_-6px_rgba(180,83,9,0.5)] transform hover:-translate-y-0.5 mt-6 relative disabled:opacity-50">
-                        <span x-show="!authLoading" x-text="authMode === 'login' ? 'Secure Login' : 'Create Account'"></span>
-                        <span x-show="authLoading" class="flex items-center justify-center gap-2" x-cloak>
-                            <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                            Processing...
-                        </span>
-                    </button>
-                </div>
-                
-                <button @click="authMode = authMode === 'login' ? 'register' : 'login'" class="mt-8 text-[11px] font-bold text-slate-400 hover:text-brass uppercase tracking-widest border-b border-transparent hover:border-brass transition-all" x-text="authMode === 'login' ? 'Need an account? Sign up' : 'Already have an account? Login'"></button>
-                <button @click="profileModalOpen = false" class="absolute top-5 right-5 text-slate-400 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 p-2 rounded-full transition-all"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
-            </div>
+            setTimeout(() => this.isLoading = false, 300);
+        },
 
-            <div x-show="currentUser" class="flex flex-col h-full" x-cloak>
-                <div class="p-6 sm:p-8 border-b border-slate-100 bg-gradient-to-br from-slate-50 to-white flex justify-between items-center relative overflow-hidden flex-shrink-0">
-                    <div class="absolute inset-0 bg-brass/5 bg-[radial-gradient(#b45309_1px,transparent_1px)] [background-size:16px_16px] opacity-20"></div>
-                    <div class="flex items-center gap-4 sm:gap-5 relative z-10">
-                        <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-slate-900 to-slate-700 rounded-full flex items-center justify-center text-white text-2xl sm:text-3xl font-black font-heading shadow-xl ring-4 ring-white" x-text="currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : '?'"></div>
-                        <div>
-                            <h2 class="font-heading text-2xl sm:text-3xl font-black text-slate-900 tracking-tight" x-text="currentUser?.name"></h2>
-                            <p class="text-[10px] sm:text-xs font-bold uppercase tracking-widest mt-1 bg-clip-text text-transparent bg-gradient-to-r from-brass to-yellow-500" x-text="getRankName()"></p>
-                        </div>
-                    </div>
-                    <button @click="profileModalOpen = false" class="text-slate-400 hover:text-slate-900 bg-white shadow-sm border border-slate-100 hover:bg-slate-50 p-2 sm:p-2.5 rounded-full transition-all relative z-10"><svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
-                </div>
+        get sortedSchedule() {
+            let mergedEvents = [];
+            const currentYear = new Date().getFullYear();
+
+            let d = new Date();
+            let day = d.getDay();
+            let hour = d.getHours();
+            let min = d.getMinutes();
+            let daysToAdd = 0;
+
+            if (day === 5) {
+                if (hour < 21 || (hour === 21 && min < 15)) {
+                    daysToAdd = 0; 
+                } else {
+                    daysToAdd = 7; 
+                }
+            } else {
+                daysToAdd = (5 - day + 7) % 7;
+            }
+            d.setDate(d.getDate() + daysToAdd);
+
+            for (let i = 0; i < 3; i++) {
+                let rehDate = new Date(d); 
+                rehDate.setHours(21, 0, 0, 0); 
                 
-                <div class="p-6 sm:p-8 flex-grow overflow-y-auto bg-slate-50/50 space-y-8">
-                    <div class="grid grid-cols-2 gap-4 sm:gap-6">
-                        <div class="bg-white border border-slate-100 p-5 sm:p-6 rounded-3xl flex flex-col items-center justify-center text-center shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group hover:border-brass/30 transition-colors">
-                            <span class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 relative z-10">Total Time</span>
-                            <div class="text-3xl sm:text-4xl font-black text-slate-900 leading-none relative z-10">
-                                <span x-text="Math.floor((currentUser?.total_minutes || 0) / 60)"></span><span class="text-sm sm:text-base font-bold text-slate-400 ml-1">h</span>
-                                <span x-text="(currentUser?.total_minutes || 0) % 60"></span><span class="text-sm sm:text-base font-bold text-slate-400 ml-1">m</span>
-                            </div>
-                        </div>
-                        <div class="bg-white border border-slate-100 p-5 sm:p-6 rounded-3xl flex flex-col items-center justify-center text-center shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group hover:border-brass/30 transition-colors">
-                            <span class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 relative z-10">Current Streak</span>
-                            <div class="text-3xl sm:text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-brass to-yellow-500 leading-none relative z-10">
-                                <span x-text="currentUser?.streak || 0"></span><span class="text-sm sm:text-base font-bold text-slate-400 ml-1">days</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                mergedEvents.push({
+                    type: 'rehearsal',
+                    dateObj: rehDate, 
+                    dateString: rehDate.toLocaleDateString(this.lang === 'en' ? 'en-US' : 'uk-UA', { month: 'short', day: 'numeric' }),
+                    title_en: 'Weekly Rehearsal',
+                    title_ua: 'Щотижнева Репетиція',
+                    time: this.settings.nextRehearsalTime,
+                    isTonight: (i === 0 && daysToAdd === 0)
+                });
+                d.setDate(d.getDate() + 7);
+            }
+
+            this.events.forEach(e => {
+                let evtDate = new Date(e.date + ', ' + currentYear);
                 
-                <div class="p-4 sm:p-5 bg-white border-t border-slate-100 flex justify-between items-center flex-shrink-0 rounded-b-3xl">
-                    <div class="flex items-center gap-2 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-100">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> 
-                        <span class="text-[9px] sm:text-[10px] text-emerald-700 font-bold uppercase tracking-widest">Cloud Synced</span>
-                    </div>
-                    <button @click="logout()" class="text-[10px] font-bold text-slate-400 hover:text-red-500 uppercase tracking-widest px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors">Sign Out</button>
-                </div>
-            </div>
+                let timeParts = e.time.match(/(\d+):(\d+)\s*(AM|PM)/i);
+                if (timeParts) {
+                    let h = parseInt(timeParts[1]);
+                    if (timeParts[3].toUpperCase() === 'PM' && h < 12) h += 12;
+                    if (timeParts[3].toUpperCase() === 'AM' && h === 12) h = 0;
+                    evtDate.setHours(h, parseInt(timeParts[2]), 0, 0);
+                } else {
+                    evtDate.setHours(9, 0, 0, 0);
+                }
+
+                mergedEvents.push({
+                    type: 'event',
+                    dateObj: evtDate,
+                    dateString: e.date,
+                    title_en: e.title_en,
+                    title_ua: e.title_ua,
+                    time: e.time,
+                    day: e.day, 
+                    isTonight: false
+                });
+            });
+
+            return mergedEvents.sort((a, b) => a.dateObj - b.dateObj);
+        },
+
+        get nextEvent() { return this.sortedSchedule[0] || {}; },
+        get futureEvents() { return this.sortedSchedule.slice(1); },
+
+        get availableDates() {
+            let dates = [];
+            const nextReh = this.sortedSchedule.find(e => e.type === 'rehearsal');
+            if (nextReh && !this.settings.isRehearsalCanceled) {
+                dates.push({ 
+                    val: nextReh.dateString + ' (Rehearsal)', 
+                    label: nextReh.dateString + (this.lang === 'en' ? ' - Rehearsal' : ' - Репетиція') 
+                });
+            }
+            this.events.forEach(e => {
+                dates.push({ val: e.date + ' (' + e.title_en + ')', label: e.date + ' - ' + (this.lang === 'en' ? e.title_en : e.title_ua) });
+            });
+            return dates;
+        },
+
+        copySetlist() {
+            let text = '🎵 Setlist:\n';
+            this.sortedSetlist.forEach(s => text += `- ${s.title}\n`);
+            navigator.clipboard.writeText(text);
+            alert('Setlist copied!');
+        },
+
+        submitForm() {
+            this.submitStatus = 'submitting';
+            const formData = new FormData(this.$refs.form);
+            fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(formData).toString() })
+            .then(() => {
+                this.submitStatus = 'success';
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.7 }, colors: ['#b45309', '#d97706', '#ffffff'] });
+                this.$refs.form.reset();
+                setTimeout(() => this.submitStatus = 'idle', 5000);
+            })
+            .catch(() => { alert('Connection error.'); this.submitStatus = 'idle'; });
+        },
+
+        // --- THE SMART SETLIST MEMORY ENGINE ---
+        get sortedSetlist() {
+            const smartSetlist = this.currentSetlist.map(song => {
+                const masterSong = this.allSongs.find(s => 
+                    (s.n && song.binderNumber && String(s.n) === String(song.binderNumber)) || 
+                    (s.u && song.title && String(s.u).toLowerCase() === String(song.title).toLowerCase())
+                );
+                
+                return {
+                    ...song,
+                    link: song.link || (masterSong ? masterSong.link : ''),
+                    chords: song.chords || (masterSong ? masterSong.chords : '')
+                };
+            });
+
+            return smartSetlist.sort((a, b) => {
+                const scoreA = (a.link ? 2 : 0) + (a.chords ? 1 : 0);
+                const scoreB = (b.link ? 2 : 0) + (b.chords ? 1 : 0);
+                return scoreB - scoreA;
+            });
+        },
+
+        get filteredSongs() { if (this.searchQuery === '') return this.allSongs; const q = this.searchQuery.toLowerCase(); return this.allSongs.filter(s => (s.n && s.n.toString().includes(q)) || (s.u && s.u.toLowerCase().includes(q))); }
+    }"
+    @scroll.window="scrollY = window.pageYOffset; scrollProgress = (window.pageYOffset / (document.documentElement.scrollHeight - window.innerHeight)) * 100"
+>
+
+    <div class="fixed top-0 left-0 h-1.5 bg-gradient-to-r from-brass to-brassLight z-[100] transition-all duration-150 ease-linear shadow-md" :style="'width: ' + scrollProgress + '%'"></div>
+
+    <div class="bg-slate-900 text-white py-2.5 overflow-hidden relative z-50 border-b border-brass/20 flex">
+        <div class="whitespace-nowrap animate-marquee-mobile md:animate-marquee-desktop flex items-center min-w-full shrink-0">
+            <span class="px-8 flex items-center">
+                <span class="text-brassLight font-bold uppercase tracking-wider mr-2">Next Event:</span> 
+                <span x-show="nextEvent.isTonight" class="inline-flex items-center gap-1.5 bg-red-600/20 border border-red-500/50 text-red-400 px-2 py-0.5 rounded mr-2 animate-pulse">
+                    <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span><span class="text-[10px] font-extrabold tracking-widest">TONIGHT</span>
+                </span>
+                <span x-text="nextEvent.dateString + ' @ ' + nextEvent.time"></span>
+            </span>
+            <span class="px-8 text-slate-400 italic font-serif text-lg" x-text="lang === 'en' ? verse.en : verse.ua"></span>
+            <span class="px-8 flex items-center"><span class="text-brassLight font-bold uppercase tracking-wider mr-2">Next Event:</span><span x-text="nextEvent.dateString + ' @ ' + nextEvent.time"></span></span>
+            <span class="px-8"></span> 
+        </div>
+        <div class="whitespace-nowrap animate-marquee-mobile md:animate-marquee-desktop flex items-center min-w-full shrink-0">
+            <span class="px-8 flex items-center">
+                <span class="text-brassLight font-bold uppercase tracking-wider mr-2">Next Event:</span> 
+                <span x-show="nextEvent.isTonight" class="inline-flex items-center gap-1.5 bg-red-600/20 border border-red-500/50 text-red-400 px-2 py-0.5 rounded mr-2 animate-pulse">
+                    <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span><span class="text-[10px] font-extrabold tracking-widest">TONIGHT</span>
+                </span>
+                <span x-text="nextEvent.dateString + ' @ ' + nextEvent.time"></span>
+            </span>
+            <span class="px-8 text-slate-400 italic font-serif text-lg" x-text="lang === 'en' ? verse.en : verse.ua"></span>
+            <span class="px-8 flex items-center"><span class="text-brassLight font-bold uppercase tracking-wider mr-2">Next Event:</span><span x-text="nextEvent.dateString + ' @ ' + nextEvent.time"></span></span>
+            <span class="px-8"></span> 
         </div>
     </div>
 
-    <div x-show="fullScreenModalOpen" x-transition.opacity class="fixed inset-0 z-[130] flex items-center justify-center bg-slate-900/95 backdrop-blur-md p-2 sm:p-6 w-full h-full" x-cloak>
-        <div @click.away="closeFullScreen()" class="bg-white rounded-2xl sm:rounded-3xl w-full max-w-6xl h-full max-h-[95vh] flex flex-col shadow-2xl overflow-hidden relative border border-slate-700">
-            <div class="flex justify-between items-center p-4 sm:p-6 border-b border-slate-200 bg-slate-50 flex-shrink-0 z-20 shadow-sm">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center shadow-md border border-slate-700 text-brass">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
-                    </div>
-                    <h3 class="font-heading text-lg sm:text-2xl font-black text-slate-900 tracking-tight truncate max-w-[200px] sm:max-w-md">
-                        <span x-show="lang === 'en'" x-text="currentModalData.title_en"></span>
-                        <span x-show="lang === 'ua'" x-text="currentModalData.title_ua"></span>
-                    </h3>
-                </div>
-                <button @click="closeFullScreen()" class="text-slate-500 hover:text-slate-900 bg-slate-200/50 hover:bg-slate-200 transition-colors focus:outline-none p-2.5 rounded-full flex-shrink-0 shadow-sm">
-                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-            
-            <div class="bg-slate-900 p-4 sticky top-0 z-20 shadow-lg flex flex-col items-center justify-center border-b-4 border-brass">
-                <span class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2"><span x-show="lang === 'en'">Synthesizer & Metronome</span><span x-show="lang === 'ua'" x-cloak>Синтезатор</span></span>
-                <div id="audio-control" class="w-full"></div>
-            </div>
-
-            <div class="p-4 sm:p-10 flex-grow overflow-auto bg-white flex flex-col items-center justify-start w-full custom-scrollbar">
-                <div id="abc-fullscreen" class="w-full max-w-5xl flex justify-center"></div>
-            </div>
-        </div>
-    </div>
-
-    <nav class="sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-slate-200/80 shadow-sm transition-colors duration-300 w-full max-w-[100vw]" :class="mobileMenuOpen ? 'bg-white border-transparent' : ''">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative w-full">
-            <div class="flex justify-between items-center h-16 w-full">
-                <a href="#" @click.prevent="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex items-center gap-2 hover:opacity-80 transition-opacity group z-50 relative shrink-0">
-                    <div class="font-heading font-black text-lg sm:text-2xl tracking-[0.1em] text-slate-900 leading-none">
-                        FUBC <span class="text-brass block text-[9px] sm:text-[11px] font-bold tracking-[0.3em] mt-0.5 uppercase group-hover:text-brassLight transition-colors">Music School</span>
-                    </div>
+    <nav class="sticky top-0 z-40 bg-slate-100/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm transition-colors duration-300" :class="mobileMenuOpen ? 'bg-slate-100 border-transparent' : ''">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="#" class="flex items-center gap-3 hover:opacity-80 transition-opacity group z-50 relative">
+                    <div class="font-heading font-bold text-xl sm:text-2xl tracking-[0.15em] text-slate-900 leading-none">FUBC <span class="text-brass block text-[10px] sm:text-xs font-semibold tracking-[0.35em] mt-0.5 group-hover:text-brassLight transition-colors">BAND</span></div>
                 </a>
+                <div class="hidden md:flex items-center gap-10">
+                    <button @click="lang = lang === 'en' ? 'ua' : 'en'" class="text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest border border-slate-200 px-4 py-1.5 rounded-full hover:border-brass/50 bg-white"><span :class="lang === 'en' ? 'text-brass font-extrabold' : ''">EN</span> <span class="text-slate-300 px-1">/</span> <span :class="lang === 'ua' ? 'text-brass font-extrabold' : ''">UA</span></button>
+                    <div class="flex items-center gap-8">
+                        <a href="#setlist" class="relative group py-2"><span class="font-bold text-xs uppercase tracking-widest text-slate-500 group-hover:text-brass transition-colors" x-text="lang === 'en' ? 'Info' : 'Інфо'"></span><span class="absolute bottom-0 left-0 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-full"></span></a>
+                        <a href="#tools" class="relative group py-2"><span class="font-bold text-xs uppercase tracking-widest text-slate-500 group-hover:text-brass transition-colors" x-text="lang === 'en' ? 'Tools' : 'Інструменти'"></span><span class="absolute bottom-0 left-0 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-full"></span></a>
+                        <a href="#media" class="relative group py-2"><span class="font-bold text-xs uppercase tracking-widest text-slate-500 group-hover:text-brass transition-colors" x-text="lang === 'en' ? 'Media' : 'Медіа'"></span><span class="absolute bottom-0 left-0 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-full"></span></a>
+                        
+                        <a href="/school.html" class="text-xs font-bold text-white bg-slate-900 px-5 py-2.5 rounded-full hover:bg-brass transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-md uppercase tracking-widest flex items-center gap-2 ml-2">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                            <span x-show="lang === 'en'">Music School</span>
+                            <span x-show="lang === 'ua'" x-cloak>Школа</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="md:hidden flex items-center gap-4">
+                    <button @click="lang = lang === 'en' ? 'ua' : 'en'" class="text-[10px] font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest border border-slate-200 px-3 py-1.5 rounded-full bg-white/50"><span :class="lang === 'en' ? 'text-brass font-extrabold' : ''">EN</span><span class="text-slate-300 px-1">/</span><span :class="lang === 'ua' ? 'text-brass font-extrabold' : ''">UA</span></button>
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="p-2 text-slate-800 hover:text-brass transition-colors focus:outline-none"><svg x-show="!mobileMenuOpen" class="w-7 h-7 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg><svg x-show="mobileMenuOpen" class="w-7 h-7 transform transition-transform duration-300 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" x-cloak><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                </div>
+            </div>
+        </div>
+        <div class="fixed top-16 left-0 w-full h-auto bg-slate-100 border-b-4 border-brass shadow-2xl md:hidden flex flex-col px-6 pb-6 transition-all duration-300 origin-top" x-show="mobileMenuOpen" x-transition:enter="opacity-0 scale-y-0" x-transition:enter-end="opacity-100 scale-y-100" x-transition:leave="opacity-100 scale-y-100" x-transition:leave-end="opacity-0 scale-y-0" x-cloak>
+            <div class="flex flex-col items-center justify-center space-y-4 mt-6">
+                <a href="#setlist" @click="mobileMenuOpen = false" class="group relative"><span class="text-xl font-heading font-bold text-slate-800 group-hover:text-brass transition-colors uppercase tracking-widest" x-text="lang === 'en' ? 'Info' : 'Інфо'"></span><span class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-full"></span></a>
+                <a href="#tools" @click="mobileMenuOpen = false" class="group relative"><span class="text-xl font-heading font-bold text-slate-800 group-hover:text-brass transition-colors uppercase tracking-widest" x-text="lang === 'en' ? 'Tools' : 'Інструменти'"></span><span class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-full"></span></a>
+                <a href="#media" @click="mobileMenuOpen = false" class="group relative"><span class="text-xl font-heading font-bold text-slate-800 group-hover:text-brass transition-colors uppercase tracking-widest" x-text="lang === 'en' ? 'Media' : 'Медіа'"></span><span class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-full"></span></a>
                 
-                <div class="md:hidden flex items-center gap-2 sm:gap-4 relative z-50 shrink-0">
-                    <button @click="openProfile()" class="text-[10px] font-black text-slate-600 hover:text-slate-900 transition-colors uppercase tracking-widest border border-slate-200 px-3 py-1.5 rounded-full bg-slate-50 shadow-sm flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full" :class="currentUser ? 'bg-emerald-500' : 'bg-rose-500'"></span>
-                        <span x-text="currentUser ? 'Profile' : 'Login'"></span>
-                    </button>
-                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="p-2 text-slate-800 hover:text-brass transition-colors focus:outline-none flex-shrink-0">
-                        <svg x-show="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-                        <svg x-show="mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" x-cloak><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </button>
-                </div>
-
-                <div class="hidden md:flex items-center gap-6 relative z-50 shrink-0">
-                    <button @click="lang = lang === 'en' ? 'ua' : 'en'; $nextTick(() => { renderWarmups(); renderScales(); });" class="text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest border border-slate-200 px-3 py-1.5 rounded-full hover:border-brass/50 bg-slate-50 transition-all shadow-sm">
-                        <span :class="lang === 'en' ? 'text-brass font-extrabold' : ''">EN</span><span class="text-slate-300 px-1">/</span><span :class="lang === 'ua' ? 'text-brass font-extrabold' : ''">UA</span>
-                    </button>
-                    <a href="#warmups" class="font-bold text-xs uppercase tracking-widest text-slate-500 hover:text-brass transition-colors relative group py-2">
-                        <span x-show="lang === 'en'">Warm-Ups</span><span x-show="lang === 'ua'" x-cloak>Розминка</span>
-                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-full"></span>
-                    </a>
-                    <a href="#scales" class="font-bold text-xs uppercase tracking-widest text-slate-500 hover:text-brass transition-colors relative group py-2">
-                        <span x-show="lang === 'en'">Scales</span><span x-show="lang === 'ua'" x-cloak>Гамми</span>
-                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-full"></span>
-                    </a>
-                    <a href="#setlist" class="font-bold text-xs uppercase tracking-widest text-slate-500 hover:text-brass transition-colors relative group py-2">
-                        <span x-show="lang === 'en'">Practice</span><span x-show="lang === 'ua'" x-cloak>Заняття</span>
-                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-full"></span>
-                    </a>
-                    <a href="/" class="font-bold text-xs uppercase tracking-widest text-slate-500 hover:text-brass transition-colors relative group py-2">
-                        <span x-show="lang === 'en'">Main Band</span><span x-show="lang === 'ua'" x-cloak>Оркестр</span>
-                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-full"></span>
-                    </a>
-                    <button @click="openProfile()" class="text-[10px] font-black text-slate-600 bg-white border border-slate-200 px-3 py-2 rounded-full hover:bg-slate-50 hover:text-slate-900 transition-all shadow-sm uppercase tracking-widest flex items-center gap-1.5 transform hover:-translate-y-0.5">
-                        <span class="w-2 h-2 rounded-full" :class="currentUser ? 'bg-emerald-500 shadow-[0_0_8px_rgba(52,211,153,0.8)]' : 'bg-rose-500'"></span>
-                        <span x-text="currentUser ? (lang==='en'?'Profile':'Профіль') : (lang==='en'?'Student Login':'Вхід')"></span>
-                    </button>
-                </div>
+                <div class="w-full h-px bg-slate-200 my-2"></div>
+                <a href="/school.html" class="w-full flex justify-center items-center gap-2 text-sm font-bold text-white bg-slate-900 px-8 py-3.5 rounded-full hover:bg-brass transition-colors uppercase tracking-widest shadow-sm">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                    <span x-show="lang === 'en'">Music School</span>
+                    <span x-show="lang === 'ua'" x-cloak>Школа</span>
+                </a>
             </div>
-            
-            <div class="absolute top-full left-0 w-full h-auto bg-white border-b-4 border-brass shadow-2xl md:hidden flex flex-col px-6 pb-6 transition-all duration-300 origin-top z-30" x-show="mobileMenuOpen" x-transition:enter="opacity-0 scale-y-0" x-transition:enter-end="opacity-100 scale-y-100" x-transition:leave="opacity-100 scale-y-100" x-transition:leave-end="opacity-0 scale-y-0" x-cloak>
-                <div class="flex flex-col items-center justify-center space-y-6 mt-8">
-                    <a href="#warmups" @click="mobileMenuOpen = false" class="text-xl font-heading font-black text-slate-800 hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Warm-Ups</span><span x-show="lang === 'ua'" x-cloak>Розминка</span></a>
-                    <a href="#scales" @click="mobileMenuOpen = false" class="text-xl font-heading font-black text-slate-800 hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Scales</span><span x-show="lang === 'ua'" x-cloak>Гамми</span></a>
-                    <a href="#setlist" @click="mobileMenuOpen = false" class="text-xl font-heading font-black text-slate-800 hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Practice</span><span x-show="lang === 'ua'" x-cloak>Заняття</span></a>
-                    <div class="w-full h-px bg-slate-100 my-2"></div>
-                    <a href="/" class="text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Return to Main Band</span><span x-show="lang === 'ua'" x-cloak>Головний сайт оркестру</span></a>
-                </div>
-            </div>
+            <div class="mt-6 pt-4 border-t border-slate-200 flex flex-col items-center"><button @click="document.querySelector('form[name=attendance]').scrollIntoView({behavior: 'smooth'}); mobileMenuOpen = false;" class="text-[10px] font-bold text-brass uppercase tracking-widest hover:underline flex items-center gap-2"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg><span x-text="lang === 'en' ? 'Report Absence' : 'Повідомити про відсутність'"></span></button></div>
         </div>
     </nav>
 
-    <div class="relative w-full h-[320px] sm:h-[450px] overflow-hidden bg-slate-900">
-        <div class="absolute inset-0 opacity-40 mix-blend-overlay bg-[url('https://images.unsplash.com/photo-1573871669414-010dbf73ca84?q=80&w=2071&auto=format&fit=crop')] bg-cover bg-center will-change-transform" :style="'transform: translateY(' + (scrollY * 0.4) + 'px)'"></div>
-        <div class="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/60 to-pageBg"></div>
-        <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4 pt-4 sm:pt-10 z-10 animate-fade-in-up">
-            <span class="px-4 py-1.5 rounded-full border border-brass/30 bg-brass/10 text-brassLight text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] mb-4 sm:mb-6 backdrop-blur-sm shadow-lg">Instrumental Music School</span>
-            <h1 class="font-heading text-xl sm:text-4xl md:text-5xl font-black text-white tracking-tight mb-4 drop-shadow-2xl max-w-4xl mx-auto leading-snug px-2">
-                <span x-show="lang === 'en'">“Praise him with trumpet sound; <br>praise him with lute and harp!”<br><span class="text-sm sm:text-2xl font-bold mt-4 block text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-brass tracking-wider">– Psalm 150:3</span></span>
-                <span x-show="lang === 'ua'" x-cloak>“Хваліть Його звуком трубним, <br>хваліть Його на арфі та гуслах!”<br><span class="text-sm sm:text-2xl font-bold mt-4 block text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-brass tracking-wider">– Псалми 150:3</span></span>
-            </h1>
+    <div class="relative w-full h-[500px] sm:h-[600px] bg-slate-900 overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1573871669414-010dbf73ca84?q=80&w=2071&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-40 will-change-transform" :style="'transform: translateY(' + (scrollY * 0.4) + 'px)'" alt="Brass Instruments">
+        <div class="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-slate-900/30 to-slate-900"></div>
+        <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4 pt-10 z-10">
+            <h1 class="font-heading text-2xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight mb-6 drop-shadow-2xl max-w-4xl mx-auto leading-snug"><span x-show="lang === 'en'">“Praise him with trumpet sound; praise him with lute and harp!”<br><span class="text-base sm:text-2xl font-medium mt-4 block text-brassLight tracking-wider">– Psalm 150:3</span></span><span x-show="lang === 'ua'" x-cloak>“Хваліть Його звуком трубним, хваліть Його на арфі та гуслах!”<br><span class="text-base sm:text-2xl font-medium mt-4 block text-brassLight tracking-wider">– Псалми 150:3</span></span></h1>
+            <p class="text-slate-300 text-sm sm:text-lg max-w-2xl font-light tracking-wide uppercase"><span x-show="lang === 'en'">First Ukrainian Baptist Church Band Ministry</span><span x-show="lang === 'ua'" x-cloak>Оркестр Першої Української Баптистської Церкви</span></p>
         </div>
-        <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-[0] z-20 pointer-events-none">
-            <svg class="relative block w-full h-[30px] sm:h-[100px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M985.66,92.83C906.67,72,823.78,31,743.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z" class="fill-[#f8fafc]"></path></svg>
-        </div>
+        <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-[0] z-20"><svg class="relative block w-full h-[60px] sm:h-[100px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M985.66,92.83C906.67,72,823.78,31,743.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z" class="fill-[#f8fafc]"></path></svg></div>
     </div>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12 space-y-8 sm:space-y-16 relative z-30 -mt-16 sm:-mt-32 pointer-events-auto w-full">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 relative z-10 pb-8 space-y-12">
 
-        <div class="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/50 p-5 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-5 sm:gap-8 relative z-20 animate-fade-in-up ring-1 ring-slate-900/5" style="animation-delay: 0.1s;">
-            <div class="flex items-center gap-4 sm:gap-5 text-center sm:text-left w-full sm:w-auto justify-center sm:justify-start">
-                <div class="p-3 sm:p-4 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl hidden md:flex shrink-0 shadow-inner border border-slate-200">
-                    <svg class="w-8 h-8 sm:w-10 sm:h-10 text-brass" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
-                </div>
-                <div>
-                    <h2 class="text-slate-900 font-black text-lg sm:text-2xl font-heading tracking-tight">
-                        <span x-show="lang === 'en'">What do you play?</span>
-                        <span x-show="lang === 'ua'" x-cloak>На чому ви граєте?</span>
-                    </h2>
-                    <p class="text-slate-500 text-[10px] sm:text-sm mt-1 font-medium leading-tight">
-                        <span x-show="lang === 'en'">Select your instrument to instantly transpose all exercises and sheet music.</span>
-                        <span x-show="lang === 'ua'" x-cloak>Оберіть інструмент, щоб автоматично транспонувати всі ноти та вправи.</span>
-                    </p>
-                </div>
-            </div>
-            <div class="relative w-full sm:w-80 shrink-0 group">
-                <div class="absolute -inset-1 bg-gradient-to-r from-brass to-yellow-400 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-500"></div>
-                <select x-model="globalInstrument" @change="updateGlobalInstrument($event.target.value)" class="relative w-full bg-slate-900 text-white border border-slate-700 rounded-xl px-4 sm:px-5 py-3.5 sm:py-4 text-sm sm:text-lg font-bold focus:outline-none focus:ring-2 focus:ring-brass transition-all cursor-pointer appearance-none shadow-xl">
-                    <template x-for="inst in availableInstruments" :key="inst">
-                        <option :value="inst" x-text="inst" class="bg-slate-800"></option>
-                    </template>
-                </select>
-                <div class="absolute inset-y-0 right-0 flex items-center px-4 sm:px-5 pointer-events-none z-10">
-                    <svg class="w-4 h-4 sm:w-5 sm:h-5 text-brassLight" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
-                </div>
-            </div>
+        <div x-show="settings.conductorNote" x-cloak class="bg-white border-l-4 border-brass p-6 rounded-lg shadow-lg relative z-20">
+            <div class="flex items-start"><div class="flex-shrink-0 pt-1"><svg class="h-6 w-6 text-brass" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M5.85 3.5a.75.75 0 0 0-1.117-1 9.719 9.719 0 0 0-2.348 4.876.75.75 0 0 0 1.479.248A8.219 8.219 0 0 1 5.85 3.5ZM19.267 2.5a.75.75 0 1 0-1.118 1 8.22 8.22 0 0 1 2.06 4.124.75.75 0 0 0 1.48-.248A9.72 9.72 0 0 0 19.266 2.5Z" /><path fill-rule="evenodd" d="M12 2.25A6.75 6.75 0 0 0 5.25 9v.75a8.217 8.217 0 0 1-2.119 5.52.75.75 0 0 0 .298 1.206c1.544.57 3.16.99 4.831 1.243a3.75 3.75 0 1 0 7.48 0 24.583 24.583 0 0 0 4.83-1.244.75.75 0 0 0 .298-1.205 8.217 8.217 0 0 1-2.118-5.52V9A6.75 6.75 0 0 0 12 2.25ZM9.75 18c0-.034 0-.067.002-.1a25.05 25.05 0 0 0 4.496 0l.002.1a2.25 2.25 0 1 1-4.5 0Z" clip-rule="evenodd" /></svg></div><div class="ml-4"><h3 class="text-sm font-bold text-slate-900 uppercase tracking-widest mb-2"><span x-show="lang === 'en'">Note from Conductor</span><span x-show="lang === 'ua'" x-cloak>Повідомлення від Диригента</span></h3><div class="text-slate-700 font-medium leading-relaxed" x-text="settings.conductorNote"></div></div></div>
         </div>
 
-        <section id="leaderboard" class="bg-gradient-to-br from-white to-slate-50 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden relative transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] animate-fade-in-up" style="animation-delay: 0.15s;">
-            <div class="px-5 sm:px-8 py-5 sm:py-8 border-b border-slate-100 flex items-center gap-3 sm:gap-4 bg-white relative z-10">
-                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-yellow-400 to-brass rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg text-white shrink-0">
-                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
-                </div>
+        <section x-show="program.isVisible && new Date().toISOString().slice(0,10) === program.date" x-cloak class="bg-white rounded-2xl shadow-xl border-t-4 border-brass overflow-hidden relative reveal-hidden" x-intersect.threshold.05.once="$el.classList.add('reveal-visible')">
+            <div class="absolute top-0 right-0 p-24 bg-brass/5 blur-3xl rounded-full pointer-events-none"></div>
+            <div class="px-6 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                 <div>
-                    <h2 class="font-heading text-lg sm:text-2xl font-black text-slate-900 tracking-tight">
-                        <span x-show="lang === 'en'">School Leaderboard</span><span x-show="lang === 'ua'" x-cloak>Дошка Лідерів</span>
+                    <h2 class="font-heading text-xl font-bold text-slate-900 uppercase tracking-widest">
+                        <span x-show="lang === 'en'">Today's Order</span><span x-show="lang === 'ua'" x-cloak>Програма Служіння</span>
                     </h2>
-                    <p class="text-[10px] sm:text-sm font-medium text-slate-500 mt-0.5">
-                        <span x-show="lang === 'en'">Top practicing students in the band.</span><span x-show="lang === 'ua'" x-cloak>Учні з найбільшою кількістю занять.</span>
-                    </p>
+                    <p class="text-xs text-brass font-bold mt-1" x-text="program.date"></p>
+                </div>
+                <div class="h-8 w-8 rounded-full bg-red-100 flex items-center justify-center animate-pulse">
+                    <div class="h-2.5 w-2.5 rounded-full bg-red-600"></div>
                 </div>
             </div>
-            
-            <div x-show="leaderboard.length === 0" class="p-8 sm:p-12 text-center">
-                <div class="inline-block animate-spin w-6 h-6 sm:w-8 sm:h-8 border-4 border-slate-200 border-t-brass rounded-full mb-3 sm:mb-4"></div>
-                <p class="text-slate-400 text-xs sm:text-sm font-medium">Syncing live scores...</p>
-            </div>
-
-            <div x-show="leaderboard.length > 0" class="p-5 sm:p-8 grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-12 relative z-10" x-cloak>
-                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 sm:p-6 relative overflow-hidden">
-                    <div class="absolute -right-4 -top-4 w-20 h-20 sm:w-24 sm:h-24 bg-blue-50 rounded-full blur-2xl pointer-events-none"></div>
-                    <h3 class="font-black text-xs sm:text-sm uppercase tracking-widest text-slate-400 mb-4 sm:mb-6 flex items-center gap-2">
-                        <svg class="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        <span x-show="lang === 'en'">Most Minutes</span><span x-show="lang === 'ua'" x-cloak>Топ За Часом</span>
-                    </h3>
-                    <div class="space-y-3 sm:space-y-4">
-                        <template x-for="(student, idx) in topTime" :key="idx">
-                            <div class="flex items-center justify-between group">
-                                <div class="flex items-center gap-3 sm:gap-4">
-                                    <div class="w-6 sm:w-8 text-center font-black text-base sm:text-lg" :class="idx === 0 ? 'text-yellow-400 drop-shadow-sm' : (idx === 1 ? 'text-slate-300' : (idx === 2 ? 'text-amber-600' : 'text-slate-200'))" x-text="idx + 1"></div>
-                                    <div class="font-bold text-xs sm:text-sm text-slate-700 group-hover:text-slate-900 transition-colors" x-text="student.name"></div>
-                                </div>
-                                <div class="font-mono font-bold text-[10px] sm:text-xs text-slate-500 bg-slate-50 px-2 sm:px-3 py-1 rounded-lg border border-slate-100 group-hover:bg-blue-50 group-hover:text-blue-600 group-hover:border-blue-100 transition-colors">
-                                    <span x-text="Math.floor(student.total_minutes / 60)"></span>h <span x-text="student.total_minutes % 60"></span>m
-                                </div>
-                            </div>
-                        </template>
+            <div class="p-0">
+                <template x-for="(item, index) in program.items" :key="index">
+                    <div class="flex items-center gap-4 p-4 border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors">
+                        <div class="w-10 text-center text-xs font-bold text-slate-300" x-text="index + 1"></div>
+                        <div class="flex-1">
+                            <div class="text-[10px] font-bold text-brass uppercase tracking-wider mb-0.5" x-text="item.type"></div>
+                            <div class="font-medium text-slate-900 text-sm sm:text-base" x-text="item.desc"></div>
+                        </div>
                     </div>
-                </div>
-
-                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 sm:p-6 relative overflow-hidden">
-                    <div class="absolute -right-4 -top-4 w-20 h-20 sm:w-24 sm:h-24 bg-orange-50 rounded-full blur-2xl pointer-events-none"></div>
-                    <h3 class="font-black text-xs sm:text-sm uppercase tracking-widest text-slate-400 mb-4 sm:mb-6 flex items-center gap-2">
-                        <svg class="w-4 h-4 text-orange-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd" /></svg>
-                        <span x-show="lang === 'en'">Longest Streaks</span><span x-show="lang === 'ua'" x-cloak>Найдовші Серії</span>
-                    </h3>
-                    <div class="space-y-3 sm:space-y-4">
-                        <template x-for="(student, idx) in topStreak" :key="idx">
-                            <div class="flex items-center justify-between group">
-                                <div class="flex items-center gap-3 sm:gap-4">
-                                    <div class="w-6 sm:w-8 text-center font-black text-base sm:text-lg" :class="idx === 0 ? 'text-yellow-400 drop-shadow-sm' : (idx === 1 ? 'text-slate-300' : (idx === 2 ? 'text-amber-600' : 'text-slate-200'))" x-text="idx + 1"></div>
-                                    <div class="font-bold text-xs sm:text-sm text-slate-700 group-hover:text-slate-900 transition-colors" x-text="student.name"></div>
-                                </div>
-                                <div class="font-mono font-bold text-[10px] sm:text-xs text-slate-500 bg-slate-50 px-2 sm:px-3 py-1 rounded-lg border border-slate-100 group-hover:bg-orange-50 group-hover:text-orange-600 group-hover:border-orange-100 transition-colors">
-                                    <span x-text="student.streak"></span> <span class="text-[9px] uppercase tracking-wider hidden sm:inline">Days</span><span class="sm:hidden">d</span>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
+                </template>
+                <div x-show="!program.items || program.items.length === 0" class="p-8 text-center text-slate-400 text-sm italic">
+                    <span x-show="lang === 'en'">Program details updating...</span><span x-show="lang === 'ua'" x-cloak>Програма оновлюється...</span>
                 </div>
             </div>
         </section>
 
-        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 sm:gap-8 animate-fade-in-up" style="animation-delay: 0.25s;">
-            
-            <div class="lg:col-span-3 bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl shadow-2xl border border-slate-700 p-6 sm:p-8 flex flex-col justify-between relative overflow-hidden group">
-                <div class="absolute top-0 right-0 w-64 h-64 bg-brass/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none transition-all duration-700" :class="sessionActive ? 'bg-brass/20 scale-150' : ''"></div>
-                
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 border-b border-slate-700 pb-6 relative z-10">
-                    <div>
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="w-2 h-2 rounded-full animate-pulse" :class="sessionActive ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]' : 'bg-slate-500'"></span>
-                            <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400" x-text="sessionActive ? 'Session Active' : 'Ready to Practice'"></span>
-                        </div>
-                        <h3 class="font-heading font-black text-white text-xl sm:text-2xl tracking-tight">
-                            <span x-show="lang === 'en'">Focus Timer</span><span x-show="lang === 'ua'" x-cloak>Таймер Занять</span>
-                        </h3>
-                    </div>
-                    <div class="text-5xl sm:text-7xl font-mono font-black tracking-tighter tabular-nums drop-shadow-lg" :class="sessionActive ? 'text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400' : 'text-slate-600'" x-text="formatTime(sessionTimeLeft)">00:00</div>
-                </div>
-
-                <div class="grid grid-cols-3 gap-2 sm:gap-3 relative z-10 mb-8">
-                    <template x-for="(phase, idx) in sessionPhases" :key="idx">
-                        <button @click="startSessionPhase(idx)" 
-                            class="flex flex-col items-center justify-center w-full p-2 sm:px-4 sm:py-4 rounded-xl sm:rounded-2xl border-2 transition-all duration-300 text-center relative overflow-hidden"
-                            :class="sessionPhase === idx && sessionActive ? 'bg-brass/20 border-brass text-white shadow-[0_0_20px_rgba(180,83,9,0.3)] transform scale-105' : 'bg-slate-800/50 border-slate-700 hover:border-slate-500 hover:bg-slate-700 text-slate-400'">
-                            <span class="font-black text-[9px] sm:text-xs uppercase tracking-widest mb-1" :class="sessionPhase === idx && sessionActive ? 'text-brassLight' : ''" x-text="lang === 'en' ? phase.name_en : phase.name_ua"></span>
-                            <span class="text-[10px] sm:text-xs font-mono font-bold opacity-70 hidden sm:block" x-text="formatTime(phase.duration)"></span>
-                        </button>
-                    </template>
-                </div>
-                
-                <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-5 relative z-10 bg-slate-900/50 p-2 pl-4 sm:pl-6 rounded-full border border-slate-700/50">
-                    <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden shadow-inner hidden sm:block">
-                        <div class="bg-gradient-to-r from-yellow-400 to-brass h-full transition-all duration-1000 ease-linear rounded-full relative" :style="sessionActive ? `width: ${(1 - sessionTimeLeft / sessionPhases[sessionPhase].duration) * 100}%` : 'width: 0%'">
-                            <div class="absolute right-0 top-0 bottom-0 w-4 bg-white/30 blur-[2px]"></div>
-                        </div>
-                    </div>
-                    <button @click="toggleSession()" class="w-full sm:w-auto px-8 py-3.5 rounded-full font-black text-xs sm:text-sm uppercase tracking-widest transition-all duration-300 shadow-xl flex-shrink-0" :class="sessionActive ? 'bg-slate-700 text-white hover:bg-slate-600' : 'bg-white text-slate-900 hover:bg-brass hover:text-white hover:scale-105'" x-text="sessionActive ? (lang === 'en' ? 'Pause' : 'Пауза') : (lang === 'en' ? 'Start' : 'Старт')"></button>
+        <section id="setlist" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden scroll-mt-32 reveal-hidden" x-data="{ shown: false }" x-intersect.threshold.05.once="shown = true" :class="shown ? 'reveal-visible' : ''">
+            <div class="px-6 py-8 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+                <div><h2 class="font-heading text-2xl font-bold text-slate-900"><span x-show="lang === 'en'">Performance Setlist</span><span x-show="lang === 'ua'" x-cloak>Програма Виступу</span></h2><p class="text-textMuted text-sm mt-1 font-medium"><span x-show="lang === 'en'">Upcoming Service Material</span><span x-show="lang === 'ua'" x-cloak>Матеріал найближчого служіння</span></p></div>
+                <div class="flex items-center gap-4">
+                    <button @click="copySetlist()" class="text-xs font-bold text-slate-400 hover:text-brass transition-colors uppercase tracking-widest">Copy</button>
+                    <button @click="showLibrary = true" class="text-sm font-semibold text-brass hover:text-brassLight transition-colors flex items-center gap-2 group"><span x-show="lang === 'en'">View Full Library</span><span x-show="lang === 'ua'" x-cloak>Відкрити Архів</span><span class="group-hover:translate-x-1 transition-transform">→</span></button>
                 </div>
             </div>
-
-            <div class="lg:col-span-2 bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 p-5 sm:p-8 flex flex-col justify-between relative overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
-                <div class="flex justify-between items-start mb-6">
-                    <div>
-                        <h3 class="font-heading font-black text-slate-900 text-lg sm:text-xl tracking-tight">
-                            <span x-show="lang === 'en'">Weekly Goal</span><span x-show="lang === 'ua'" x-cloak>Прогрес</span>
-                        </h3>
-                        <p class="text-[10px] sm:text-xs font-medium text-slate-500 mt-1">
-                            <span x-show="lang === 'en'">Don't break the chain!</span><span x-show="lang === 'ua'" x-cloak>Формуйте звичку!</span>
-                        </p>
-                    </div>
-                    <div class="text-right bg-orange-50 px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl border border-orange-100">
-                        <div class="flex items-center justify-end gap-1 mb-0.5">
-                            <svg class="w-3 h-3 sm:w-4 sm:h-4 text-orange-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd" /></svg>
-                            <span class="text-xl sm:text-3xl font-black text-orange-600 leading-none" x-text="currentUser ? currentUser.streak : streak"></span>
-                        </div>
-                        <span class="text-[8px] sm:text-[9px] text-orange-800/60 font-black uppercase tracking-widest">Day Streak</span>
-                    </div>
-                </div>
-                
-                <div class="flex justify-between items-center bg-slate-50 p-3 sm:p-4 rounded-2xl border border-slate-100 mb-6 shadow-inner">
-                    <template x-for="(day, index) in weekDays" :key="index">
-                        <div class="flex flex-col items-center gap-1.5 sm:gap-2">
-                            <span class="text-[9px] sm:text-[10px] font-bold text-slate-400" x-text="day"></span>
-                            <div class="w-7 h-7 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-500"
-                                 :class="hasPracticedOnDay(index) ? 'bg-gradient-to-br from-emerald-400 to-emerald-500 text-white shadow-[0_4px_10px_rgba(52,211,153,0.4)] scale-110 border-none' : (index === currentDayOfWeek ? 'bg-white border-2 border-slate-300 ring-2 ring-slate-100 ring-offset-1' : 'bg-white border border-slate-200')">
-                                <svg x-show="hasPracticedOnDay(index)" class="w-3.5 h-3.5 sm:w-5 sm:h-5 drop-shadow-sm" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
-                            </div>
-                        </div>
-                    </template>
-                </div>
-                
-                <button @click="logPractice()" class="w-full py-3.5 sm:py-4 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest transition-all duration-300 shadow-md border transform hover:scale-[1.02]"
-                    :class="practicedToday ? 'bg-emerald-50 text-emerald-700 border-emerald-200 cursor-default shadow-none' : 'bg-slate-900 border-transparent text-white hover:bg-brass'">
-                    <span x-show="!practicedToday" class="flex items-center justify-center gap-2">
-                        <span x-show="lang === 'en'">Mark as Practiced</span><span x-show="lang === 'ua'" x-cloak>Я займався сьогодні</span>
-                        <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    </span>
-                    <span x-show="practicedToday">
-                        <span x-show="lang === 'en'">Done for today!</span><span x-show="lang === 'ua'" x-cloak>Готово на сьогодні!</span>
-                    </span>
-                </button>
-            </div>
-        </div>
-
-        <div class="space-y-10 sm:space-y-12">
-            <section id="warmups" class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden scroll-mt-24 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] animate-fade-in-up" style="animation-delay: 0.3s;">
-                <div class="px-5 sm:px-8 py-5 sm:py-8 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50">
-                    <div class="flex items-center gap-3 sm:gap-4">
-                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl sm:rounded-2xl flex items-center justify-center shadow-sm border border-slate-200 text-brass shrink-0">
-                            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
-                        </div>
-                        <div>
-                            <h2 class="font-heading text-lg sm:text-2xl font-black text-slate-900 tracking-tight">
-                                <span x-show="lang === 'en'">Daily Warm-Ups</span>
-                                <span x-show="lang === 'ua'" x-cloak>Щоденна Розминка</span>
-                            </h2>
-                            <p class="text-[10px] sm:text-sm font-medium text-slate-500 mt-0.5">
-                                <span x-show="lang === 'en'">Click any sheet to expand and open the auto-player.</span>
-                                <span x-show="lang === 'ua'" x-cloak>Натисніть на ноти для розгортання та авто-плеєра.</span>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="p-5 sm:p-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 bg-white">
-                    <template x-for="(ex, index) in exercises" :key="index">
-                        <div @click="openFullScreen(index, 'exercises')" class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm transform transition-all duration-300 hover:-translate-y-1.5 hover:border-brass/50 hover:shadow-[0_10px_20px_rgba(180,83,9,0.1)] cursor-pointer group relative flex flex-col overflow-hidden">
-                            <div class="absolute inset-0 bg-gradient-to-br from-slate-50 to-white opacity-0 group-hover:opacity-100 transition-opacity z-0"></div>
-                            <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-3 relative z-10">
-                                <h3 class="font-heading text-xs sm:text-sm font-bold text-slate-900 tracking-wider group-hover:text-brass transition-colors truncate pr-2">
-                                    <span x-show="lang === 'en'" x-text="ex.title_en"></span>
-                                    <span x-show="lang === 'ua'" x-cloak x-text="ex.title_ua"></span>
-                                </h3>
-                                <div class="bg-slate-50 p-1.5 sm:p-2 rounded-xl group-hover:bg-brass group-hover:text-white transition-colors flex-shrink-0 text-slate-400 flex items-center gap-1 shadow-sm">
-                                    <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
-                                </div>
-                            </div>
-                            <div class="w-full overflow-hidden min-h-[60px] sm:min-h-[80px] pointer-events-none flex items-center justify-center opacity-70 group-hover:opacity-100 transition-all duration-300 relative z-10 group-hover:scale-105">
-                                <div :id="'abc-warmup-' + index" class="w-full min-w-min"></div>
-                            </div>
-                        </div>
-                    </template>
-                </div>
-            </section>
-
-            <section id="scales" class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden scroll-mt-24 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] animate-fade-in-up" style="animation-delay: 0.4s;">
-                <div class="px-5 sm:px-8 py-5 sm:py-8 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50">
-                    <div class="flex items-center gap-3 sm:gap-4">
-                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl sm:rounded-2xl flex items-center justify-center shadow-sm border border-slate-200 text-brass shrink-0">
-                            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
-                        </div>
-                        <div>
-                            <h2 class="font-heading text-lg sm:text-2xl font-black text-slate-900 tracking-tight">
-                                <span x-show="lang === 'en'">12 Major Scales</span>
-                                <span x-show="lang === 'ua'" x-cloak>12 Мажорних Гам</span>
-                            </h2>
-                            <p class="text-[10px] sm:text-sm font-medium text-slate-500 mt-0.5">
-                                <span x-show="lang === 'en'">Circle of Fifths. Click to view full screen.</span>
-                                <span x-show="lang === 'ua'" x-cloak>Кварто-квінтове коло. Натисніть для перегляду.</span>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="p-5 sm:p-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4 bg-white">
-                    <template x-for="(sc, index) in scales" :key="'sc'+index">
-                        <div @click="openFullScreen(index, 'scales')" class="bg-white rounded-xl border border-slate-200 p-3 sm:p-4 shadow-sm transform transition-all duration-200 hover:-translate-y-1 hover:border-brass/50 hover:shadow-md cursor-pointer group flex flex-col text-center">
-                            <h3 class="font-heading text-[11px] sm:text-xs font-bold text-slate-800 group-hover:text-brass transition-colors mb-2 truncate">
-                                <span x-show="lang === 'en'" x-text="sc.title_en"></span>
-                                <span x-show="lang === 'ua'" x-cloak x-text="sc.title_ua"></span>
-                            </h3>
-                            <div class="w-full overflow-hidden h-[40px] pointer-events-none flex items-center justify-center opacity-50 group-hover:opacity-100 transition-opacity">
-                                <div :id="'abc-scale-' + index" class="w-full min-w-min scale-75 origin-top"></div>
-                            </div>
-                        </div>
-                    </template>
-                </div>
-            </section>
-        </div>
-
-        <section id="setlist" class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden scroll-mt-24 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] animate-fade-in-up" style="animation-delay: 0.5s;">
-            <div class="px-5 sm:px-8 py-5 sm:py-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                <div class="flex items-center gap-3 sm:gap-4">
-                    <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl sm:rounded-2xl flex items-center justify-center shadow-sm border border-slate-200 text-brass shrink-0">
-                        <svg class="w-5 h-5 sm:w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
-                    </div>
-                    <h2 class="font-heading text-lg sm:text-2xl font-black text-slate-900 tracking-tight">
-                        <span x-show="lang === 'en'">Current Repertoire</span><span x-show="lang === 'ua'" x-cloak>Поточний Репертуар</span>
-                    </h2>
-                </div>
-                <span class="text-[9px] sm:text-xs font-bold bg-white border border-slate-200 text-slate-500 shadow-sm px-2 sm:px-4 py-1.5 rounded-full uppercase tracking-widest whitespace-nowrap" x-text="schoolSongs.length + (lang === 'en' ? ' Songs' : ' Пісень')"></span>
-            </div>
-            
-            <div x-show="schoolSongs.length === 0" class="p-12 text-center text-slate-400 text-sm animate-pulse font-medium">Connecting to music database...</div>
-
-            <div x-show="schoolSongs.length > 0" class="p-5 sm:p-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 bg-white">
-                <template x-for="song in schoolSongs" :key="song.title">
-                    <div class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm hover:shadow-xl hover:border-brass/50 transition-all duration-300 transform hover:-translate-y-2 flex flex-col group relative overflow-hidden">
-                        <div class="absolute top-0 right-0 w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-bl from-brass/10 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div class="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 relative z-10"><span x-show="lang === 'en'">Sheet Music</span><span x-show="lang === 'ua'" x-cloak>Ноти</span></div>
-                        <h3 class="font-heading text-base sm:text-lg font-black text-slate-900 mb-2 group-hover:text-brass transition-colors leading-snug relative z-10" x-text="song.title"></h3>
-                        <p class="text-slate-500 text-[10px] sm:text-xs font-medium mb-5 sm:mb-6 flex-grow relative z-10" x-text="lang === 'en' ? song.desc_en : song.desc_ua"></p>
-                        
-                        <a :href="song.link" target="_blank" class="mt-auto text-[10px] sm:text-xs font-black text-slate-700 bg-slate-50 hover:bg-brass hover:text-white border border-slate-200 hover:border-brass px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all relative z-10 group/btn shadow-sm">
-                            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                            <span x-show="lang === 'en'">Open Music</span><span x-show="lang === 'ua'" x-cloak>Відкрити</span>
-                        </a>
+            <div x-show="isLoading" class="p-10 text-center text-slate-400 font-mono text-sm animate-pulse">Loading setlist...</div>
+            <div x-show="!isLoading" class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50/50">
+                <template x-for="song in sortedSetlist" :key="song.title">
+                    <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+                        <div class="absolute left-0 top-0 bottom-0 w-1 bg-brass opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="flex justify-between items-start mb-6"><div><h3 class="font-heading text-lg font-bold text-slate-900 group-hover:text-brass transition-colors" x-text="song.title"></h3><p class="text-slate-500 text-sm mt-1" x-text="song.sub"></p></div><span class="px-3 py-1 rounded-md bg-slate-100 text-xs font-bold text-slate-600 border border-slate-200" x-text="song.binderNumber && song.binderNumber !== 'New' ? '#' + song.binderNumber : 'New'"></span></div>
+                        <div class="flex gap-3" x-show="song.link || song.chords"><template x-if="song.link"><a :href="song.link" target="_blank" class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-slate-900 hover:bg-brass text-white text-sm font-bold transition-all shadow-md"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span x-show="lang === 'en'">Listen</span><span x-show="lang === 'ua'" x-cloak>Слухати</span></a></template><template x-if="song.chords"><a :href="song.chords" target="_blank" class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-slate-900 text-sm font-bold transition-all"><svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><span x-show="lang === 'en'">Notes</span><span x-show="lang === 'ua'" x-cloak>Ноти</span></a></template></div>
                     </div>
                 </template>
             </div>
         </section>
 
-        <section id="submission" class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl shadow-2xl border border-slate-700 overflow-hidden relative transition-all duration-500 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)] animate-fade-in-up" style="animation-delay: 0.6s;">
-            <div class="absolute top-0 right-0 p-32 bg-brass/10 blur-[100px] rounded-full pointer-events-none"></div>
-            <div class="absolute bottom-0 left-0 p-32 bg-blue-500/10 blur-[100px] rounded-full pointer-events-none"></div>
-            
-            <div x-show="submitStatus === 'success'" class="absolute inset-0 z-20 bg-gradient-to-br from-emerald-500 to-emerald-700 flex flex-col items-center justify-center text-center p-6 backdrop-blur-md" x-transition><svg class="w-16 sm:w-20 h-16 sm:h-20 text-white mb-4 drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><h3 class="text-2xl sm:text-3xl font-black text-white tracking-tight drop-shadow-sm"><span x-show="lang === 'en'">Submitted Successfully!</span><span x-show="lang === 'ua'" x-cloak>Успішно надіслано!</span></h3></div>
-            
-            <div class="p-6 sm:p-12 relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-16 items-center">
-                <div>
-                    <span class="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 bg-rose-500/20 border border-rose-500/30 text-rose-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-full mb-4 sm:mb-6 shadow-sm"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg> Conductor Feedback (BETA)</span>
-                    <h3 class="font-heading text-2xl sm:text-4xl font-black text-white mb-3 sm:mb-4 tracking-tight leading-tight"><span x-show="lang === 'en'">Playing Test Submissions</span><span x-show="lang === 'ua'" x-cloak>Здача Партій</span></h3>
-                    <p class="text-slate-400 text-xs sm:text-sm leading-relaxed mb-6 font-medium"><span x-show="lang === 'en'">Please do not use this feature unless specifically directed by the conductor. When assigned, record your piece and upload it directly for feedback.</span><span x-show="lang === 'ua'" x-cloak>Будь ласка, не використовуйте цю функцію, якщо немає завдання від диригента.</span></p>
-                </div>
-                
-                <form x-ref="testForm" @submit.prevent="submitTest" name="playing_test" method="POST" data-netlify="true" enctype="multipart/form-data" class="bg-white/5 backdrop-blur-md border border-white/10 p-5 sm:p-8 rounded-3xl space-y-4 sm:space-y-5 shadow-2xl">
-                    <input type="hidden" name="form-name" value="playing_test" />
-                    <input type="text" name="name" required :placeholder="lang === 'en' ? 'Student Name' : 'Ім\'я Учня'" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-3.5 sm:px-5 sm:py-4 text-xs sm:text-sm text-white placeholder-slate-500 focus:ring-2 focus:ring-brass focus:border-transparent outline-none transition-all shadow-inner">
-                    <input type="text" name="song" required :placeholder="lang === 'en' ? 'Song / Scale Name' : 'Назва твору / гамми'" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-3.5 sm:px-5 sm:py-4 text-xs sm:text-sm text-white placeholder-slate-500 focus:ring-2 focus:ring-brass focus:border-transparent outline-none transition-all shadow-inner">
-                    <div class="relative w-full">
-                        <input type="file" name="recording" accept="audio/*,video/*" required class="block w-full text-xs sm:text-sm text-slate-400 file:mr-3 sm:file:mr-4 file:py-2.5 sm:file:py-3 file:px-4 sm:file:px-5 file:rounded-xl file:border-0 file:text-[10px] sm:file:text-xs file:font-black file:uppercase file:tracking-widest file:bg-slate-700 file:text-white hover:file:bg-slate-600 focus:outline-none cursor-pointer bg-slate-900/80 border border-slate-700 rounded-xl pr-4 shadow-inner transition-all">
-                    </div>
-                    <button type="submit" class="w-full bg-gradient-to-r from-brass to-brassLight hover:from-yellow-500 hover:to-brass text-white font-black text-[10px] sm:text-xs uppercase tracking-widest py-3.5 sm:py-4 rounded-xl transition-all shadow-[0_8px_20px_rgba(180,83,9,0.4)] hover:shadow-[0_8px_25px_rgba(180,83,9,0.6)] transform hover:-translate-y-0.5 disabled:opacity-50 mt-2" :disabled="submitStatus === 'submitting'"><span x-show="submitStatus === 'idle'"><span x-show="lang === 'en'">Upload Recording</span><span x-show="lang === 'ua'" x-cloak>Завантажити Запис</span></span><span x-show="submitStatus === 'submitting'">Uploading...</span></button>
-                </form>
-            </div>
-        </section>
-
-        <section id="tools-resources" class="scroll-mt-24 transition-all duration-300 animate-fade-in-up" style="animation-delay: 0.7s;">
-            <div class="px-2 py-4 sm:py-6 border-b border-slate-200 mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <h2 class="font-heading text-xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                    <span x-show="lang === 'en'">Tools & Resources</span>
-                    <span x-show="lang === 'ua'" x-cloak>Інструменти та Матеріали</span>
-                </h2>
-            </div>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 w-full">
-                <div class="lg:col-span-1 space-y-6 sm:space-y-8 w-full flex flex-col">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <section class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden reveal-hidden" x-data="{ shown: false }" x-intersect.threshold.05.once="shown = true" :class="shown ? 'reveal-visible' : ''">
+                <div class="px-6 py-6 border-b border-slate-100"><h2 class="font-heading text-xl font-bold text-slate-900"><span x-show="lang === 'en'">Schedule</span><span x-show="lang === 'ua'" x-cloak>Розклад</span></h2></div>
+                <div class="p-6 space-y-4">
+                    <div x-show="isLoading" class="p-4 text-center text-slate-400 font-mono text-xs">Syncing calendar...</div>
                     
-                    <div class="bg-gradient-to-b from-slate-900 to-slate-950 p-5 sm:p-8 rounded-3xl shadow-xl border border-slate-800 relative overflow-hidden transition-all duration-300 flex flex-col flex-grow ring-1 ring-white/5">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-brass/10 rounded-full blur-2xl pointer-events-none"></div>
-                        <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4 relative z-10">
-                            <div class="flex items-center gap-2">
-                                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
-                                <span class="text-[10px] sm:text-xs font-black text-slate-300 uppercase tracking-widest"><span x-show="lang === 'en'">Live Tuner</span><span x-show="lang === 'ua'" x-cloak>Тюнер</span></span>
-                            </div>
-                            <button @click="toggleTuner()" class="text-[9px] sm:text-[10px] font-black uppercase tracking-widest px-3 sm:px-4 py-1.5 rounded-full border transition-all focus:outline-none" :class="tunerActive ? 'bg-rose-500/20 text-rose-400 border-rose-500/50 shadow-[0_0_15px_rgba(244,63,94,0.3)]' : 'bg-transparent text-brass border-brass hover:bg-brass hover:text-white hover:shadow-[0_0_15px_rgba(180,83,9,0.4)]'" x-text="tunerActive ? (lang === 'en' ? 'Stop' : 'Вимк') : (lang === 'en' ? 'Mic Access' : 'Мікрофон')"></button>
-                        </div>
-                        
-                        <div class="flex flex-col items-center justify-center flex-grow min-h-[140px] sm:min-h-[160px] relative z-10">
-                            <div x-show="!tunerActive" class="text-center text-slate-500 text-xs sm:text-sm font-medium">
-                                <span x-show="lang === 'en'">Click "Mic Access" to enable live tuner.</span><span x-show="lang === 'ua'" x-cloak>Натисніть "Мікрофон" для активації.</span>
-                            </div>
-                            <div x-show="tunerActive" class="flex flex-col items-center w-full" x-cloak>
-                                <div class="text-5xl sm:text-6xl font-black text-white mb-2 drop-shadow-md" x-text="tunerNote">--</div>
-                                <div class="text-[10px] sm:text-xs font-mono font-bold tracking-widest uppercase bg-slate-800/80 px-3 sm:px-4 py-1 rounded-full border border-slate-700" :class="Math.abs(tunerCents) < 10 ? 'text-emerald-400 border-emerald-500/30' : (tunerCents > 0 ? 'text-rose-400' : 'text-amber-400')" x-text="tunerCents === 0 ? 'In Tune' : (tunerCents > 0 ? '+' + tunerCents + ' Sharp' : tunerCents + ' Flat')"></div>
-                                <div class="w-full max-w-[200px] h-2.5 sm:h-3 bg-slate-800 rounded-full mt-6 sm:mt-8 relative shadow-inner border border-slate-700/50 overflow-visible">
-                                    <div class="absolute top-1/2 left-1/2 w-0.5 h-5 sm:h-6 bg-slate-500 -translate-x-1/2 -translate-y-1/2 rounded-full"></div>
-                                    <div class="absolute top-1/2 w-4 h-4 sm:w-5 sm:h-5 rounded-full shadow-[0_0_15px_rgba(255,255,255,0.8)] -translate-x-1/2 -translate-y-1/2 transition-all duration-75 border-2 border-white"
-                                         :class="Math.abs(tunerCents) < 10 ? 'bg-emerald-400' : 'bg-brass'"
-                                         :style="`left: ${Math.max(0, Math.min(100, 50 + (tunerCents / 2)))}%`"></div>
-                                </div>
-                            </div>
+                    <div x-show="!isLoading" class="flex items-center gap-5 p-4 rounded-xl border border-slate-100 bg-slate-50 relative overflow-hidden transition-all hover:shadow-md">
+                        <div x-show="nextEvent.type === 'rehearsal' && nextEvent.isTonight" class="absolute top-0 right-0 p-2"><span class="text-[9px] bg-red-100 text-red-600 px-2 py-1 rounded font-extrabold tracking-wider animate-pulse uppercase">Tonight</span></div>
+                        <div class="h-14 w-16 min-w-[4rem] rounded-lg bg-white flex flex-col items-center justify-center text-center border border-slate-200 shadow-sm"><span class="text-[9px] text-brass font-bold uppercase tracking-tight" x-text="nextEvent.dateString?.split(' ')[0]"></span><span class="text-lg text-slate-900 font-extrabold leading-none" x-text="nextEvent.dateString?.split(' ')[1]"></span></div>
+                        <div>
+                            <h3 class="font-bold text-slate-900" x-text="lang === 'en' ? nextEvent.title_en : nextEvent.title_ua"></h3>
+                            <p class="text-slate-500 text-sm" x-text="(nextEvent.type === 'rehearsal' ? 'Friday' : (nextEvent.day || '')) + ' • ' + nextEvent.time"></p>
+                            <span x-show="nextEvent.type === 'rehearsal' && settings.isRehearsalCanceled" class="inline-block mt-1 px-2 py-0.5 bg-red-100 text-red-600 text-[10px] font-bold uppercase rounded">Canceled</span>
                         </div>
                     </div>
 
-                    <div class="bg-white p-5 sm:p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 relative overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
-                        <div class="flex justify-between items-center mb-6 sm:mb-8 border-b border-slate-100 pb-4">
-                            <div class="flex items-center gap-2">
-                                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                <span class="text-[10px] sm:text-xs font-black text-slate-900 uppercase tracking-widest"><span x-show="lang === 'en'">Metronome</span><span x-show="lang === 'ua'" x-cloak>Метроном</span></span>
-                            </div>
-                            <div class="flex items-center gap-2 bg-slate-50 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl shadow-inner border border-slate-200">
-                                <div class="h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full bg-slate-300 transition-colors duration-75" :class="isMetronomePlaying ? 'bg-rose-500 scale-110 shadow-[0_0_12px_rgba(244,63,94,0.6)]' : ''"></div>
-                                <span class="text-xl sm:text-2xl font-mono font-black text-slate-900" x-text="bpm"></span>
-                                <span class="text-[9px] sm:text-[10px] text-slate-500 font-bold mt-1 uppercase tracking-widest">BPM</span>
-                            </div>
+                    <template x-for="evt in futureEvents">
+                        <div class="flex items-center gap-5 p-4 rounded-xl border border-slate-100 bg-white">
+                            <div class="h-14 w-16 min-w-[4rem] rounded-lg bg-slate-50 flex flex-col items-center justify-center text-center border border-slate-200"><span class="text-[9px] text-slate-400 font-bold uppercase tracking-tight" x-text="evt.dateString?.split(' ')[0]"></span><span class="text-lg text-slate-700 font-extrabold leading-none" x-text="evt.dateString?.split(' ')[1]"></span></div>
+                            <div><h3 class="font-bold text-slate-900" x-text="lang === 'en' ? evt.title_en : evt.title_ua"></h3><p class="text-slate-500 text-sm" x-text="(evt.day || 'Friday') + ' • ' + evt.time"></p></div>
                         </div>
-                        <input type="range" min="40" max="240" x-model="bpm" @input="updateMetronomeSpeed()" class="w-full mb-6 sm:mb-8">
-                        <div class="grid grid-cols-2 gap-3 sm:gap-4">
-                            <button @click="toggleMetronome()" class="py-3 sm:py-4 rounded-2xl font-black transition-all duration-300 text-[10px] sm:text-xs uppercase tracking-widest shadow-md border transform hover:-translate-y-1" :class="isMetronomePlaying ? 'bg-white border-slate-200 text-slate-900 hover:bg-slate-50' : 'bg-slate-900 border-transparent text-white hover:bg-brass hover:shadow-[0_8px_20px_rgba(180,83,9,0.3)]'">
-                                <span x-text="isMetronomePlaying ? (lang === 'en' ? 'Stop' : 'Стоп') : (lang === 'en' ? 'Start' : 'Старт')"></span>
-                            </button>
-                            <button @click="tapTempo()" class="py-3 sm:py-4 rounded-2xl font-black transition-all duration-300 text-[10px] sm:text-xs uppercase tracking-widest bg-slate-50 text-slate-600 border border-slate-200 hover:border-brass hover:bg-brass/5 hover:text-brass transform hover:-translate-y-1 shadow-sm">
-                                <span x-show="lang === 'en'">Tap Tempo</span><span x-show="lang === 'ua'" x-cloak>Тап Темп</span>
-                            </button>
-                        </div>
-                    </div>
+                    </template>
+                </div>
+            </section>
 
-                    <div class="bg-white p-5 sm:p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 flex flex-col transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
-                        <div class="mb-4 sm:mb-5 border-b border-slate-100 pb-4">
-                            <div class="flex items-center gap-2 mb-1">
-                                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-                                <h3 class="font-heading text-[10px] sm:text-xs font-black text-slate-900 uppercase tracking-widest">
-                                    <span x-show="lang === 'en'">Blank Sheet Music</span><span x-show="lang === 'ua'" x-cloak>Чисті Ноти</span>
-                                </h3>
-                            </div>
-                            <p class="text-[9px] sm:text-[10px] text-slate-500 font-bold mt-2">
-                                <span x-show="lang === 'en'">Print staff paper directly from your browser.</span><span x-show="lang === 'ua'" x-cloak>Друкуйте прямо з браузера.</span>
-                            </p>
-                        </div>
-                        <div class="space-y-3 flex-grow">
-                            <button @click="printStaves(10)" class="w-full flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200 hover:border-brass hover:bg-brass/5 transition-all duration-200 group">
-                                <span class="font-black text-[10px] sm:text-xs text-slate-700 group-hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Print 10 Staves</span><span x-show="lang === 'ua'" x-cloak>Друк 10 рядків</span></span>
-                                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 group-hover:text-brass transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-                            </button>
-                            <button @click="printStaves(12)" class="w-full flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200 hover:border-brass hover:bg-brass/5 transition-all duration-200 group">
-                                <span class="font-black text-[10px] sm:text-xs text-slate-700 group-hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Print 12 Staves</span><span x-show="lang === 'ua'" x-cloak>Друк 12 рядків</span></span>
-                                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 group-hover:text-brass transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-                            </button>
-                        </div>
+            <section class="bg-slate-900 rounded-2xl shadow-lg border border-slate-800 overflow-hidden relative reveal-hidden" x-data="{ shown: false }" x-intersect.threshold.05.once="shown = true" :class="shown ? 'reveal-visible' : ''">
+                <div class="absolute top-0 right-0 p-32 bg-brass/10 blur-3xl rounded-full pointer-events-none"></div>
+                <div x-show="submitStatus === 'success'" class="absolute inset-0 z-20 bg-emerald-600 flex flex-col items-center justify-center text-center p-6" x-transition><svg class="w-12 h-12 text-white mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><h3 class="text-xl font-bold text-white"><span x-show="lang === 'en'">Sent!</span><span x-show="lang === 'ua'" x-cloak>Надіслано!</span></h3></div>
+                <div class="p-6 relative z-10">
+                    <h3 class="font-heading text-lg font-bold text-white mb-1"><span x-show="lang === 'en'">Report Absence</span><span x-show="lang === 'ua'" x-cloak>Повідомити про відсутність</span></h3>
+                    <p class="text-slate-400 text-sm mb-6"><span x-show="lang === 'en'">Let us know if you cannot attend.</span><span x-show="lang === 'ua'" x-cloak>Дайте знати, якщо вас не буде.</span></p>
+                    <form x-ref="form" @submit.prevent="submitForm" name="attendance" method="POST" data-netlify="true" class="space-y-4"><input type="hidden" name="form-name" value="attendance" /><input type="text" name="name" required :placeholder="lang === 'en' ? 'Your Name' : 'Ваше Ім\'я'" class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brass transition-colors"><select name="date" required class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-brass appearance-none"><option value="" disabled selected x-text="lang === 'en' ? 'Select Date' : 'Оберіть Дату'"></option><template x-for="opt in availableDates"><option :value="opt.val" x-text="opt.label"></option></template></select><button type="submit" class="w-full bg-brass hover:bg-brassLight text-white font-bold text-sm py-3 rounded-lg transition-colors shadow-lg disabled:opacity-50" :disabled="submitStatus === 'submitting'"><span x-show="submitStatus === 'idle'"><span x-show="lang === 'en'">Submit</span><span x-show="lang === 'ua'" x-cloak>Надіслати</span></span><span x-show="submitStatus === 'submitting'">...</span></button></form>
+                </div>
+            </section>
+        </div>
+
+        <section id="tools" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden scroll-mt-32 reveal-hidden" x-data="{ shown: false }" x-intersect.threshold.05.once="shown = true" :class="shown ? 'reveal-visible' : ''">
+            <div class="px-6 py-6 border-b border-slate-100"><h2 class="font-heading text-xl font-bold text-slate-900 flex items-center gap-2"><svg class="w-5 h-5 text-brass" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span x-show="lang === 'en'">Musician Toolkit</span><span x-show="lang === 'ua'" x-cloak>Інструменти</span></h2></div>
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div x-data="{ bpm: 100, isPlaying: false, timer: null, audioCtx: null, playClick() { if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); const osc = this.audioCtx.createOscillator(); const gain = this.audioCtx.createGain(); osc.connect(gain); gain.connect(this.audioCtx.destination); osc.frequency.value = 1000; gain.gain.value = 1; osc.start(); gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.1); osc.stop(this.audioCtx.currentTime + 0.1); }, toggle() { if (this.isPlaying) { clearInterval(this.timer); this.isPlaying = false; } else { this.isPlaying = true; this.playClick(); this.timer = setInterval(() => this.playClick(), (60 / this.bpm) * 1000); } }, updateSpeed() { if (this.isPlaying) { clearInterval(this.timer); this.timer = setInterval(() => this.playClick(), (60 / this.bpm) * 1000); } }, tapTempo() { const now = Date.now(); if (this.lastTap && (now - this.lastTap) < 2000) { this.bpm = Math.min(Math.max(Math.round(60000 / (now - this.lastTap)), 40), 240); this.updateSpeed(); } this.lastTap = now; } }">
+                    <div class="flex justify-between items-center mb-6"><span class="text-sm font-bold text-slate-500 uppercase tracking-wider"><span x-show="lang === 'en'">Metronome</span><span x-show="lang === 'ua'" x-cloak>Метроном</span></span><div class="flex items-center gap-2 bg-slate-100 px-3 py-1 rounded-full"><div class="h-2 w-2 rounded-full bg-slate-400" :class="isPlaying ? 'bg-red-500 animate-pulse' : ''"></div><span class="text-lg font-mono font-bold text-slate-900" x-text="bpm"></span><span class="text-[10px] text-slate-500 font-bold">BPM</span></div></div>
+                    <input type="range" min="40" max="200" x-model="bpm" @input="updateSpeed()" class="w-full mb-6">
+                    <div class="grid grid-cols-2 gap-4">
+                        <button @click="toggle()" class="w-full py-4 rounded-xl font-bold transition-all text-sm uppercase tracking-wide shadow-sm hover:shadow-md border" :class="isPlaying ? 'bg-white border-slate-200 text-slate-900' : 'bg-slate-900 border-transparent text-white hover:bg-slate-800'"><span x-text="isPlaying ? (lang === 'en' ? 'Stop' : 'Стоп') : (lang === 'en' ? 'Start' : 'Старт')"></span></button>
+                        <button @click="tapTempo()" class="w-full py-4 rounded-xl font-bold transition-all text-sm uppercase tracking-wide bg-brass/10 text-brass border border-brass/20 hover:bg-brass hover:text-white"><span x-show="lang === 'en'">Tap Tempo</span><span x-show="lang === 'ua'" x-cloak>Тап Темп</span></button>
                     </div>
                 </div>
-
-                <div class="lg:col-span-2 bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 flex flex-col transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] overflow-hidden w-full relative">
-                    <div class="absolute top-0 right-0 w-48 h-48 sm:w-64 sm:h-64 bg-gradient-to-bl from-slate-100 to-transparent rounded-bl-[100px] pointer-events-none"></div>
-                    
-                    <div class="p-5 sm:p-8 border-b border-slate-100 bg-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 relative z-10">
-                        <div class="text-left">
-                            <div class="flex items-center gap-2 mb-1">
-                                <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
-                                <h3 class="font-heading text-[10px] sm:text-xs font-black text-slate-900 uppercase tracking-widest">
-                                    <span x-show="lang === 'en'">Interactive Fingering Chart</span><span x-show="lang === 'ua'" x-cloak>Інтерактивна Аплікатура</span>
-                                </h3>
-                            </div>
-                            <p class="text-[9px] sm:text-[10px] text-slate-500 font-bold mt-1 sm:mt-2">
-                                <span x-show="lang === 'en'">Click 'Play Pitch' to hear the correct tone.</span><span x-show="lang === 'ua'" x-cloak>Натисніть для прослуховування.</span>
-                            </p>
-                        </div>
-                        <div class="text-[10px] sm:text-xs font-black text-brass uppercase tracking-widest bg-brass/10 border border-brass/20 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl shadow-sm" x-text="globalInstrument"></div>
-                    </div>
-                    
-                    <div class="p-4 sm:p-10 flex flex-col items-center flex-grow bg-slate-50/50 w-full relative z-10">
-                        <div class="flex justify-center gap-1.5 sm:gap-2 mb-6 sm:mb-8 bg-white p-1.5 sm:p-2 rounded-2xl shadow-sm border border-slate-200 max-w-full overflow-x-auto w-full">
-                            <template x-for="r in interactiveChart.ranges">
-                                <button @click="interactiveChart.selectedRange = r; interactiveChart.selectedNote = 0; stopFingeringAudio();"
-                                        class="px-3 sm:px-6 py-2 sm:py-2.5 text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-300 flex-1 sm:flex-none text-center"
-                                        :class="interactiveChart.selectedRange === r ? 'bg-slate-900 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'"
-                                        x-text="lang === 'en' ? r : (r === 'Low' ? 'Низька' : (r === 'Mid' ? 'Середня' : 'Висока'))"></button>
-                            </template>
-                        </div>
-                        
-                        <div class="flex flex-wrap gap-1.5 sm:gap-3 justify-center mb-6 sm:mb-8 w-full max-w-2xl min-h-[40px]">
-                            <template x-for="(note, index) in interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange]">
-                                <button @click="interactiveChart.selectedNote = index; stopFingeringAudio();"
-                                    :class="interactiveChart.selectedNote === index ? 'bg-gradient-to-b from-brass to-brassLight text-white shadow-[0_4px_10px_rgba(180,83,9,0.4)] scale-110 border-transparent z-10' : 'bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-900 border-slate-200 hover:border-slate-300 shadow-sm'"
-                                    class="px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl font-bold text-[11px] sm:text-sm transition-all duration-300 border relative"
-                                    x-text="note.name">
-                                </button>
-                            </template>
-                        </div>
-
-                        <div class="w-full max-w-xl bg-white border border-slate-200 shadow-lg rounded-2xl sm:rounded-3xl p-6 sm:p-12 flex flex-col justify-center items-center min-h-[180px] sm:min-h-[280px] overflow-hidden relative group/viz">
-                            
-                            <button @click="playFingeringAudio()" class="absolute top-3 sm:top-5 right-3 sm:right-5 bg-slate-50 border border-slate-200 hover:border-brass hover:bg-brass hover:text-white text-slate-500 rounded-xl sm:rounded-2xl p-2 sm:p-3 shadow-sm flex items-center gap-2 transition-all duration-300 z-10 focus:outline-none group-hover/viz:scale-105" :class="isFingeringPlaying ? 'text-white border-brass bg-brass shadow-[0_0_20px_rgba(180,83,9,0.5)]' : ''">
-                                <svg class="w-3.5 h-3.5 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                <span class="text-[9px] sm:text-[10px] font-black uppercase tracking-widest hidden sm:block"><span x-show="lang === 'en'">Play Pitch</span><span x-show="lang === 'ua'" x-cloak>Звук</span></span>
-                            </button>
-
-                            <template x-if="interactiveChart.data[interactiveChart.instrument].type === 'valves'">
-                                <div class="flex gap-4 sm:gap-10 mt-4 sm:mt-0">
-                                    <template x-for="(v, i) in interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].val">
-                                        <div class="flex flex-col items-center gap-3 sm:gap-5">
-                                            <div class="w-10 h-10 sm:w-20 sm:h-20 rounded-full border-[4px] sm:border-[8px] shadow-lg transition-all duration-500 ease-out"
-                                                 :class="v ? 'bg-gradient-to-br from-brass to-yellow-500 border-brass scale-95 shadow-inner' : 'bg-slate-50 border-slate-200'"></div>
-                                            <span class="font-black text-slate-300 text-xs sm:text-base" x-text="i+1"></span>
-                                        </div>
-                                    </template>
-                                </div>
-                            </template>
-                            
-                            <template x-if="interactiveChart.data[interactiveChart.instrument].type === 'slide'">
-                                <div class="flex flex-col items-center w-full max-w-lg mt-4 sm:mt-0">
-                                    <span class="text-4xl sm:text-8xl font-black bg-clip-text text-transparent bg-gradient-to-br from-brass to-yellow-500 mb-1 sm:mb-2 transition-all duration-300 drop-shadow-md" x-text="interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].pos"></span>
-                                    <span class="text-[9px] sm:text-xs font-black text-slate-300 uppercase tracking-[0.3em] mb-6 sm:mb-10">
-                                        <span x-show="lang === 'en'">Position</span><span x-show="lang === 'ua'" x-cloak>Позиція</span>
-                                    </span>
-                                    
-                                    <div class="w-full h-4 sm:h-6 bg-slate-100 rounded-full relative flex items-center mt-2 mb-3 sm:mb-4 shadow-inner border border-slate-200">
-                                        <div class="absolute h-8 w-8 sm:h-12 sm:w-12 bg-gradient-to-br from-brass to-yellow-500 rounded-full shadow-[0_4px_15px_rgba(180,83,9,0.5)] transition-all duration-700 ease-out border-4 border-white"
-                                             class="-ml-4 sm:-ml-6"
-                                             :style="`left: ${ (interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].pos - 1) * (100 / 6) }%`"></div>
-                                    </div>
-                                    <div class="w-full flex justify-between mt-1 sm:mt-2 text-[9px] sm:text-xs font-black text-slate-300 px-1 sm:px-1.5">
-                                        <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span>
-                                    </div>
-                                </div>
-                            </template>
-                            
-                            <template x-if="interactiveChart.data[interactiveChart.instrument].type === 'woodwind'">
-                                <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-12 mt-6 sm:mt-0 w-full justify-center">
-                                    <div class="flex items-center gap-2 sm:gap-5 bg-slate-50 px-3 py-3 sm:px-6 sm:py-5 rounded-2xl sm:rounded-3xl border border-slate-200 shadow-inner">
-                                        <span class="text-[8px] sm:text-[10px] font-black text-slate-400 w-4 sm:w-8 text-right uppercase tracking-widest">LH</span>
-                                        <div class="w-6 h-6 sm:w-12 sm:h-12 rounded-full border-[3px] sm:border-[5px] shadow-sm transition-all duration-500 ease-out flex-shrink-0"
-                                             :class="interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].lh[0] ? 'bg-gradient-to-br from-brass to-yellow-500 border-brass scale-95 shadow-inner' : 'bg-white border-slate-300'"></div>
-                                        <div class="w-px h-8 sm:h-16 bg-slate-300 mx-1 sm:mx-2 rounded-full"></div>
-                                        <div class="flex gap-1.5 sm:gap-3">
-                                            <template x-for="i in [1, 2, 3]">
-                                                <div class="w-6 h-6 sm:w-12 sm:h-12 rounded-full border-[3px] sm:border-[5px] shadow-sm transition-all duration-500 ease-out flex-shrink-0"
-                                                     :class="interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].lh[i] ? 'bg-gradient-to-br from-brass to-yellow-500 border-brass scale-95 shadow-inner' : 'bg-white border-slate-300'"></div>
-                                            </template>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="flex items-center gap-2 sm:gap-5 bg-slate-50 px-3 py-3 sm:px-6 sm:py-5 rounded-2xl sm:rounded-3xl border border-slate-200 shadow-inner">
-                                        <span class="text-[8px] sm:text-[10px] font-black text-slate-400 w-4 sm:w-8 text-right uppercase tracking-widest">RH</span>
-                                        <div class="flex gap-1.5 sm:gap-3">
-                                            <template x-for="i in [0, 1, 2]">
-                                                <div class="w-6 h-6 sm:w-12 sm:h-12 rounded-full border-[3px] sm:border-[5px] shadow-sm transition-all duration-500 ease-out flex-shrink-0"
-                                                     :class="interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].rh[i] ? 'bg-gradient-to-br from-brass to-yellow-500 border-brass scale-95 shadow-inner' : 'bg-white border-slate-300'"></div>
-                                            </template>
-                                        </div>
-                                        <div class="w-px h-8 sm:h-16 bg-slate-300 mx-1 sm:mx-2 rounded-full"></div>
-                                        <div class="w-6 h-6 sm:w-12 sm:h-12 rounded-full border-[3px] sm:border-[5px] shadow-sm transition-all duration-500 ease-out flex-shrink-0"
-                                             :class="interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].rh[3] ? 'bg-gradient-to-br from-brass to-yellow-500 border-brass scale-95 shadow-inner' : 'bg-white border-slate-300'"></div>
-                                    </div>
-                                </div>
-                            </template>
-                        </div>
+                <div x-data="{ activeNote: null, audioCtx: null, oscillator: null, playNote(freq, noteName) { if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (this.activeNote === noteName) { this.oscillator.stop(); this.activeNote = null; return; } if (this.oscillator) { this.oscillator.stop(); } this.oscillator = this.audioCtx.createOscillator(); const gain = this.audioCtx.createGain(); this.oscillator.type = 'triangle'; this.oscillator.frequency.setValueAtTime(freq, this.audioCtx.currentTime); this.oscillator.connect(gain); gain.connect(this.audioCtx.destination); this.oscillator.start(); this.activeNote = noteName; } }">
+                    <div class="flex justify-between items-center mb-6"><span class="text-sm font-bold text-slate-500 uppercase tracking-wider"><span x-show="lang === 'en'">Tuning</span><span x-show="lang === 'ua'" x-cloak>Налаштування</span></span><span class="text-xs font-bold text-brass" x-text="activeNote ? (lang === 'en' ? 'Playing: ' : 'Грає: ') + activeNote : ''"></span></div>
+                    <div class="grid grid-cols-3 gap-4">
+                        <button @click="playNote(233.08, 'Low Bb')" class="py-4 rounded-xl border font-bold text-sm transition-all flex flex-col items-center gap-1" :class="activeNote === 'Low Bb' ? 'bg-brass text-white border-brass' : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-brass'"><span>Low Bb</span><span class="text-[9px] opacity-60 font-mono">233.08Hz</span></button>
+                        <button @click="playNote(466.16, 'Concert Bb')" class="py-4 rounded-xl border font-bold text-sm transition-all flex flex-col items-center gap-1" :class="activeNote === 'Concert Bb' ? 'bg-brass text-white border-brass' : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-brass'"><span>Mid Bb</span><span class="text-[9px] opacity-60 font-mono">466.16Hz</span></button>
+                        <button @click="playNote(440.00, 'Concert A')" class="py-4 rounded-xl border font-bold text-sm transition-all flex flex-col items-center gap-1" :class="activeNote === 'Concert A' ? 'bg-brass text-white border-brass' : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-brass'"><span>A</span><span class="text-[9px] opacity-60 font-mono">440Hz</span></button>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden flex flex-col transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] mt-8 sm:mt-12">
-            <div class="p-5 sm:p-8 border-b border-slate-100 bg-slate-50 flex items-center gap-3 sm:gap-4">
-                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-white border border-slate-200 rounded-lg sm:rounded-xl flex items-center justify-center shadow-sm text-brass shrink-0">
-                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                </div>
-                <div>
-                    <h3 class="font-heading text-base sm:text-xl font-black text-slate-900 tracking-tight">
-                        <span x-show="lang === 'en'">Musicianship Tips</span><span x-show="lang === 'ua'" x-cloak>Поради Музиканту</span>
-                    </h3>
-                    <p class="text-[9px] sm:text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest">
-                        <span x-show="lang === 'en'">Preparing for the main band</span><span x-show="lang === 'ua'" x-cloak>Підготовка до гри в оркестрі</span>
-                    </p>
-                </div>
-            </div>
-            <div class="p-4 sm:p-8 space-y-4 sm:space-y-6 flex-grow bg-white">
-                <details class="group bg-slate-50 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-slate-100 open:border-brass/30 open:shadow-md transition-all">
-                    <summary class="font-black text-xs sm:text-sm text-slate-800 cursor-pointer hover:text-brass transition-colors list-none flex justify-between items-center outline-none">
-                        <span x-show="lang === 'en'">1. Posture & Air Support</span><span x-show="lang === 'ua'" x-cloak>1. Постава та Дихання</span>
-                        <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white flex items-center justify-center border border-slate-200 group-open:bg-brass group-open:text-white group-open:border-brass transition-all"><svg class="w-3 h-3 sm:w-4 sm:h-4 transform group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg></span>
-                    </summary>
-                    <p class="text-[10px] sm:text-xs text-slate-600 mt-3 sm:mt-4 leading-relaxed font-medium pt-3 sm:pt-4 border-t border-slate-200/60">
-                        <span x-show="lang === 'en'">Sit on the front half of your chair with feet flat. Good tone comes from deep, relaxed breathing from the diaphragm, not your chest.</span>
-                        <span x-show="lang === 'ua'" x-cloak>Сидіть на передній половині стільця. Хороший звук вимагає глибокого, розслабленого дихання діафрагмою.</span>
-                    </p>
-                </details>
-                <details class="group bg-slate-50 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-slate-100 open:border-brass/30 open:shadow-md transition-all">
-                    <summary class="font-black text-xs sm:text-sm text-slate-800 cursor-pointer hover:text-brass transition-colors list-none flex justify-between items-center outline-none">
-                        <span x-show="lang === 'en'">2. Watching the Conductor</span><span x-show="lang === 'ua'" x-cloak>2. Увага на Диригента</span>
-                        <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white flex items-center justify-center border border-slate-200 group-open:bg-brass group-open:text-white group-open:border-brass transition-all"><svg class="w-3 h-3 sm:w-4 sm:h-4 transform group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg></span>
-                    </summary>
-                    <p class="text-[10px] sm:text-xs text-slate-600 mt-3 sm:mt-4 leading-relaxed font-medium pt-3 sm:pt-4 border-t border-slate-200/60">
-                        <span x-show="lang === 'en'">Adjust your music stand so you can see your sheet music AND the conductor out of your peripheral vision without moving your head.</span>
-                        <span x-show="lang === 'ua'" x-cloak>Налаштуйте пульт так, щоб бачити ноти та диригента периферійним зором, не піднімаючи голови.</span>
-                    </p>
-                </details>
-                <details class="group bg-slate-50 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-slate-100 open:border-brass/30 open:shadow-md transition-all">
-                    <summary class="font-black text-xs sm:text-sm text-slate-800 cursor-pointer hover:text-brass transition-colors list-none flex justify-between items-center outline-none">
-                        <span x-show="lang === 'en'">3. Intonation (Tuning)</span><span x-show="lang === 'ua'" x-cloak>3. Інтонація (Строй)</span>
-                        <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white flex items-center justify-center border border-slate-200 group-open:bg-brass group-open:text-white group-open:border-brass transition-all"><svg class="w-3 h-3 sm:w-4 sm:h-4 transform group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg></span>
-                    </summary>
-                    <p class="text-[10px] sm:text-xs text-slate-600 mt-3 sm:mt-4 leading-relaxed font-medium pt-3 sm:pt-4 border-t border-slate-200/60">
-                        <span x-show="lang === 'en'">Listen to the players around you. If you hear "waves" or "beats" in the sound, you are out of tune. Adjust your tuning slide/mouthpiece until the sound is smooth.</span>
-                        <span x-show="lang === 'ua'" x-cloak>Слухайте інших. Якщо ви чуєте "хвилі" або вібрації в звуці, ви не строїте. Налаштуйте інструмент, поки звук не стане рівним.</span>
-                    </p>
-                </details>
-            </div>
+        <section id="media" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden reveal-hidden" x-data="{ shown: false }" x-intersect.threshold.05.once="shown = true" :class="shown ? 'reveal-visible' : ''">
+            <div class="px-6 py-6 border-b border-slate-100 flex justify-between items-center"><h2 class="font-heading text-xl font-bold text-slate-900"><span x-show="lang === 'en'">Media Gallery</span><span x-show="lang === 'ua'" x-cloak>Медіа Галерея</span></h2><a href="https://youtube.com/playlist?list=PLqmdWSP7QrZ5hK9MdbSxGiC9NlsI3vL7f&si=70N759E8fiG6dxQu" target="_blank" class="flex items-center gap-2 bg-[#FF0000] text-white px-4 py-2 rounded-full text-xs font-bold shadow hover:bg-red-700 transition-colors"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg><span x-show="lang === 'en'">Playlist</span><span x-show="lang === 'ua'" x-cloak>Плейлист</span></a></div>
+            <div class="p-2 bg-slate-50"><div class="relative w-full aspect-video rounded-xl overflow-hidden shadow-inner border border-slate-200"><iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/videoseries?si=JI14AJhU9wiD4Svw&amp;list=PLqmdWSP7QrZ5hK9MdbSxGiC9NlsI3vL7f" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div></div>
         </section>
-
     </main>
 
-    <footer class="bg-white border-t border-slate-200 py-12 sm:py-16 text-center mt-auto">
-        <div class="max-w-7xl mx-auto px-4 space-y-4 sm:space-y-6">
-            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-slate-900 rounded-xl mx-auto flex items-center justify-center shadow-lg border-b-2 border-brass">
-                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-brassLight" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
+    <footer class="bg-white border-t border-slate-200 py-12 text-center mt-12">
+        <div class="max-w-7xl mx-auto px-4 space-y-4">
+            <div class="font-bold text-slate-900 tracking-tight text-xl">FUBC <span class="text-brass">BAND</span></div>
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-8 text-sm font-semibold text-slate-500">
+                <a href="https://www.fubcseattle.com" target="_blank" class="hover:text-brass transition-colors">www.fubcseattle.com</a>
+                <span class="hidden sm:inline text-slate-300">|</span>
+                <a href="mailto:fubcband@gmail.com" class="hover:text-brass transition-colors">fubcband@gmail.com</a>
             </div>
-            <div class="font-black text-slate-900 tracking-tight text-lg sm:text-xl font-heading">FUBC <span class="text-brass">MUSIC SCHOOL</span></div>
-            <p class="text-xs sm:text-sm font-medium text-slate-500">&copy; 2026 First Ukrainian Baptist Church Band.</p>
-            <div class="flex flex-wrap justify-center gap-4 sm:gap-6 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-slate-400">
-                <a href="/privacy.html" class="hover:text-brass transition-colors">Privacy Policy</a>
-                <a href="https://ifob.su" target="_blank" class="hover:text-brass transition-colors">Sheet Music by IFOB</a>
+            <div class="pt-6 border-t border-slate-100 flex flex-col gap-2">
+                <p class="text-xs text-slate-400">© 2026 First Ukrainian Baptist Church Band.</p>
+                <p class="text-[10px] sm:text-xs text-slate-400 mt-2 uppercase tracking-widest font-bold">Created and designed by Roman Kucheryavyy</p>
+                <a href="/privacy.html" class="text-xs text-slate-400 hover:text-brass transition-colors underline">Privacy Policy</a>
             </div>
-            <p class="text-[8px] sm:text-[10px] text-slate-300 mt-2 sm:mt-4 uppercase tracking-[0.3em] font-black">Created and designed by Roman Kucheryavyy</p>
         </div>
     </footer>
 
-    <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('schoolApp', () => ({
-                // Initialize Supabase Client
-                supabase: null,
-                
-                lang: 'en',
-                mobileMenuOpen: false,
-                
-                fullScreenModalOpen: false,
-                currentFullScreenIdx: 0,
-                currentFullScreenType: 'exercises', 
-                
-                scrollY: 0,
-                scrollProgress: 0,
-                
-                // AUTHENTICATION & PROFILE LOGIC
-                profileModalOpen: false,
-                authMode: 'login', // 'login' or 'register'
-                authForm: { name: '', pin: '', code: '' },
-                authLoading: false,
-                
-                currentUser: null,
-                leaderboard: [],
-                
-                // --- DATABASE CLOUD SYNC ---
-                async handleAuth() {
-                    if(!this.authForm.name || !this.authForm.pin) return alert("Please enter name and PIN.");
-                    if(!this.supabase) {
-                        alert("Database not connected yet! Waiting for keys.");
-                        return;
-                    }
-
-                    this.authLoading = true;
-                    
-                    if(this.authMode === 'register') {
-                        // btoa('FUBC26') === 'RlVCQzI2' (Hidden from source code scanners)
-                        if(btoa(this.authForm.code.trim().toUpperCase()) !== 'RlVCQzI2') {
-                            this.authLoading = false;
-                            return alert("Invalid Access Code");
-                        }
-                        
-                        // Check if user exists
-                        const { data: existing } = await this.supabase.from('students').select('*').eq('name', this.authForm.name);
-                        if(existing && existing.length > 0) {
-                            this.authLoading = false;
-                            return alert("Name already taken. Please login or use a different name.");
-                        }
-
-                        const newUser = {
-                            name: this.authForm.name,
-                            pin: this.authForm.pin,
-                            total_minutes: 0,
-                            streak: 0,
-                            last_date: '',
-                            log: []
-                        };
-
-                        const { data, error } = await this.supabase.from('students').insert([newUser]).select().single();
-                        
-                        if (error) { 
-                            alert("Error creating account: " + error.message); 
-                            this.authLoading = false;
-                            return; 
-                        }
-                        
-                        this.currentUser = data;
-                        localStorage.setItem('fubc_cloud_user', JSON.stringify(this.currentUser));
-                        this.loadUserDataLocally();
-                        this.fetchLeaderboard();
-                    } else {
-                        const { data, error } = await this.supabase.from('students').select('*').eq('name', this.authForm.name).eq('pin', this.authForm.pin).single();
-                        
-                        if (error || !data) {
-                            alert("Incorrect Name or PIN. Or account does not exist.");
-                        } else {
-                            this.currentUser = data;
-                            localStorage.setItem('fubc_cloud_user', JSON.stringify(this.currentUser));
-                            this.loadUserDataLocally();
-                        }
-                    }
-                    this.authLoading = false;
-                },
-                
-                async saveUserToCloud() {
-                    localStorage.setItem('fubc_cloud_user', JSON.stringify(this.currentUser));
-                    if (!this.supabase) return;
-
-                    const { error } = await this.supabase.from('students').update({
-                        total_minutes: this.currentUser.total_minutes,
-                        streak: this.currentUser.streak,
-                        last_date: this.currentUser.last_date,
-                        log: this.currentUser.log
-                    }).eq('id', this.currentUser.id);
-
-                    if(error) {
-                        console.error("Failed to sync to cloud:", error);
-                    } else {
-                        this.fetchLeaderboard();
-                    }
-                },
-
-                async fetchLeaderboard() {
-                    if(!this.supabase) return;
-                    try {
-                        const { data, error } = await this.supabase
-                            .from('students')
-                            .select('name, total_minutes, streak')
-                            .order('total_minutes', { ascending: false })
-                            .limit(20);
-                        if(data) {
-                            this.leaderboard = data;
-                        }
-                    } catch (e) {
-                        console.error("Leaderboard error", e);
-                    }
-                },
-
-                get topTime() {
-                    return [...this.leaderboard].sort((a,b) => b.total_minutes - a.total_minutes).slice(0, 5);
-                },
-
-                get topStreak() {
-                    return [...this.leaderboard].sort((a,b) => b.streak - a.streak).slice(0, 5);
-                },
-
-                logout() {
-                    this.currentUser = null;
-                    localStorage.removeItem('fubc_cloud_user');
-                    this.authForm = { name: '', pin: '', code: '' };
-                },
-
-                loadUserDataLocally() {
-                    this.studentName = this.currentUser.name;
-                    this.totalMinutes = this.currentUser.total_minutes;
-                    this.streak = this.currentUser.streak;
-                    this.lastPractice = this.currentUser.last_date;
-                    this.practicedLog = this.currentUser.log || [];
-                },
-                // -----------------------------
-
-                studentName: localStorage.getItem('fubc_student_name') || '',
-                isEditingName: false,
-                totalMinutes: parseInt(localStorage.getItem('fubc_total_minutes')) || 0,
-                
-                openProfile() {
-                    this.profileModalOpen = true;
-                },
-
-                getRankName() {
-                    let hrs = (this.currentUser ? this.currentUser.total_minutes : this.totalMinutes) / 60;
-                    if(hrs < 1) return this.lang === 'en' ? 'Beginner' : 'Початківець';
-                    if(hrs < 5) return this.lang === 'en' ? 'Apprentice' : 'Учень';
-                    if(hrs < 20) return this.lang === 'en' ? 'Musician' : 'Музикант';
-                    if(hrs < 50) return this.lang === 'en' ? 'Section Leader' : 'Лідер групи';
-                    return this.lang === 'en' ? 'Maestro' : 'Маестро';
-                },
-                getRankColor() {
-                    let hrs = (this.currentUser ? this.currentUser.total_minutes : this.totalMinutes) / 60;
-                    if(hrs < 5) return 'text-slate-500';
-                    if(hrs < 20) return 'text-emerald-500';
-                    if(hrs < 50) return 'text-blue-500';
-                    return 'text-brass';
-                },
-
-                // --- INSTRUMENT GROUPS & TRANSPOSITION ---
-                availableInstruments: ['Flute', 'Oboe', 'Clarinet', 'Saxophone', 'Trumpet', 'French Horn', 'Tenor Horn', 'Baritone', 'Trombone', 'Tuba'],
-                globalInstrument: localStorage.getItem('fubc_school_instrument') || 'Trumpet',
-                
-                selectedGroup: 0,
-                instrumentGroups: [
-                    { clef: 'treble' }, // 0: Flute/Oboe (C Treble)
-                    { clef: 'treble' }, // 1: Clarinet/Trumpet (Bb Treble)
-                    { clef: 'treble' }, // 2: Sax/Eb Horn (Eb Treble)
-                    { clef: 'treble' }, // 3: F Horn (F Treble)
-                    { clef: 'bass' },   // 4: Trombone/Baritone (C Bass)
-                    { clef: 'bass' }    // 5: Tuba (C Bass 8vb)
-                ],
-
-                // Weekly Practice Tracker
-                streak: parseInt(localStorage.getItem('fubc_school_streak')) || 0,
-                lastPractice: localStorage.getItem('fubc_school_last_date') || '',
-                practicedToday: false,
-                practicedLog: JSON.parse(localStorage.getItem('fubc_school_weekly_log')) || [],
-                weekDays: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
-                
-                get currentDayOfWeek() { return new Date().getDay(); },
-
-                hasPracticedOnDay(dayIndex) {
-                    const logToCheck = this.currentUser ? this.currentUser.log : this.practicedLog;
-                    if (!logToCheck) return false;
-                    const today = new Date();
-                    const dayDiff = today.getDay() - dayIndex;
-                    const targetDate = new Date(today);
-                    targetDate.setDate(today.getDate() - dayDiff);
-                    return logToCheck.includes(targetDate.toDateString());
-                },
-                
-                // Session Timer
-                sessionActive: false,
-                sessionTimer: null,
-                sessionPhase: 0,
-                sessionTimeLeft: 300, 
-                sessionPhases: [
-                    { name_en: 'Warm-Ups', name_ua: 'Розминка', duration: 300 },
-                    { name_en: 'Repertoire', name_ua: 'Репертуар', duration: 900 },
-                    { name_en: 'Review / Fun', name_ua: 'Повторення', duration: 300 } 
-                ],
-
-                submitStatus: 'idle',
-                synthControl: null,
-                
-                schoolSongs: [],
-
-                // WARMUPS
-                exercises: [
-                    { 
-                        title_en: '1. Long Tones', title_ua: '1. Довгі Ноти',
-                        keys: ['Bb', 'C', 'G', 'F', 'Bb', 'Bb'],
-                        abc: [
-                            'L:1/4\nB c d e f g a b | b a g f e d c B | B8 |]', // Flute
-                            'L:1/4\nC D E F G A B c | c B A G F E D C | C8 |]', // Clarinet
-                            'L:1/4\nG A B c d e f g | g f e d c B A G | G8 |]', // Sax
-                            'L:1/4\nF G A B c d e f | f e d c B A G F | F8 |]', // Horn
-                            'L:1/4\nB,, C, D, E, F, G, A, B, | B, A, G, F, E, D, C, B,, | B,,8 |]', // Trombone
-                            'L:1/4\nB,,, C,, D,, E,, F,, G,, A,, B,, | B,, A,, G,, F,, E,, D,, C,, B,,, | B,,,8 |]'  // Tuba
-                        ] 
-                    },
-                    { 
-                        title_en: '2. Flexibility', title_ua: '2. Гнучкість', 
-                        keys: ['Bb', 'C', 'G', 'F', 'Bb', 'Bb'],
-                        abc: [
-                            'L:1/8\n(B f B f B2) z2 | (c g c g c2) z2 | (d a d a d2) z2 | (e b e b e2) z2 |]', 
-                            'L:1/8\n(C G C G C2) z2 | (D A D A D2) z2 | (E B E B E2) z2 | (F c F c F2) z2 |]', 
-                            'L:1/8\n(G d G d G2) z2 | (A e A e A2) z2 | (B f B f B2) z2 | (c g c g c2) z2 |]', 
-                            'L:1/8\n(F c F c F2) z2 | (G d G d G2) z2 | (A e A e A2) z2 | (B f B f B2) z2 |]', 
-                            'L:1/8\n(B,, F, B,, F, B,,2) z2 | (C, G, C, G, C,2) z2 | (D, A, D, A, D,2) z2 | (E, B, E, B, E,2) z2 |]', 
-                            'L:1/8\n(B,,, F,, B,,, F,, B,,,2) z2 | (C,, G,, C,, G,, C,,2) z2 | (D,, A,, D,, A,, D,,2) z2 | (E,, B,, E,, B,, E,,2) z2 |]'
-                        ] 
-                    },
-                    { 
-                        title_en: '3. Articulation', title_ua: '3. Артикуляція', 
-                        keys: ['Bb', 'C', 'G', 'F', 'Bb', 'Bb'],
-                        abc: [
-                            'L:1/8\n.B.B .B.B .B.B .B.B | B2 z2 B2 z2 | .f.f .f.f .f.f .f.f | f2 z2 f2 z2 |]', 
-                            'L:1/8\n.C.C .C.C .C.C .C.C | C2 z2 C2 z2 | .G.G .G.G .G.G .G.G | G2 z2 G2 z2 |]', 
-                            'L:1/8\n.G.G .G.G .G.G .G.G | G2 z2 G2 z2 | .d.d .d.d .d.d .d.d | d2 z2 d2 z2 |]', 
-                            'L:1/8\n.F.F .F.F .F.F .F.F | F2 z2 F2 z2 | .c.c .c.c .c.c .c.c | c2 z2 c2 z2 |]', 
-                            'L:1/8\n.B,,.B,, .B,,.B,, .B,,.B,, .B,,.B,, | B,,2 z2 B,,2 z2 | .F,.F, .F,.F, .F,.F, .F,.F, | F,2 z2 F,2 z2 |]', 
-                            'L:1/8\n.B,,,.B,,, .B,,,.B,,, .B,,,.B,,, .B,,,.B,,, | B,,,2 z2 B,,,2 z2 | .F,,.F,, .F,,.F,, .F,,.F,, .F,,.F,, | F,,2 z2 F,,2 z2 |]'
-                        ] 
-                    },
-                    { 
-                        title_en: '4. Arpeggios', title_ua: '4. Арпеджіо', 
-                        keys: ['Bb', 'C', 'G', 'F', 'Bb', 'Bb'],
-                        abc: [
-                            'L:1/8\nB d f b b f d B | B8 | c e g c\' c\' g e c | c8 |]', 
-                            'L:1/8\nC E G c c G E C | C8 | D F A d d A F D | D8 |]', 
-                            'L:1/8\nG B d g g d B G | G8 | A c e a a e c A | A8 |]', 
-                            'L:1/8\nF A c f f c A F | F8 | G B d g g d B G | G8 |]', 
-                            'L:1/8\nB,, D, F, B, B, F, D, B,, | B,,8 | C, E, G, C C G, E, C, | C,8 |]', 
-                            'L:1/8\nB,,, D,, F,, B,, B,, F,, D,, B,,, | B,,,8 | C,, E,, G,, C, C, G,, E,, C,, | C,,8 |]'
-                        ] 
-                    }
-                ],
-
-                // 12 MAJOR SCALES (CIRCLE OF FIFTHS)
-                scales: [
-                    {
-                        title_en: 'Concert C Major Scale', title_ua: 'До мажор (Concert C)',
-                        keys: ['C', 'D', 'A', 'G', 'C', 'C'],
-                        abc: [
-                            'L:1/8\nc d e f g a b c\' | c\' b a g f e d c | c8 |]', 
-                            'L:1/8\nd e f g a b c\' d\' | d\' c\' b a g f e d | d8 |]', 
-                            'L:1/8\nA B c d e f g a | a g f e d c B A | A8 |]', 
-                            'L:1/8\nG A B c d e f g | g f e d c B A G | G8 |]', 
-                            'L:1/8\nC, D, E, F, G, A, B, C | C B, A, G, F, E, D, C, | C,8 |]', 
-                            'L:1/8\nC,, D,, E,, F,, G,, A,, B,, C, | C, B,, A,, G,, F,, E,, D,, C,, | C,,8 |]' 
-                        ]
-                    },
-                    {
-                        title_en: 'Concert F Major Scale', title_ua: 'Фа мажор (Concert F)',
-                        keys: ['F', 'G', 'D', 'C', 'F', 'F'],
-                        abc: [
-                            'L:1/8\nf g a b c\' d\' e\' f\' | f\' e\' d\' c\' b a g f | f8 |]', 
-                            'L:1/8\nG A B c d e f g | g f e d c B A G | G8 |]', 
-                            'L:1/8\nd e f g a b c\' d\' | d\' c\' b a g f e d | d8 |]', 
-                            'L:1/8\nc d e f g a b c\' | c\' b a g f e d c | c8 |]', 
-                            'L:1/8\nF, G, A, B, C D E F | F E D C B, A, G, F, | F,8 |]', 
-                            'L:1/8\nF,, G,, A,, B,, C, D, E, F, | F, E, D, C, B,, A,, G,, F,, | F,,8 |]' 
-                        ]
-                    },
-                    {
-                        title_en: 'Concert Bb Major Scale', title_ua: 'Сі-бемоль мажор (Concert Bb)',
-                        keys: ['Bb', 'C', 'G', 'F', 'Bb', 'Bb'],
-                        abc: [
-                            'L:1/8\nb c\' d\' e\' f\' g\' a\' b\' | b\' a\' g\' f\' e\' d\' c\' b | b8 |]', 
-                            'L:1/8\nc d e f g a b c\' | c\' b a g f e d c | c8 |]', 
-                            'L:1/8\nG A B c d e f g | g f e d c B A G | G8 |]', 
-                            'L:1/8\nF G A B c d e f | f e d c B A G F | F8 |]', 
-                            'L:1/8\nB,, C, D, E, F, G, A, B, | B, A, G, F, E, D, C, B,, | B,,8 |]', 
-                            'L:1/8\nB,,, C,, D,, E,, F,, G,, A,, B,, | B,, A,, G,, F,, E,, D,, C,, B,,, | B,,,8 |]'
-                        ]
-                    },
-                    {
-                        title_en: 'Concert Eb Major Scale', title_ua: 'Мі-бемоль мажор (Concert Eb)',
-                        keys: ['Eb', 'F', 'C', 'Bb', 'Eb', 'Eb'],
-                        abc: [
-                            'L:1/8\ne f g a b c\' d\' e\' | e\' d\' c\' b a g f e | e8 |]', 
-                            'L:1/8\nf g a b c\' d\' e\' f\' | f\' e\' d\' c\' b a g f | f8 |]', 
-                            'L:1/8\nc d e f g a b c\' | c\' b a g f e d c | c8 |]', 
-                            'L:1/8\nB c d e f g a b | b a g f e d c B | B8 |]', 
-                            'L:1/8\nE, F, G, A, B, C D E | E D C B, A, G, F, E, | E,8 |]', 
-                            'L:1/8\nE,, F,, G,, A,, B,, C, D, E, | E, D, C, B,, A,, G,, F,, E,, | E,,8 |]' 
-                        ]
-                    },
-                    {
-                        title_en: 'Concert Ab Major Scale', title_ua: 'Ля-бемоль мажор (Concert Ab)',
-                        keys: ['Ab', 'Bb', 'F', 'Eb', 'Ab', 'Ab'],
-                        abc: [
-                            'L:1/8\na b c\' d\' e\' f\' g\' a\' | a\' g\' f\' e\' d\' c\' b a | a8 |]', 
-                            'L:1/8\nB c d e f g a b | b a g f e d c B | B8 |]', 
-                            'L:1/8\nf g a b c\' d\' e\' f\' | f\' e\' d\' c\' b a g f | f8 |]', 
-                            'L:1/8\ne f g a b c\' d\' e\' | e\' d\' c\' b a g f e | e8 |]', 
-                            'L:1/8\nA, B, C D E F G A | A G F E D C B, A, | A,8 |]', 
-                            'L:1/8\nA,, B,, C, D, E, F, G, A, | A, G, F, E, D, C, B,, A,, | A,,8 |]' 
-                        ]
-                    },
-                    {
-                        title_en: 'Concert Db Major Scale', title_ua: 'Ре-бемоль мажор (Concert Db)',
-                        keys: ['Db', 'Eb', 'Bb', 'Ab', 'Db', 'Db'],
-                        abc: [
-                            'L:1/8\nd e f g a b c\' d\' | d\' c\' b a g f e d | d8 |]', 
-                            'L:1/8\ne f g a b c\' d\' e\' | e\' d\' c\' b a g f e | e8 |]', 
-                            'L:1/8\nB c d e f g a b | b a g f e d c B | B8 |]', 
-                            'L:1/8\nA B c d e f g a | a g f e d c B A | A8 |]', 
-                            'L:1/8\nD, E, F, G, A, B, C D | D C B, A, G, F, E, D, | D,8 |]', 
-                            'L:1/8\nD,, E,, F,, G,, A,, B,, C, D, | D, C, B,, A,, G,, F,, E,, D,, | D,,8 |]' 
-                        ]
-                    },
-                    {
-                        title_en: 'Concert Gb Major Scale', title_ua: 'Соль-бемоль мажор (Concert Gb)',
-                        keys: ['Gb', 'Ab', 'Eb', 'Db', 'Gb', 'Gb'],
-                        abc: [
-                            'L:1/8\ng a b c\' d\' e\' f\' g\' | g\' f\' e\' d\' c\' b a g | g8 |]', 
-                            'L:1/8\nA B c d e f g a | a g f e d c B A | A8 |]', 
-                            'L:1/8\ne f g a b c\' d\' e\' | e\' d\' c\' b a g f e | e8 |]', 
-                            'L:1/8\nd e f g a b c\' d\' | d\' c\' b a g f e d | d8 |]', 
-                            'L:1/8\nG, A, B, C D E F G | G F E D C B, A, G, | G,8 |]', 
-                            'L:1/8\nG,, A,, B,, C, D, E, F, G, | G, F, E, D, C, B,, A,, G,, | G,,8 |]' 
-                        ]
-                    },
-                    {
-                        title_en: 'Concert B Major Scale', title_ua: 'Сі мажор (Concert B)',
-                        keys: ['B', 'Db', 'Ab', 'Gb', 'B', 'B'],
-                        abc: [
-                            'L:1/8\nb c\' d\' e\' f\' g\' a\' b\' | b\' a\' g\' f\' e\' d\' c\' b | b8 |]', 
-                            'L:1/8\nd e f g a b c\' d\' | d\' c\' b a g f e d | d8 |]', 
-                            'L:1/8\na b c\' d\' e\' f\' g\' a\' | a\' g\' f\' e\' d\' c\' b a | a8 |]', 
-                            'L:1/8\ng a b c\' d\' e\' f\' g\' | g\' f\' e\' d\' c\' b a g | g8 |]', 
-                            'L:1/8\nB, C D E F G A B | B A G F E D C B, | B,8 |]', 
-                            'L:1/8\nB,, C, D, E, F, G, A, B, | B, A, G, F, E, D, C, B,, | B,,8 |]' 
-                        ]
-                    },
-                    {
-                        title_en: 'Concert E Major Scale', title_ua: 'Мі мажор (Concert E)',
-                        keys: ['E', 'Gb', 'Db', 'B', 'E', 'E'],
-                        abc: [
-                            'L:1/8\ne f g a b c\' d\' e\' | e\' d\' c\' b a g f e | e8 |]', 
-                            'L:1/8\ng a b c\' d\' e\' f\' g\' | g\' f\' e\' d\' c\' b a g | g8 |]', 
-                            'L:1/8\nd e f g a b c\' d\' | d\' c\' b a g f e d | d8 |]', 
-                            'L:1/8\nB c d e f g a b | b a g f e d c B | B8 |]', 
-                            'L:1/8\nE, F, G, A, B, C D E | E D C B, A, G, F, E, | E,8 |]', 
-                            'L:1/8\nE,, F,, G,, A,, B,, C, D, E, | E, D, C, B,, A,, G,, F,, E,, | E,,8 |]' 
-                        ]
-                    },
-                    {
-                        title_en: 'Concert A Major Scale', title_ua: 'Ля мажор (Concert A)',
-                        keys: ['A', 'B', 'Gb', 'E', 'A', 'A'],
-                        abc: [
-                            'L:1/8\na b c\' d\' e\' f\' g\' a\' | a\' g\' f\' e\' d\' c\' b a | a8 |]', 
-                            'L:1/8\nB c d e f g a b | b a g f e d c B | B8 |]', 
-                            'L:1/8\ng a b c\' d\' e\' f\' g\' | g\' f\' e\' d\' c\' b a g | g8 |]', 
-                            'L:1/8\ne f g a b c\' d\' e\' | e\' d\' c\' b a g f e | e8 |]', 
-                            'L:1/8\nA, B, C D E F G A | A G F E D C B, A, | A,8 |]', 
-                            'L:1/8\nA,, B,, C, D, E, F, G, A, | A, G, F, E, D, C, B,, A,, | A,,8 |]' 
-                        ]
-                    },
-                    {
-                        title_en: 'Concert D Major Scale', title_ua: 'Ре мажор (Concert D)',
-                        keys: ['D', 'E', 'B', 'A', 'D', 'D'],
-                        abc: [
-                            'L:1/8\nd e f g a b c\' d\' | d\' c\' b a g f e d | d8 |]', 
-                            'L:1/8\ne f g a b c\' d\' e\' | e\' d\' c\' b a g f e | e8 |]', 
-                            'L:1/8\nB c d e f g a b | b a g f e d c B | B8 |]', 
-                            'L:1/8\nA B c d e f g a | a g f e d c B A | A8 |]', 
-                            'L:1/8\nD, E, F, G, A, B, C D | D C B, A, G, F, E, D, | D,8 |]', 
-                            'L:1/8\nD,, E,, F,, G,, A,, B,, C, D, | D, C, B,, A,, G,, F,, E,, D,, | D,,8 |]' 
-                        ]
-                    },
-                    {
-                        title_en: 'Concert G Major Scale', title_ua: 'Соль мажор (Concert G)',
-                        keys: ['G', 'A', 'E', 'D', 'G', 'G'],
-                        abc: [
-                            'L:1/8\ng a b c\' d\' e\' f\' g\' | g\' f\' e\' d\' c\' b a g | g8 |]', 
-                            'L:1/8\nA B c d e f g a | a g f e d c B A | A8 |]', 
-                            'L:1/8\ne f g a b c\' d\' e\' | e\' d\' c\' b a g f e | e8 |]', 
-                            'L:1/8\nd e f g a b c\' d\' | d\' c\' b a g f e d | d8 |]', 
-                            'L:1/8\nG, A, B, C D E F G | G F E D C B, A, G, | G,8 |]', 
-                            'L:1/8\nG,, A,, B,, C, D, E, F, G, | G, F, E, D, C, B,, A,, G,, | G,,8 |]' 
-                        ]
-                    }
-                ],
-
-                async init() {
-                    // SETUP SUPABASE CONNECTION
-                    const supabaseUrl = 'https://levtwocaqocalknouepf.supabase.co';
-                    const supabaseKey = 'sb_publishable_BpPAx20IJLbntNt5pjZiAQ_jG3b4Joh';
-                    
-                    this.supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-                    // Check for logged in cloud user
-                    let storedCloudUser = localStorage.getItem('fubc_cloud_user');
-                    if (storedCloudUser) {
-                        this.currentUser = JSON.parse(storedCloudUser);
-                        this.loadUserDataLocally();
-                    }
-
-                    const today = new Date();
-                    today.setHours(0,0,0,0);
-
-                    let logArr = this.currentUser ? (this.currentUser.log || []) : this.practicedLog;
-
-                    const lastPracticedStr = logArr[logArr.length - 1];
-                    if (lastPracticedStr) {
-                        const last = new Date(lastPracticedStr);
-                        const diffTime = today.getTime() - last.getTime();
-                        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-                        
-                        if (today.getDay() < last.getDay() || diffDays > 6) {
-                            if(this.currentUser) { this.currentUser.log = []; this.saveUserToCloud(); }
-                            else { this.practicedLog = []; localStorage.setItem('fubc_school_weekly_log', JSON.stringify([])); }
-                        }
-                    }
-
-                    let lastPrac = this.currentUser ? this.currentUser.last_date : this.lastPractice;
-                    if (lastPrac) {
-                        const last = new Date(lastPrac);
-                        last.setHours(0,0,0,0);
-                        const diffTime = today.getTime() - last.getTime();
-                        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-                        if (diffDays === 0) { this.practicedToday = true; } 
-                        else if (diffDays > 1) { 
-                            if(this.currentUser) { this.currentUser.streak = 0; this.saveUserToCloud(); }
-                            else { this.streak = 0; localStorage.setItem('fubc_school_streak', 0); }
-                        }
-                    }
-                    
-                    try {
-                        const response = await fetch('/data.json?t=' + new Date().getTime());
-                        if (response.ok) {
-                            const json = await response.json();
-                            if(json.schoolSetlist && json.schoolSetlist.length > 0) { this.schoolSongs = json.schoolSetlist; }
-                        }
-                    } catch(e) { console.log('Offline - Using default fallback setlist.'); }
-
-                    this.updateGlobalInstrument(this.globalInstrument);
-                    this.fetchLeaderboard();
-                },
-
-                get currentModalData() {
-                    if(this.currentFullScreenType === 'exercises') return this.exercises[this.currentFullScreenIdx];
-                    if(this.currentFullScreenType === 'scales') return this.scales[this.currentFullScreenIdx];
-                    return {};
-                },
-
-                formatTime(seconds) {
-                    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-                    const s = (seconds % 60).toString().padStart(2, '0');
-                    return `${m}:${s}`;
-                },
-
-                startSessionPhase(idx) {
-                    this.sessionPhase = idx;
-                    this.sessionTimeLeft = this.sessionPhases[idx].duration;
-                    if(!this.sessionActive) {
-                        this.sessionActive = true;
-                        this.sessionTimer = setInterval(() => {
-                            if (this.sessionTimeLeft > 0) {
-                                this.sessionTimeLeft--;
-                            } else {
-                                clearInterval(this.sessionTimer);
-                                this.sessionActive = false;
-                                
-                                let minsToAdd = Math.round(this.sessionPhases[this.sessionPhase].duration / 60);
-                                if(this.currentUser) {
-                                    this.currentUser.total_minutes += minsToAdd;
-                                    this.saveUserToCloud();
-                                } else {
-                                    this.totalMinutes += minsToAdd;
-                                    localStorage.setItem('fubc_total_minutes', this.totalMinutes);
-                                }
-
-                                if (this.sessionPhase < 2) {
-                                    alert("Phase complete! Ready for the next one?");
-                                } else {
-                                    this.logPractice(); 
-                                }
-                            }
-                        }, 1000);
-                    }
-                },
-
-                toggleSession() {
-                    if (this.sessionActive) {
-                        clearInterval(this.sessionTimer);
-                        this.sessionActive = false;
-                        
-                        let elapsedSeconds = this.sessionPhases[this.sessionPhase].duration - this.sessionTimeLeft;
-                        if(elapsedSeconds > 60) {
-                            let minsToAdd = Math.floor(elapsedSeconds / 60);
-                            if(this.currentUser) {
-                                this.currentUser.total_minutes += minsToAdd;
-                                this.saveUserToCloud();
-                            } else {
-                                this.totalMinutes += minsToAdd;
-                                localStorage.setItem('fubc_total_minutes', this.totalMinutes);
-                            }
-                            this.sessionTimeLeft = this.sessionPhases[this.sessionPhase].duration; 
-                        }
-                    } else {
-                        this.startSessionPhase(this.sessionPhase);
-                    }
-                },
-
-                updateGlobalInstrument(inst) {
-                    this.globalInstrument = inst;
-                    localStorage.setItem('fubc_school_instrument', inst);
-                    
-                    this.interactiveChart.instrument = inst;
-                    this.interactiveChart.selectedNote = 0;
-                    this.stopFingeringAudio();
-                    
-                    let groupIdx = 0;
-                    if (['Flute', 'Oboe'].includes(inst)) groupIdx = 0;
-                    else if (['Clarinet', 'Trumpet'].includes(inst)) groupIdx = 1;
-                    else if (['Saxophone', 'Tenor Horn'].includes(inst)) groupIdx = 2;
-                    else if (['French Horn'].includes(inst)) groupIdx = 3;
-                    else if (['Trombone', 'Baritone'].includes(inst)) groupIdx = 4;
-                    else if (['Tuba'].includes(inst)) groupIdx = 5;
-                    
-                    this.selectedGroup = groupIdx;
-                    this.$nextTick(() => { 
-                        this.renderWarmups(); 
-                        this.renderScales();
-                    });
-                },
-
-                renderWarmups() {
-                    if (typeof ABCJS !== 'undefined') {
-                        const group = this.instrumentGroups[this.selectedGroup];
-                        const scale = window.innerWidth < 640 ? 0.7 : 0.9;
-                        const options = { responsive: 'resize', scale: scale, paddingbottom: 5, paddingtop: 15, paddingleft: 0, paddingright: 0 };
-                        this.exercises.forEach((ex, idx) => {
-                            const header = `X:${idx+1}\nM:4/4\nQ:1/4=100\nK:${ex.keys[this.selectedGroup]} clef=${group.clef}\n`;
-                            ABCJS.renderAbc(`abc-warmup-${idx}`, header + ex.abc[this.selectedGroup], options);
-                        });
-                    }
-                },
-
-                renderScales() {
-                    if (typeof ABCJS !== 'undefined') {
-                        const group = this.instrumentGroups[this.selectedGroup];
-                        // Slightly smaller scale to fit the denser 12-scale grid
-                        const scale = window.innerWidth < 640 ? 0.6 : 0.75;
-                        const options = { responsive: 'resize', scale: scale, paddingbottom: 5, paddingtop: 15, paddingleft: 0, paddingright: 0 };
-                        this.scales.forEach((sc, idx) => {
-                            const header = `X:${idx+1}\nM:4/4\nQ:1/4=100\nK:${sc.keys[this.selectedGroup]} clef=${group.clef}\n`;
-                            ABCJS.renderAbc(`abc-scale-${idx}`, header + sc.abc[this.selectedGroup], options);
-                        });
-                    }
-                },
-
-                openFullScreen(idx, type) {
-                    this.currentFullScreenIdx = idx;
-                    this.currentFullScreenType = type;
-                    this.fullScreenModalOpen = true;
-                    
-                    this.$nextTick(() => {
-                        const group = this.instrumentGroups[this.selectedGroup];
-                        const dataObj = type === 'exercises' ? this.exercises[idx] : this.scales[idx];
-                        const header = `X:${idx+1}\nM:4/4\nQ:1/4=100\nK:${dataObj.keys[this.selectedGroup]} clef=${group.clef}\n`;
-                        const modalScale = window.innerWidth < 640 ? 1.0 : 1.8;
-                        
-                        document.getElementById('abc-fullscreen').innerHTML = ''; // Wipe old notes
-                        
-                        var visualObj = ABCJS.renderAbc('abc-fullscreen', header + dataObj.abc[this.selectedGroup], { 
-                            responsive: 'resize', scale: modalScale, paddingtop: 30, paddingbottom: 30, add_classes: true
-                        })[0];
-
-                        if(this.synthControl) { this.synthControl.pause(); }
-                        this.synthControl = new ABCJS.synth.SynthController();
-                        this.synthControl.load("#audio-control", null, { displayLoop: true, displayRestart: true, displayPlay: true, displayProgress: true, displayWarp: true });
-                        
-                        let program = 56; // Trumpet
-                        if (group.clef === 'bass') program = 57; // Trombone
-                        if (this.globalInstrument === 'Flute') program = 73;
-                        if (this.globalInstrument === 'Clarinet') program = 71;
-                        if (this.globalInstrument === 'Saxophone') program = 65;
-                        if (this.globalInstrument === 'French Horn') program = 60;
-                        if (this.globalInstrument === 'Tuba') program = 58;
-
-                        var createSynth = new ABCJS.synth.CreateSynth();
-                        createSynth.init({ visualObj: visualObj }).then(() => {
-                            this.synthControl.setTune(visualObj, false, { program: program });
-                        }).catch(console.warn);
-                    });
-                },
-
-                closeFullScreen() {
-                    this.fullScreenModalOpen = false;
-                    if(this.synthControl) this.synthControl.pause();
-                },
-
-                logPractice() {
-                    if(this.practicedToday) return;
-                    this.practicedToday = true;
-                    const todayStr = new Date().toDateString();
-                    
-                    if(this.currentUser) {
-                        this.currentUser.streak++;
-                        this.currentUser.last_date = todayStr;
-                        if(!this.currentUser.log) this.currentUser.log = [];
-                        if(!this.currentUser.log.includes(todayStr)) this.currentUser.log.push(todayStr);
-                        this.currentUser.total_minutes += 30; // Baseline bump for clicking button
-                        this.saveUserToCloud();
-                    } else {
-                        this.streak++;
-                        this.lastPractice = todayStr;
-                        if(!this.practicedLog.includes(todayStr)) {
-                            this.practicedLog.push(todayStr);
-                            localStorage.setItem('fubc_school_weekly_log', JSON.stringify(this.practicedLog));
-                        }
-                        this.totalMinutes += 30;
-                        localStorage.setItem('fubc_total_minutes', this.totalMinutes);
-                        localStorage.setItem('fubc_school_streak', this.streak);
-                        localStorage.setItem('fubc_school_last_date', this.lastPractice);
-                    }
-
-                    if(typeof confetti === 'function') {
-                        confetti({ particleCount: 250, spread: 100, origin: { y: 0.6 }, colors: ['#b45309', '#d97706', '#fcd34d', '#34d399', '#3b82f6'], zIndex: 1000 });
-                    }
-                },
-
-                // LIVE TUNER
-                tunerActive: false,
-                tunerNote: '--',
-                tunerCents: 0,
-                audioContext: null,
-                analyser: null,
-                micStream: null,
-                animationId: null,
-
-                toggleTuner() {
-                    if (this.tunerActive) { this.stopTuner(); } else { this.startTuner(); }
-                },
-
-                async startTuner() {
-                    try {
-                        this.micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                        this.analyser = this.audioContext.createAnalyser();
-                        this.analyser.fftSize = 2048;
-                        const source = this.audioContext.createMediaStreamSource(this.micStream);
-                        source.connect(this.analyser);
-                        this.tunerActive = true;
-                        this.updatePitch();
-                    } catch (err) {
-                        alert("Microphone access denied. Please check your browser settings.");
-                    }
-                },
-
-                stopTuner() {
-                    if (this.micStream) this.micStream.getTracks().forEach(t => t.stop());
-                    if (this.audioContext) this.audioContext.close();
-                    if (this.animationId) cancelAnimationFrame(this.animationId);
-                    this.tunerActive = false;
-                    this.tunerNote = '--';
-                    this.tunerCents = 0;
-                },
-
-                updatePitch() {
-                    if (!this.tunerActive) return;
-                    const buffer = new Float32Array(this.analyser.fftSize);
-                    this.analyser.getFloatTimeDomainData(buffer);
-                    const acFreq = this.autoCorrelate(buffer, this.audioContext.sampleRate);
-                    
-                    if (acFreq !== -1) {
-                        const noteNum = 12 * (Math.log(acFreq / 440) / Math.log(2));
-                        const noteIndex = Math.round(noteNum) + 69;
-                        const notes = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B'];
-                        this.tunerNote = notes[noteIndex % 12];
-                        
-                        const expectedFreq = 440 * Math.pow(2, (noteIndex - 69) / 12);
-                        this.tunerCents = Math.floor(1200 * Math.log2(acFreq / expectedFreq));
-                    }
-                    this.animationId = requestAnimationFrame(() => this.updatePitch());
-                },
-
-                autoCorrelate(buf, sampleRate) {
-                    let SIZE = buf.length;
-                    let rms = 0;
-                    for (let i=0;i<SIZE;i++) rms += buf[i]*buf[i];
-                    rms = Math.sqrt(rms/SIZE);
-                    if (rms<0.01) return -1; 
-                    let r1=0, r2=SIZE-1, thres=0.2;
-                    for(let i=0; i<SIZE/2; i++) if (Math.abs(buf[i])<thres) { r1=i; break; }
-                    for(let i=1; i<SIZE/2; i++) if (Math.abs(buf[SIZE-i])<thres) { r2=SIZE-i; break; }
-                    buf = buf.slice(r1,r2);
-                    SIZE = buf.length;
-                    let c = new Array(SIZE).fill(0);
-                    for (let i=0; i<SIZE; i++) { for (let j=0; j<SIZE-i; j++) { c[i] = c[i] + buf[j]*buf[j+i]; } }
-                    let d=0; while (c[d]>c[d+1]) d++;
-                    let maxval=-1, maxpos=-1;
-                    for (let i=d; i<SIZE; i++) { if (c[i] > maxval) { maxval = c[i]; maxpos = i; } }
-                    let T0 = maxpos;
-                    let x1=c[T0-1], x2=c[T0], x3=c[T0+1];
-                    let a = (x1 + x3 - 2*x2)/2;
-                    let b = (x3 - x1)/2;
-                    if (a) T0 = T0 - b/(2*a);
-                    return sampleRate/T0;
-                },
-
-                // METRONOME
-                bpm: 100, 
-                isPlaying: false, 
-                timer: null, 
-                audioCtx: null,
-                lastTap: 0,
-                
-                playClick() { 
-                    if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
-                    const osc = this.audioCtx.createOscillator(); 
-                    const gain = this.audioCtx.createGain(); 
-                    osc.connect(gain); gain.connect(this.audioCtx.destination); 
-                    osc.frequency.value = 1000; gain.gain.value = 1; 
-                    osc.start(); gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.1); 
-                    osc.stop(this.audioCtx.currentTime + 0.1); 
-                }, 
-                toggleMetronome() { 
-                    if (this.isPlaying) { clearInterval(this.timer); this.isPlaying = false; } 
-                    else { this.isPlaying = true; this.playClick(); this.timer = setInterval(() => this.playClick(), (60 / this.bpm) * 1000); } 
-                }, 
-                updateSpeed() { 
-                    if (this.isPlaying) { clearInterval(this.timer); this.timer = setInterval(() => this.playClick(), (60 / this.bpm) * 1000); } 
-                },
-                tapTempo() {
-                    const now = Date.now();
-                    if (this.lastTap && (now - this.lastTap) < 2000) {
-                        this.bpm = Math.min(Math.max(Math.round(60000 / (now - this.lastTap)), 40), 240);
-                        this.updateSpeed();
-                    }
-                    this.lastTap = now;
-                },
-
-                // FINGERING AUDIO
-                isFingeringPlaying: false,
-                oscillator: null,
-                gainNode: null,
-                filterNode: null,
-                notes: [ { name: 'C', freq: 261.63 }, { name: 'C#', freq: 277.18 }, { name: 'D', freq: 293.66 }, { name: 'Eb', freq: 311.13 }, { name: 'E', freq: 329.63 }, { name: 'F', freq: 349.23 }, { name: 'F#', freq: 369.99 }, { name: 'G', freq: 392.00 }, { name: 'Ab', freq: 415.30 }, { name: 'A', freq: 440.00 }, { name: 'Bb', freq: 466.16 }, { name: 'B', freq: 493.88 } ],
-
-                playFingeringAudio() {
-                    if(this.isFingeringPlaying) {
-                        this.stopFingeringAudio();
-                        return;
-                    }
-                    
-                    if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
-                    
-                    let noteObj = this.interactiveChart.data[this.interactiveChart.instrument].notes[this.interactiveChart.selectedRange][this.interactiveChart.selectedNote];
-                    let noteName = noteObj.name.split('/')[0].replace('↑', '');
-                    
-                    const matchingFreqObj = this.notes.find(n => n.name === noteName);
-                    const baseFreq = matchingFreqObj ? matchingFreqObj.freq : 261.63;
-
-                    let pitchOctave = 4;
-                    if(this.interactiveChart.selectedRange === 'Low') pitchOctave = 3;
-                    if(this.interactiveChart.selectedRange === 'High') pitchOctave = 5;
-                    
-                    if (['Trombone', 'Baritone', 'Tuba'].includes(this.interactiveChart.instrument)) pitchOctave -= 1;
-
-                    const actualFreq = baseFreq * Math.pow(2, pitchOctave - 4);
-
-                    this.oscillator = this.audioCtx.createOscillator(); 
-                    this.gainNode = this.audioCtx.createGain(); 
-                    this.filterNode = this.audioCtx.createBiquadFilter();
-
-                    const inst = this.interactiveChart.instrument;
-                    if (inst === 'Flute') { this.oscillator.type = 'sine'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 2000; } 
-                    else if (inst === 'Clarinet') { this.oscillator.type = 'square'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 1500; } 
-                    else if (inst === 'Oboe') { this.oscillator.type = 'sawtooth'; this.filterNode.type = 'bandpass'; this.filterNode.frequency.value = 1200; } 
-                    else if (['Trumpet', 'Trombone', 'Tenor Horn', 'Baritone', 'Tuba'].includes(inst)) { this.oscillator.type = 'sawtooth'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 2500; } 
-                    else if (inst === 'French Horn') { this.oscillator.type = 'triangle'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 800; } 
-                    else { this.oscillator.type = 'sawtooth'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 3000; }
-
-                    this.oscillator.frequency.setValueAtTime(actualFreq, this.audioCtx.currentTime); 
-                    this.oscillator.connect(this.filterNode); 
-                    this.filterNode.connect(this.gainNode);
-                    this.gainNode.connect(this.audioCtx.destination);
-                    
-                    this.gainNode.gain.setValueAtTime(0, this.audioCtx.currentTime);
-                    this.gainNode.gain.linearRampToValueAtTime(0.5, this.audioCtx.currentTime + 0.1);
-                    this.gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioCtx.currentTime + 1.5);
-
-                    this.oscillator.start(); 
-                    this.isFingeringPlaying = true;
-                    
-                    setTimeout(() => { this.stopFingeringAudio(); }, 1500);
-                },
-
-                stopFingeringAudio() {
-                    if (this.oscillator && this.gainNode) {
-                        this.gainNode.gain.linearRampToValueAtTime(0, this.audioCtx.currentTime + 0.05);
-                        setTimeout(() => { if(this.oscillator) { this.oscillator.stop(); this.oscillator.disconnect(); this.oscillator = null; } }, 50);
-                    }
-                    this.isFingeringPlaying = false;
-                },
-
-                // SUBMISSIONS
-                submitTest(e) {
-                    this.submitStatus = 'submitting';
-                    const formData = new FormData(this.$refs.testForm);
-                    fetch('/', { method: 'POST', body: formData })
-                    .then(() => {
-                        this.submitStatus = 'success';
-                        confetti({ particleCount: 150, spread: 70, origin: { y: 0.7 }, colors: ['#b45309', '#d97706', '#ffffff'], zIndex: 1000 });
-                        this.$refs.testForm.reset();
-                        setTimeout(() => { this.submitStatus = 'idle'; }, 5000);
-                    }).catch(() => { alert('Upload failed. Check your connection or file size.'); this.submitStatus = 'idle'; });
-                },
-
-                // PRINTING
-                printStaves(count) {
-                    const container = document.getElementById('print-staves');
-                    container.innerHTML = '';
-                    for(let i=0; i<count; i++) { container.innerHTML += `<div class='stave-group'><div class='stave'></div><div class='stave'></div><div class='stave'></div><div class='stave'></div><div class='stave'></div></div>`; }
-                    window.print();
-                },
-
-                // FINGERING CHART DATA
-                interactiveChart: {
-                    instrument: 'Trumpet',
-                    selectedRange: 'Mid',
-                    selectedNote: 0,
-                    ranges: ['Low', 'Mid', 'High'],
-                    data: {
-                        'Flute': { type: 'woodwind', notes: { 
-                            'Low': [ { name: 'C', lh: [0,1,1,1], rh: [1,1,1,1] }, { name: 'D', lh: [1,1,1,1], rh: [1,1,1,0] }, { name: 'E', lh: [1,1,1,1], rh: [1,1,0,1] }, { name: 'F', lh: [1,1,1,1], rh: [1,0,0,1] }, { name: 'G', lh: [1,1,1,1], rh: [0,0,0,1] }, { name: 'A', lh: [1,1,1,0], rh: [0,0,0,1] }, { name: 'B', lh: [1,1,0,0], rh: [0,0,0,1] } ], 
-                            'Mid': [ { name: 'C', lh: [0,1,0,0], rh: [0,0,0,1] }, { name: 'Db', lh: [0,0,0,0], rh: [0,0,0,1] }, { name: 'D', lh: [1,0,1,1], rh: [1,1,1,0] }, { name: 'Eb', lh: [1,0,1,1], rh: [1,1,1,1] }, { name: 'E', lh: [1,1,1,1], rh: [1,1,0,1] }, { name: 'F', lh: [1,1,1,1], rh: [1,0,0,1] }, { name: 'Gb', lh: [1,1,1,1], rh: [0,0,1,1] }, { name: 'G', lh: [1,1,1,1], rh: [0,0,0,1] }, { name: 'Ab', lh: [1,1,1,1], rh: [0,0,0,1] }, { name: 'A', lh: [1,1,1,0], rh: [0,0,0,1] }, { name: 'Bb', lh: [1,1,0,0], rh: [1,0,0,1] }, { name: 'B', lh: [1,1,0,0], rh: [0,0,0,1] }, { name: 'C↑', lh: [0,1,0,0], rh: [0,0,0,1] } ], 
-                            'High': [ { name: 'C', lh: [0,1,0,0], rh: [0,0,0,1] }, { name: 'D', lh: [1,0,1,1], rh: [0,0,0,0] }, { name: 'E', lh: [1,1,1,0], rh: [1,1,0,1] }, { name: 'F', lh: [1,1,0,1], rh: [1,0,0,1] }, { name: 'G', lh: [1,0,1,1], rh: [0,0,0,1] }, { name: 'A', lh: [1,0,1,0], rh: [1,0,0,1] }, { name: 'B', lh: [1,0,0,0], rh: [0,0,0,1] } ] 
-                        } },
-                        'Oboe': { type: 'woodwind', notes: { 
-                            'Low': [ { name: 'C', lh: [0,1,1,1], rh: [1,1,1,1] }, { name: 'D', lh: [0,1,1,1], rh: [1,1,1,0] }, { name: 'E', lh: [0,1,1,1], rh: [1,1,0,0] }, { name: 'F', lh: [0,1,1,1], rh: [1,0,0,0] }, { name: 'G', lh: [0,1,1,1], rh: [0,0,0,0] }, { name: 'A', lh: [0,1,1,0], rh: [0,0,0,0] }, { name: 'B', lh: [0,1,0,0], rh: [0,0,0,0] } ], 
-                            'Mid': [ { name: 'C', lh: [0,0,1,0], rh: [0,0,0,0] }, { name: 'Db', lh: [0,0,0,0], rh: [0,0,0,0] }, { name: 'D', lh: [1,1,1,1], rh: [1,1,1,0] }, { name: 'Eb', lh: [1,1,1,1], rh: [1,1,1,1] }, { name: 'E', lh: [1,1,1,1], rh: [1,1,0,0] }, { name: 'F', lh: [1,1,1,1], rh: [1,0,0,0] }, { name: 'Gb', lh: [1,1,1,1], rh: [0,1,0,0] }, { name: 'G', lh: [1,1,1,1], rh: [0,0,0,0] }, { name: 'Ab', lh: [1,1,1,1], rh: [0,0,0,0] }, { name: 'A', lh: [1,1,1,0], rh: [0,0,0,0] }, { name: 'Bb', lh: [1,1,0,0], rh: [1,0,0,0] }, { name: 'B', lh: [1,1,0,0], rh: [0,0,0,0] }, { name: 'C↑', lh: [1,0,1,0], rh: [0,0,0,0] } ], 
-                            'High': [ { name: 'C', lh: [1,0,1,0], rh: [0,0,0,0] }, { name: 'D', lh: [1,0,1,1], rh: [0,0,0,0] }, { name: 'E', lh: [1,0,1,0], rh: [1,0,0,0] }, { name: 'F', lh: [1,0,1,0], rh: [0,1,0,0] }, { name: 'G', lh: [1,0,1,0], rh: [0,0,0,0] }, { name: 'A', lh: [1,0,1,1], rh: [0,0,0,0] }, { name: 'B', lh: [1,0,0,0], rh: [0,0,0,0] } ] 
-                        } },
-                        'Clarinet': { type: 'woodwind', notes: { 
-                            'Low': [ { name: 'E', lh: [1,1,1,1], rh: [1,1,1,1] }, { name: 'F', lh: [1,1,1,1], rh: [1,1,1,0] }, { name: 'G', lh: [1,1,1,1], rh: [1,1,0,0] }, { name: 'A', lh: [1,1,1,1], rh: [1,0,0,0] }, { name: 'B', lh: [1,1,1,1], rh: [0,0,0,0] }, { name: 'C', lh: [1,1,1,0], rh: [0,0,0,0] } ], 
-                            'Mid': [ { name: 'C', lh: [1,1,1,0], rh: [0,0,0,0] }, { name: 'Db', lh: [1,1,1,0], rh: [0,0,0,0] }, { name: 'D', lh: [1,1,0,0], rh: [0,0,0,0] }, { name: 'Eb', lh: [1,1,0,0], rh: [0,0,0,0] }, { name: 'E', lh: [1,0,0,0], rh: [0,0,0,0] }, { name: 'F', lh: [0,0,0,0], rh: [0,0,0,0] }, { name: 'Gb', lh: [0,0,0,0], rh: [0,0,0,0] }, { name: 'G', lh: [0,0,0,0], rh: [0,0,0,0] }, { name: 'Ab', lh: [0,0,0,0], rh: [0,0,0,0] }, { name: 'A', lh: [0,0,0,0], rh: [0,0,0,0] }, { name: 'Bb', lh: [0,0,0,0], rh: [0,0,0,0] }, { name: 'B', lh: [1,1,1,1], rh: [1,1,1,1] }, { name: 'C↑', lh: [1,1,1,1], rh: [1,1,1,0] } ], 
-                            'High': [ { name: 'C', lh: [1,1,1,1], rh: [1,1,1,0] }, { name: 'D', lh: [1,1,1,1], rh: [1,1,0,0] }, { name: 'E', lh: [1,1,1,1], rh: [1,0,0,0] }, { name: 'F', lh: [1,1,1,1], rh: [0,0,0,0] }, { name: 'G', lh: [1,1,1,0], rh: [0,0,0,0] }, { name: 'A', lh: [1,1,0,0], rh: [0,0,0,0] } ] 
-                        } },
-                        'Saxophone': { type: 'woodwind', notes: { 
-                            'Low': [ { name: 'Bb', lh: [0,1,1,1], rh: [1,1,1,1] }, { name: 'C', lh: [0,1,1,1], rh: [1,1,1,0] }, { name: 'D', lh: [0,1,1,1], rh: [1,1,1,0] }, { name: 'E', lh: [0,1,1,1], rh: [1,1,0,0] }, { name: 'F', lh: [0,1,1,1], rh: [1,0,0,0] } ], 
-                            'Mid': [ { name: 'G', lh: [0,1,1,1], rh: [0,0,0,0] }, { name: 'Ab', lh: [0,1,1,1], rh: [0,0,0,0] }, { name: 'A', lh: [0,1,1,0], rh: [0,0,0,0] }, { name: 'Bb', lh: [0,1,1,0], rh: [1,0,0,0] }, { name: 'B', lh: [0,1,0,0], rh: [0,0,0,0] }, { name: 'C', lh: [0,0,1,0], rh: [0,0,0,0] }, { name: 'Db', lh: [0,0,0,0], rh: [0,0,0,0] }, { name: 'D', lh: [1,1,1,1], rh: [1,1,1,0] }, { name: 'Eb', lh: [1,1,1,1], rh: [1,1,1,1] }, { name: 'E', lh: [1,1,1,1], rh: [1,1,0,0] }, { name: 'F', lh: [1,1,1,1], rh: [1,0,0,0] }, { name: 'Gb', lh: [1,1,1,1], rh: [0,1,0,0] }, { name: 'G↑', lh: [1,1,1,1], rh: [0,0,0,0] } ], 
-                            'High': [ { name: 'G', lh: [1,1,1,1], rh: [0,0,0,0] }, { name: 'A', lh: [1,1,1,0], rh: [0,0,0,0] }, { name: 'B', lh: [1,1,0,0], rh: [0,0,0,0] }, { name: 'C', lh: [1,0,1,0], rh: [0,0,0,0] }, { name: 'D', lh: [1,0,0,0], rh: [0,0,0,
+    <div x-show="showLibrary" x-transition.opacity class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6" x-cloak>
+        <div @click="showLibrary = false" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+        <div class="relative w-full max-w-3xl bg-white rounded-xl shadow-2xl flex flex-col max-h-[80vh] overflow-hidden">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50"><h3 class="font-heading text-lg font-bold text-slate-900"><span x-show="lang === 'en'">Song Library</span><span x-show="lang === 'ua'" x-cloak>Архів Пісень</span></h3><button @click="showLibrary = false" class="p-2 bg-white hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-900 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button></div>
+            <div class="p-4 border-b border-slate-100"><input x-model="searchQuery" type="text" :placeholder="lang === 'en' ? 'Search songs...' : 'Пошук...'" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-slate-900 focus:outline-none focus:border-brass transition-colors"></div>
+            <div class="overflow-y-auto p-2 flex-grow bg-white"><template x-for="song in filteredSongs" :key="song.u + song.n"><div class="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-lg transition-colors border-b border-slate-50 last:border-0"><span class="font-mono text-sm font-bold text-brass w-12 text-right" x-text="song.n && song.n !== 'New' ? '#' + song.n : ''"></span><span class="text-slate-700 font-medium" x-text="song.u"></span><span x-show="!song.n || song.n === 'New'" class="ml-auto text-xs font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded">New</span></div></template></div>
+        </div>
+    </div>
+    
+    <script>if (window.netlifyIdentity) { window.netlifyIdentity.on("init", user => { if (!user) { window.netlifyIdentity.on("login", () => { document.location.href = "/admin/"; }); } }); }</script>
+    <script>if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js'); }); }</script>
+</body>
+</html>
