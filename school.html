@@ -901,22 +901,52 @@
                 },
 
                 async handleAuth() {
-                    if(!this.authForm.name || !this.authForm.pin) return alert("Please enter name and PIN.");
-                    if(!this.authForm.name.trim().includes(' ')) return alert("Please enter both your First and Last Name (e.g. John Doe).");
+                    // 1. Clean up inputs to strip accidental trailing spaces
+                    let cleanName = this.authForm.name.trim();
+                    let cleanPin = this.authForm.pin.trim();
+
+                    if(!cleanName || !cleanPin) return alert("Please enter name and PIN.");
+                    if(!cleanName.includes(' ')) return alert("Please enter both your First and Last Name (e.g. John Doe).");
                     if(!this.supabase) return alert("Database not connected yet!");
+                    
                     this.authLoading = true;
                     
                     if(this.authMode === 'register') {
-                        if(btoa(this.authForm.code.trim().toUpperCase()) !== 'RlVCQzI2') { this.authLoading = false; return alert("Invalid Access Code"); }
-                        const { data: existing } = await this.supabase.from('students').select('*').eq('name', this.authForm.name);
-                        if(existing && existing.length > 0) { this.authLoading = false; return alert("Name already taken. Please login or use a different name."); }
-                        const newUser = { name: this.authForm.name, pin: this.authForm.pin, total_minutes: 0, streak: 0, last_date: '', log: [] };
+                        if(btoa(this.authForm.code.trim().toUpperCase()) !== 'RlVCQzI2') { 
+                            this.authLoading = false; 
+                            return alert("Invalid Access Code"); 
+                        }
+                        
+                        // 2. Use 'ilike' for a case-insensitive duplicate check
+                        const { data: existing } = await this.supabase.from('students').select('*').ilike('name', cleanName);
+                        if(existing && existing.length > 0) { 
+                            this.authLoading = false; 
+                            return alert("Name already taken. Please login or use a different name."); 
+                        }
+                        
+                        const newUser = { name: cleanName, pin: cleanPin, total_minutes: 0, streak: 0, last_date: '', log: [] };
                         const { data, error } = await this.supabase.from('students').insert([newUser]).select().single();
                         if (error) { alert("Error creating account: " + error.message); this.authLoading = false; return; }
-                        this.currentUser = data; localStorage.setItem('fubc_cloud_user', JSON.stringify(this.currentUser)); this.loadUserDataLocally(); this.fetchLeaderboard();
+                        
+                        this.currentUser = data; 
+                        localStorage.setItem('fubc_cloud_user', JSON.stringify(this.currentUser)); 
+                        this.loadUserDataLocally(); 
+                        this.fetchLeaderboard();
                     } else {
-                        const { data, error } = await this.supabase.from('students').select('*').eq('name', this.authForm.name).eq('pin', this.authForm.pin).single();
-                        if (error || !data) { alert("Incorrect Name or PIN. Or account does not exist."); } else { this.currentUser = data; localStorage.setItem('fubc_cloud_user', JSON.stringify(this.currentUser)); this.loadUserDataLocally(); }
+                        // 3. Use 'ilike' for case-insensitive login, and .limit(1) instead of .single() to prevent crashes
+                        const { data, error } = await this.supabase.from('students')
+                            .select('*')
+                            .ilike('name', cleanName)
+                            .eq('pin', cleanPin)
+                            .limit(1);
+
+                        if (error || !data || data.length === 0) { 
+                            alert("Incorrect Name or PIN. Or account does not exist."); 
+                        } else { 
+                            this.currentUser = data[0]; // Select the first matched user
+                            localStorage.setItem('fubc_cloud_user', JSON.stringify(this.currentUser)); 
+                            this.loadUserDataLocally(); 
+                        }
                     }
                     this.authLoading = false;
                 },
@@ -962,6 +992,7 @@
                 hasPracticedOnDay(dayIndex) { const logToCheck = this.currentUser ? this.currentUser.log : this.practicedLog; if (!logToCheck) return false; const today = new Date(); const dayDiff = today.getDay() - dayIndex; const targetDate = new Date(today); targetDate.setDate(today.getDate() - dayDiff); return logToCheck.includes(targetDate.toDateString()); },
                 
                 sessionActive: false, sessionTimer: null, sessionPhase: 0, sessionTimeLeft: 300, 
+                untrackedSeconds: 0, 
                 sessionPhases: [ { name_en: 'Warm-Ups', name_ua: 'Розминка', duration: 300 }, { name_en: 'Repertoire', name_ua: 'Репертуар', duration: 1200 }, { name_en: 'Review', name_ua: 'Повторення', duration: 300 } ],
                 submitStatus: 'idle', synthControl: null, schoolSongs: [],
                 
@@ -1041,9 +1072,10 @@
                 formatTime(seconds) { const m = Math.floor(seconds / 60).toString().padStart(2, '0'); const s = (seconds % 60).toString().padStart(2, '0'); return `${m}:${s}`; },
 
                 startSessionPhase(idx) {
-                    if (this.sessionPhase !== idx || this.sessionTimeLeft === 0) {
+                    if (this.sessionPhase !== idx) {
                         this.sessionPhase = idx; 
                         this.sessionTimeLeft = this.sessionPhases[idx].duration;
+                        this.untrackedSeconds = 0;
                         if (this.sessionActive) {
                             clearInterval(this.sessionTimer);
                             this.sessionActive = false;
@@ -1052,20 +1084,47 @@
                     if(!this.sessionActive) {
                         this.sessionActive = true;
                         this.sessionTimer = setInterval(() => {
-                            if (this.sessionTimeLeft > 0) { this.sessionTimeLeft--; } else {
-                                clearInterval(this.sessionTimer); this.sessionActive = false;
-                                let minsToAdd = Math.round(this.sessionPhases[this.sessionPhase].duration / 60);
-                                if(this.currentUser) { this.currentUser.total_minutes += minsToAdd; this.saveUserToCloud(); } else { this.totalMinutes += minsToAdd; localStorage.setItem('fubc_total_minutes', this.totalMinutes); }
-                                if (this.sessionPhase < 2) { alert("Phase complete! Ready for the next one?"); } else { this.logPractice(); }
+                            if (this.sessionTimeLeft > 0) { 
+                                this.sessionTimeLeft--; 
+                                this.untrackedSeconds++;
+                                
+                                // EVERY 60 SECONDS: Add 1 minute to the DB and update leaderboard live!
+                                if (this.untrackedSeconds >= 60) {
+                                    this.untrackedSeconds = 0;
+                                    if(this.currentUser) { 
+                                        this.currentUser.total_minutes += 1; 
+                                        this.saveUserToCloud(); 
+                                    } else { 
+                                        this.totalMinutes += 1; 
+                                        localStorage.setItem('fubc_total_minutes', this.totalMinutes); 
+                                    }
+                                }
+                            } else {
+                                clearInterval(this.sessionTimer); 
+                                this.sessionActive = false;
+                                this.untrackedSeconds = 0;
+                                
+                                // Automatically secure their daily streak if a phase finishes
+                                if (!this.practicedToday) {
+                                    this.logPractice(false); // Pass false so we don't add a flat 30 mins
+                                }
+                                
+                                if (this.sessionPhase < 2) { 
+                                    alert("Phase complete! Ready for the next one?"); 
+                                } else { 
+                                    alert("Practice session complete! Great job!");
+                                    if(typeof confetti === 'function') confetti({ particleCount: 250, spread: 100, origin: { y: 0.6 }, colors: ['#b45309', '#d97706', '#fcd34d', '#34d399', '#3b82f6'], zIndex: 1000 });
+                                }
                             }
                         }, 1000);
                     }
                 },
 
-                toggleSession() {
+toggleSession() {
                     if (this.sessionActive) {
                         clearInterval(this.sessionTimer); 
                         this.sessionActive = false;
+                        // Timer just pauses, it no longer resets!
                     } else { 
                         this.startSessionPhase(this.sessionPhase); 
                     }
@@ -1114,13 +1173,31 @@
 
                 closeFullScreen() { this.fullScreenModalOpen = false; if(this.synthControl) this.synthControl.pause(); },
 
-                logPractice() {
-                    if(this.practicedToday) return; this.practicedToday = true; const todayStr = new Date().toDateString();
+logPractice(addFlatTime = true) {
+                    if(this.practicedToday) return; 
+                    this.practicedToday = true; 
+                    const todayStr = new Date().toDateString();
+                    
                     if(this.currentUser) {
-                        this.currentUser.streak++; this.currentUser.last_date = todayStr; if(!this.currentUser.log) this.currentUser.log = []; if(!this.currentUser.log.includes(todayStr)) this.currentUser.log.push(todayStr); this.currentUser.total_minutes += 30; this.saveUserToCloud();
+                        this.currentUser.streak++; 
+                        this.currentUser.last_date = todayStr; 
+                        if(!this.currentUser.log) this.currentUser.log = []; 
+                        if(!this.currentUser.log.includes(todayStr)) this.currentUser.log.push(todayStr); 
+                        if(addFlatTime) this.currentUser.total_minutes += 30; // Only add flat 30 mins if clicked manually
+                        this.saveUserToCloud();
                     } else {
-                        this.streak++; this.lastPractice = todayStr; if(!this.practicedLog.includes(todayStr)) { this.practicedLog.push(todayStr); localStorage.setItem('fubc_school_weekly_log', JSON.stringify(this.practicedLog)); }
-                        this.totalMinutes += 30; localStorage.setItem('fubc_total_minutes', this.totalMinutes); localStorage.setItem('fubc_school_streak', this.streak); localStorage.setItem('fubc_school_last_date', this.lastPractice);
+                        this.streak++; 
+                        this.lastPractice = todayStr; 
+                        if(!this.practicedLog.includes(todayStr)) { 
+                            this.practicedLog.push(todayStr); 
+                            localStorage.setItem('fubc_school_weekly_log', JSON.stringify(this.practicedLog)); 
+                        }
+                        if(addFlatTime) {
+                            this.totalMinutes += 30; 
+                            localStorage.setItem('fubc_total_minutes', this.totalMinutes); 
+                        }
+                        localStorage.setItem('fubc_school_streak', this.streak); 
+                        localStorage.setItem('fubc_school_last_date', this.lastPractice);
                     }
                     if(typeof confetti === 'function') confetti({ particleCount: 250, spread: 100, origin: { y: 0.6 }, colors: ['#b45309', '#d97706', '#fcd34d', '#34d399', '#3b82f6'], zIndex: 1000 });
                 },
@@ -1167,3 +1244,4 @@
     </script>
 </body>
 </html>
+
