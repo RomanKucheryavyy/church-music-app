@@ -191,13 +191,13 @@
                 <div id="audio-control" class="w-full"></div>
             </div>
 
-            <div class="p-4 sm:p-10 flex-grow overflow-auto bg-white flex flex-col items-center justify-start w-full custom-scrollbar">
+<div class="p-4 sm:p-10 flex-grow overflow-auto bg-white flex flex-col items-center justify-start w-full custom-scrollbar">
                 <div id="abc-fullscreen" class="w-full max-w-5xl flex justify-center"></div>
             </div>
         </div>
     </div>
 
-    <nav class="sticky top-[44px] z-40 bg-white/90 backdrop-blur-xl border-b border-slate-200/80 shadow-sm transition-colors duration-300 w-full max-w-[100vw]" :class="mobileMenuOpen ? 'bg-white border-transparent' : ''">
+    <nav class="sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-slate-200/80 shadow-sm transition-colors duration-300 w-full max-w-[100vw]" :class="mobileMenuOpen ? 'bg-white border-transparent' : ''">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative w-full">
             <div class="flex justify-between items-center h-16 w-full">
                 <a href="#" @click.prevent="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex items-center gap-3 hover:opacity-80 transition-opacity group z-50 relative shrink-0">
@@ -1004,7 +1004,7 @@
                 currentVerse: null,
 
                 exercises: [
-                    { title_en: '1. Long Tones', title_ua: '1. Довгі Ноти', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/4\nf\' e\' d\' c\'|b a g f|b4 z4|]','L:1/4\ng f e d|c B A G|c4 z4|]','L:1/4\nd\' c\' b a|g f e d|g4 z4|]','L:1/4\nc\' b a g|f e d c|f4 z4|]','L:1/4\nf e d c|B A G F|B,4 z4|]','L:1/4\nF, E, D, C,|B,, A,, G,, F,,|B,,4 z4|]'] },
+                    { title_en: '1. Long Tones', title_ua: '1. Довгі Ноти', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/4\nB4 c4 | d4 e4 | f4 e4 | d4 c4 | B4 z4 |]','L:1/4\nC4 D4 | E4 F4 | G4 F4 | E4 D4 | C4 z4 |]','L:1/4\nG4 A4 | B4 c4 | d4 c4 | B4 A4 | G4 z4 |]','L:1/4\nF4 G4 | A4 B4 | c4 B4 | A4 G4 | F4 z4 |]','L:1/4\nB,,4 C,4 | D,4 E,4 | F,4 E,4 | D,4 C,4 | B,,4 z4 |]','L:1/4\nB,,,4 C,,4 | D,,4 E,,4 | F,,4 E,,4 | D,,4 C,,4 | B,,,4 z4 |]'] },
                     { title_en: '2. Flexibility', title_ua: '2. Гнучкість', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\n(b d\' f\' d\' b2) z2|(c\' e\' g\' e\' c\'2) z2|]','L:1/8\n(c e g e c2) z2|(d f a f d2) z2|]','L:1/8\n(g b d\' b g2) z2|(a c\' e\' c\' a2) z2|]','L:1/8\n(f a c\' a f2) z2|(g b d\' b g2) z2|]','L:1/8\n(B, D F D B,2) z2|(C E G E C2) z2|]','L:1/8\n(B,, D, F, D, B,,2) z2|(C, E, G, E, C,2) z2|]'] },
                     { title_en: '3. Articulation', title_ua: '3. Артикуляція', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\n.b.b .b.b .b.b .b.b|b2 z2 b2 z2|.c\'.c\' .c\'.c\' .c\'.c\' .c\'.c\'|c\'2 z2 c\'2 z2|]','L:1/8\n.c.c .c.c .c.c .c.c|c2 z2 c2 z2|.d.d .d.d .d.d .d.d|d2 z2 d2 z2|]','L:1/8\n.g.g .g.g .g.g .g.g|g2 z2 g2 z2|.a.a .a.a .a.a .a.a|a2 z2 a2 z2|]','L:1/8\n.f.f .f.f .f.f .f.f|f2 z2 f2 z2|.g.g .g.g .g.g .g.g|g2 z2 g2 z2|]','L:1/8\n.B,.B, .B,.B, .B,.B, .B,.B,|B,2 z2 B,2 z2|.C.C .C.C .C.C .C.C|C2 z2 C2 z2|]','L:1/8\n.B,,.B,, .B,,.B,, .B,,.B,, .B,,.B,,|B,,2 z2 B,,2 z2|.C,.C, .C,.C, .C,.C, .C,.C,|C,2 z2 C,2 z2|]'] },
                     { title_en: '4. Arpeggios', title_ua: '4. Арпеджіо', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\nb d\' f\' b\' b\' f\' d\' b|b8|]','L:1/8\nc e g c\' c\' g e c|c8|]','L:1/8\ng b d\' g\' g\' d\' b g|g8|]','L:1/8\nf a c\' f\' f\' c\' a f|f8|]','L:1/8\nB, D F B B F D B,|B,8|]','L:1/8\nB,, D, F, B, B, F, D, B,,|B,,8|]'] }
@@ -1244,4 +1244,5 @@ logPractice(addFlatTime = true) {
     </script>
 </body>
 </html>
+
 
