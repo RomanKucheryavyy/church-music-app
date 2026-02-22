@@ -17,7 +17,7 @@
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <link rel="icon" type="image/png" href="/social-logo.png?v=2">
 
@@ -66,6 +66,7 @@
 
 <body class="text-textMain antialiased bg-transparent overflow-x-hidden" x-data="schoolApp" @scroll.window="scrollY = window.pageYOffset; scrollProgress = (window.pageYOffset / (document.documentElement.scrollHeight - window.innerHeight)) * 100">
 
+    <!-- SPICE: Added subtle global background with grid and ambient lighting -->
     <div class="fixed inset-0 z-[-1] bg-[#f8fafc]">
         <div class="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:24px_24px] opacity-50"></div>
         <div class="absolute top-0 right-0 w-96 h-96 bg-brass/10 blur-[100px] rounded-full pointer-events-none"></div>
@@ -79,6 +80,7 @@
 
     <div class="fixed top-0 left-0 h-1.5 bg-gradient-to-r from-brass to-brassLight z-[100] shadow-[0_0_10px_rgba(180,83,9,0.5)] transition-all duration-150 ease-linear" :style="'width: ' + scrollProgress + '%'"></div>
     
+    <!-- MARQUEE HEADER -->
     <div class="bg-slate-900 text-white py-2.5 overflow-hidden relative z-[90] border-b border-brass/20 flex mt-1.5">
         <div class="whitespace-nowrap animate-marquee-mobile md:animate-marquee-desktop flex items-center min-w-full shrink-0">
             <span class="px-8 flex items-center"><span class="text-brassLight font-bold uppercase tracking-wider mr-2">Reminder:</span><span>Daily Practice Builds Champions!</span></span>
@@ -187,16 +189,17 @@
             </div>
             
             <div class="bg-slate-900 p-4 sticky top-0 z-20 shadow-lg flex flex-col items-center justify-center border-b-4 border-brass">
-                <span class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2"><span x-show="lang === 'en'">Synthesizer & Metronome</span><span x-show="lang === 'ua'" x-cloak>Синтезатор</span></span>
+                <span class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2"><span x-show="lang === 'en'">Synthesizer & Metronome</span><span x-show="lang === 'ua'" x-cloak>Ð¡Ð¸Ð½ÑÐµÐ·Ð°ÑÐ¾Ñ</span></span>
                 <div id="audio-control" class="w-full"></div>
             </div>
 
-<div class="p-4 sm:p-10 flex-grow overflow-auto bg-white flex flex-col items-center justify-start w-full custom-scrollbar">
+            <div class="p-4 sm:p-10 flex-grow overflow-auto bg-white flex flex-col items-center justify-start w-full custom-scrollbar">
                 <div id="abc-fullscreen" class="w-full max-w-5xl flex justify-center"></div>
             </div>
         </div>
     </div>
 
+    <!-- Main Navigation Bar -->
     <nav class="sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-slate-200/80 shadow-sm transition-colors duration-300 w-full max-w-[100vw]" :class="mobileMenuOpen ? 'bg-white border-transparent' : ''">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative w-full">
             <div class="flex justify-between items-center h-16 w-full">
@@ -206,51 +209,56 @@
                     </div>
                 </a>
                 
-                <div class="md:hidden flex items-center gap-2 sm:gap-4 relative z-50 shrink-0">
-                    <button @click="openProfile()" class="text-[10px] font-black text-slate-600 hover:text-slate-900 transition-colors uppercase tracking-widest border border-slate-200 px-3 py-1.5 rounded-full bg-slate-50 shadow-sm flex items-center gap-1.5">
+                <!-- MOBILE NAV CONTROLS -->
+                <div class="md:hidden flex items-center gap-1.5 sm:gap-3 relative z-50 shrink-0">
+                    <button @click="lang = lang === 'en' ? 'ua' : 'en'; $nextTick(() => { renderWarmups(); renderScales(); });" class="text-[10px] font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest border border-slate-200 px-2 py-1.5 rounded-lg bg-slate-50 shadow-sm flex items-center">
+                        <span :class="lang === 'en' ? 'text-brass font-extrabold' : ''">EN</span><span class="text-slate-300 px-0.5">/</span><span :class="lang === 'ua' ? 'text-brass font-extrabold' : ''">UA</span>
+                    </button>
+                    <button @click="openProfile()" class="text-[10px] font-black text-slate-600 hover:text-slate-900 transition-colors uppercase tracking-widest border border-slate-200 px-2.5 py-1.5 rounded-full bg-slate-50 shadow-sm flex items-center gap-1.5">
                         <span class="w-2 h-2 rounded-full" :class="currentUser ? 'bg-emerald-500 shadow-[0_0_8px_rgba(52,211,153,0.8)]' : 'bg-rose-500'"></span>
                         <span x-text="currentUser ? 'Profile' : 'Login'"></span>
                     </button>
-                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="p-2 text-slate-800 hover:text-brass transition-colors focus:outline-none flex-shrink-0">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="p-1.5 text-slate-800 hover:text-brass transition-colors focus:outline-none flex-shrink-0">
                         <svg x-show="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
                         <svg x-show="mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" x-cloak><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
                 </div>
 
+                <!-- DESKTOP NAV CONTROLS -->
                 <div class="hidden md:flex items-center gap-6 relative z-50 shrink-0">
                     <button @click="lang = lang === 'en' ? 'ua' : 'en'; $nextTick(() => { renderWarmups(); renderScales(); });" class="text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest border border-slate-200 px-3 py-1.5 rounded-full hover:border-brass/50 bg-slate-50 transition-all shadow-sm">
                         <span :class="lang === 'en' ? 'text-brass font-extrabold' : ''">EN</span><span class="text-slate-300 px-1">/</span><span :class="lang === 'ua' ? 'text-brass font-extrabold' : ''">UA</span>
                     </button>
                     <a href="#warmups" class="font-bold text-xs uppercase tracking-widest text-slate-500 hover:text-brass transition-colors relative group py-2">
-                        <span x-show="lang === 'en'">Warm-Ups</span><span x-show="lang === 'ua'" x-cloak>Розминка</span>
+                        <span x-show="lang === 'en'">Warm-Ups</span><span x-show="lang === 'ua'" x-cloak>Ð Ð¾Ð·Ð¼Ð¸Ð½ÐºÐ°</span>
                         <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-full"></span>
                     </a>
                     <a href="#scales" class="font-bold text-xs uppercase tracking-widest text-slate-500 hover:text-brass transition-colors relative group py-2">
-                        <span x-show="lang === 'en'">Scales</span><span x-show="lang === 'ua'" x-cloak>Гамми</span>
+                        <span x-show="lang === 'en'">Scales</span><span x-show="lang === 'ua'" x-cloak>ÐÐ°Ð¼Ð¼Ð¸</span>
                         <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-full"></span>
                     </a>
                     <a href="#setlist" class="font-bold text-xs uppercase tracking-widest text-slate-500 hover:text-brass transition-colors relative group py-2">
-                        <span x-show="lang === 'en'">Practice</span><span x-show="lang === 'ua'" x-cloak>Заняття</span>
+                        <span x-show="lang === 'en'">Practice</span><span x-show="lang === 'ua'" x-cloak>ÐÐ°Ð½ÑÑÑÑ</span>
                         <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-full"></span>
                     </a>
                     <a href="/" class="font-bold text-xs uppercase tracking-widest text-slate-500 hover:text-brass transition-colors relative group py-2">
-                        <span x-show="lang === 'en'">Main Band</span><span x-show="lang === 'ua'" x-cloak>Оркестр</span>
+                        <span x-show="lang === 'en'">Main Band</span><span x-show="lang === 'ua'" x-cloak>ÐÑÐºÐµÑÑÑ</span>
                         <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-brass transition-all duration-300 group-hover:w-full"></span>
                     </a>
                     <button @click="openProfile()" class="text-[10px] font-bold text-slate-600 bg-white border border-slate-200 px-3 py-2 rounded-full hover:bg-slate-50 hover:text-slate-900 transition-all shadow-sm uppercase tracking-widest flex items-center gap-1.5 transform hover:-translate-y-0.5">
                         <span class="w-2 h-2 rounded-full" :class="currentUser ? 'bg-emerald-500 shadow-[0_0_8px_rgba(52,211,153,0.8)]' : 'bg-rose-500'"></span>
-                        <span x-text="currentUser ? (lang==='en'?'Profile':'Профіль') : (lang==='en'?'Student Login':'Вхід')"></span>
+                        <span x-text="currentUser ? (lang==='en'?'Profile':'ÐÑÐ¾ÑÑÐ»Ñ') : (lang==='en'?'Student Login':'ÐÑÑÐ´')"></span>
                     </button>
                 </div>
             </div>
             
             <div class="absolute top-full left-0 w-full h-auto bg-white border-b-4 border-brass shadow-2xl md:hidden flex flex-col px-6 pb-6 transition-all duration-300 origin-top z-30" x-show="mobileMenuOpen" x-transition:enter="opacity-0 scale-y-0" x-transition:enter-end="opacity-100 scale-y-100" x-transition:leave="opacity-100 scale-y-100" x-transition:leave-end="opacity-0 scale-y-0" x-cloak>
                 <div class="flex flex-col items-center justify-center space-y-6 mt-8">
-                    <a href="#warmups" @click="mobileMenuOpen = false" class="text-xl font-heading font-black text-slate-800 hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Warm-Ups</span><span x-show="lang === 'ua'" x-cloak>Розминка</span></a>
-                    <a href="#scales" @click="mobileMenuOpen = false" class="text-xl font-heading font-black text-slate-800 hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Scales</span><span x-show="lang === 'ua'" x-cloak>Гамми</span></a>
-                    <a href="#setlist" @click="mobileMenuOpen = false" class="text-xl font-heading font-black text-slate-800 hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Practice</span><span x-show="lang === 'ua'" x-cloak>Заняття</span></a>
+                    <a href="#warmups" @click="mobileMenuOpen = false" class="text-xl font-heading font-black text-slate-800 hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Warm-Ups</span><span x-show="lang === 'ua'" x-cloak>Ð Ð¾Ð·Ð¼Ð¸Ð½ÐºÐ°</span></a>
+                    <a href="#scales" @click="mobileMenuOpen = false" class="text-xl font-heading font-black text-slate-800 hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Scales</span><span x-show="lang === 'ua'" x-cloak>ÐÐ°Ð¼Ð¼Ð¸</span></a>
+                    <a href="#setlist" @click="mobileMenuOpen = false" class="text-xl font-heading font-black text-slate-800 hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Practice</span><span x-show="lang === 'ua'" x-cloak>ÐÐ°Ð½ÑÑÑÑ</span></a>
                     <div class="w-full h-px bg-slate-100 my-2"></div>
-                    <a href="/" class="text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Return to Main Band</span><span x-show="lang === 'ua'" x-cloak>Головний сайт оркестру</span></a>
+                    <a href="/" class="text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Return to Main Band</span><span x-show="lang === 'ua'" x-cloak>ÐÐ¾Ð»Ð¾Ð²Ð½Ð¸Ð¹ ÑÐ°Ð¹Ñ Ð¾ÑÐºÐµÑÑÑÑ</span></a>
                 </div>
             </div>
         </div>
@@ -262,10 +270,10 @@
         <div class="absolute inset-0 bg-gradient-to-t from-pageBg/90 via-transparent to-transparent"></div>
         <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4 pt-10 z-10 animate-fade-in-up">
             <h1 class="font-heading text-2xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight mb-6 drop-shadow-2xl max-w-4xl mx-auto leading-snug">
-                <span x-show="lang === 'en'">“Praise him with trumpet sound; praise him with lute and harp!”<br><span class="text-base sm:text-2xl font-medium mt-4 block text-brassLight tracking-wider">– Psalm 150:3</span></span>
-                <span x-show="lang === 'ua'" x-cloak>“Хваліть Його звуком трубним, хваліть Його на арфі та гуслах!”<br><span class="text-base sm:text-2xl font-medium mt-4 block text-brassLight tracking-wider">– Псалми 150:3</span></span>
+                <span x-show="lang === 'en'">âPraise him with trumpet sound; praise him with lute and harp!â<br><span class="text-base sm:text-2xl font-medium mt-4 block text-brassLight tracking-wider">â Psalm 150:3</span></span>
+                <span x-show="lang === 'ua'" x-cloak>âÐ¥Ð²Ð°Ð»ÑÑÑ ÐÐ¾Ð³Ð¾ Ð·Ð²ÑÐºÐ¾Ð¼ ÑÑÑÐ±Ð½Ð¸Ð¼, ÑÐ²Ð°Ð»ÑÑÑ ÐÐ¾Ð³Ð¾ Ð½Ð° Ð°ÑÑÑ ÑÐ° Ð³ÑÑÐ»Ð°Ñ!â<br><span class="text-base sm:text-2xl font-medium mt-4 block text-brassLight tracking-wider">â ÐÑÐ°Ð»Ð¼Ð¸ 150:3</span></span>
             </h1>
-            <p class="text-slate-300 text-sm sm:text-lg max-w-2xl font-light tracking-wide uppercase"><span x-show="lang === 'en'">Instrumental Music School</span><span x-show="lang === 'ua'" x-cloak>Інструментальна Школа</span></p>
+            <p class="text-slate-300 text-sm sm:text-lg max-w-2xl font-light tracking-wide uppercase"><span x-show="lang === 'en'">Instrumental Music School</span><span x-show="lang === 'ua'" x-cloak>ÐÐ½ÑÑÑÑÐ¼ÐµÐ½ÑÐ°Ð»ÑÐ½Ð° Ð¨ÐºÐ¾Ð»Ð°</span></p>
         </div>
         <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-[0] z-20 pointer-events-none">
             <svg class="relative block w-full h-[40px] sm:h-[100px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M985.66,92.83C906.67,72,823.78,31,743.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z" class="fill-[#f8fafc]" fill-opacity="0.9"></path></svg>
@@ -282,21 +290,23 @@
                 <div>
                     <h2 class="text-slate-900 font-bold text-lg sm:text-2xl font-heading tracking-tight">
                         <span x-show="lang === 'en'">What do you play?</span>
-                        <span x-show="lang === 'ua'" x-cloak>На чому ви граєте?</span>
+                        <span x-show="lang === 'ua'" x-cloak>ÐÐ° ÑÐ¾Ð¼Ñ Ð²Ð¸ Ð³ÑÐ°ÑÑÐµ?</span>
                     </h2>
                     <p class="text-slate-500 text-[10px] sm:text-sm mt-1 font-medium leading-tight">
                         <span x-show="lang === 'en'">Select your instrument to instantly transpose all exercises and sheet music.</span>
-                        <span x-show="lang === 'ua'" x-cloak>Оберіть інструмент, щоб автоматично транспонувати всі ноти та вправи.</span>
+                        <span x-show="lang === 'ua'" x-cloak>ÐÐ±ÐµÑÑÑÑ ÑÐ½ÑÑÑÑÐ¼ÐµÐ½Ñ, ÑÐ¾Ð± Ð°Ð²ÑÐ¾Ð¼Ð°ÑÐ¸ÑÐ½Ð¾ ÑÑÐ°Ð½ÑÐ¿Ð¾Ð½ÑÐ²Ð°ÑÐ¸ Ð²ÑÑ Ð½Ð¾ÑÐ¸ ÑÐ° Ð²Ð¿ÑÐ°Ð²Ð¸.</span>
                     </p>
                 </div>
             </div>
-            <div class="relative w-full sm:w-80 shrink-0 group">
-                <select x-model="globalInstrument" @change="updateGlobalInstrument($event.target.value)" class="relative w-full bg-slate-900 text-white border border-slate-700 rounded-xl px-4 sm:px-5 py-3.5 sm:py-4 text-sm sm:text-lg font-bold focus:outline-none focus:ring-2 focus:ring-brass transition-all cursor-pointer appearance-none shadow-xl">
+            
+            <!-- INSTRUMENT SELECT FIX -->
+            <div class="relative w-full max-w-full sm:w-80 shrink-0 group">
+                <select x-model="globalInstrument" @change="updateGlobalInstrument($event.target.value)" class="relative w-full bg-slate-900 text-white border border-slate-700 rounded-xl pl-4 pr-10 sm:pl-5 sm:pr-12 py-3.5 sm:py-4 text-sm sm:text-lg font-bold focus:outline-none focus:ring-2 focus:ring-brass transition-all cursor-pointer appearance-none shadow-xl truncate">
                     <template x-for="inst in availableInstruments" :key="inst">
                         <option :value="inst" x-text="inst" class="bg-slate-800"></option>
                     </template>
                 </select>
-                <div class="absolute inset-y-0 right-0 flex items-center px-4 sm:px-5 pointer-events-none z-10">
+                <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none z-10">
                     <svg class="w-4 h-4 sm:w-5 sm:h-5 text-brassLight" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
                 </div>
             </div>
@@ -309,10 +319,10 @@
                 </div>
                 <div>
                     <h2 class="font-heading text-lg sm:text-2xl font-bold text-slate-900 tracking-tight">
-                        <span x-show="lang === 'en'">School Leaderboard</span><span x-show="lang === 'ua'" x-cloak>Дошка Лідерів</span>
+                        <span x-show="lang === 'en'">School Leaderboard</span><span x-show="lang === 'ua'" x-cloak>ÐÐ¾ÑÐºÐ° ÐÑÐ´ÐµÑÑÐ²</span>
                     </h2>
                     <p class="text-[10px] sm:text-sm font-medium text-slate-500 mt-0.5">
-                        <span x-show="lang === 'en'">Top practicing students in the band.</span><span x-show="lang === 'ua'" x-cloak>Учні з найбільшою кількістю занять.</span>
+                        <span x-show="lang === 'en'">Top practicing students in the band.</span><span x-show="lang === 'ua'" x-cloak>Ð£ÑÐ½Ñ Ð· Ð½Ð°Ð¹Ð±ÑÐ»ÑÑÐ¾Ñ ÐºÑÐ»ÑÐºÑÑÑÑ Ð·Ð°Ð½ÑÑÑ.</span>
                     </p>
                 </div>
             </div>
@@ -327,7 +337,7 @@
                     <div class="absolute -right-4 -top-4 w-20 h-20 sm:w-24 sm:h-24 bg-blue-50 rounded-full blur-2xl pointer-events-none group-hover:bg-blue-100 transition-colors"></div>
                     <h3 class="font-bold text-xs sm:text-sm uppercase tracking-widest text-slate-400 mb-4 sm:mb-6 flex items-center gap-2">
                         <svg class="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        <span x-show="lang === 'en'">Most Minutes</span><span x-show="lang === 'ua'" x-cloak>Топ За Часом</span>
+                        <span x-show="lang === 'en'">Most Minutes</span><span x-show="lang === 'ua'" x-cloak>Ð¢Ð¾Ð¿ ÐÐ° Ð§Ð°ÑÐ¾Ð¼</span>
                     </h3>
                     <div class="space-y-3 sm:space-y-4">
                         <template x-for="(student, idx) in topTime" :key="idx">
@@ -348,7 +358,7 @@
                     <div class="absolute -right-4 -top-4 w-20 h-20 sm:w-24 sm:h-24 bg-orange-50 rounded-full blur-2xl pointer-events-none group-hover:bg-orange-100 transition-colors"></div>
                     <h3 class="font-bold text-xs sm:text-sm uppercase tracking-widest text-slate-400 mb-4 sm:mb-6 flex items-center gap-2">
                         <svg class="w-4 h-4 text-orange-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd" /></svg>
-                        <span x-show="lang === 'en'">Longest Streaks</span><span x-show="lang === 'ua'" x-cloak>Найдовші Серії</span>
+                        <span x-show="lang === 'en'">Longest Streaks</span><span x-show="lang === 'ua'" x-cloak>ÐÐ°Ð¹Ð´Ð¾Ð²ÑÑ Ð¡ÐµÑÑÑ</span>
                     </h3>
                     <div class="space-y-3 sm:space-y-4">
                         <template x-for="(student, idx) in topStreak" :key="idx">
@@ -379,7 +389,7 @@
                             <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400" x-text="sessionActive ? 'Session Active' : 'Ready to Practice'"></span>
                         </div>
                         <h3 class="font-heading font-bold text-white text-xl sm:text-2xl tracking-tight">
-                            <span x-show="lang === 'en'">Focus Timer</span><span x-show="lang === 'ua'" x-cloak>Таймер Занять</span>
+                            <span x-show="lang === 'en'">Focus Timer</span><span x-show="lang === 'ua'" x-cloak>Ð¢Ð°Ð¹Ð¼ÐµÑ ÐÐ°Ð½ÑÑÑ</span>
                         </h3>
                     </div>
                     <div class="text-5xl sm:text-7xl font-mono font-bold tracking-tighter tabular-nums drop-shadow-lg" :class="sessionActive ? 'text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400' : 'text-slate-600'" x-text="formatTime(sessionTimeLeft)">00:00</div>
@@ -402,7 +412,7 @@
                             <div class="absolute right-0 top-0 bottom-0 w-4 bg-white/30 blur-[2px]"></div>
                         </div>
                     </div>
-                    <button @click="toggleSession()" class="w-full sm:w-auto px-8 py-3.5 rounded-full font-bold text-xs sm:text-sm uppercase tracking-widest transition-all duration-300 shadow-xl flex-shrink-0" :class="sessionActive ? 'bg-slate-700 text-white hover:bg-slate-600' : 'bg-white text-slate-900 hover:bg-brass hover:text-white hover:scale-105'" x-text="sessionActive ? (lang === 'en' ? 'Pause' : 'Пауза') : (lang === 'en' ? 'Start' : 'Старт')"></button>
+                    <button @click="toggleSession()" class="w-full sm:w-auto px-8 py-3.5 rounded-full font-bold text-xs sm:text-sm uppercase tracking-widest transition-all duration-300 shadow-xl flex-shrink-0" :class="sessionActive ? 'bg-slate-700 text-white hover:bg-slate-600' : 'bg-white text-slate-900 hover:bg-brass hover:text-white hover:scale-105'" x-text="sessionActive ? (lang === 'en' ? 'Pause' : 'ÐÐ°ÑÐ·Ð°') : (lang === 'en' ? 'Start' : 'Ð¡ÑÐ°ÑÑ')"></button>
                 </div>
             </div>
 
@@ -410,10 +420,10 @@
                 <div class="flex justify-between items-start mb-6">
                     <div>
                         <h3 class="font-heading font-bold text-slate-900 text-lg sm:text-xl tracking-tight">
-                            <span x-show="lang === 'en'">Weekly Goal</span><span x-show="lang === 'ua'" x-cloak>Прогрес</span>
+                            <span x-show="lang === 'en'">Weekly Goal</span><span x-show="lang === 'ua'" x-cloak>ÐÑÐ¾Ð³ÑÐµÑ</span>
                         </h3>
                         <p class="text-[10px] sm:text-xs font-medium text-slate-500 mt-1">
-                            <span x-show="lang === 'en'">Don't break the chain!</span><span x-show="lang === 'ua'" x-cloak>Формуйте звичку!</span>
+                            <span x-show="lang === 'en'">Don't break the chain!</span><span x-show="lang === 'ua'" x-cloak>Ð¤Ð¾ÑÐ¼ÑÐ¹ÑÐµ Ð·Ð²Ð¸ÑÐºÑ!</span>
                         </p>
                     </div>
                     <div class="text-right bg-orange-50 px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl border border-orange-100">
@@ -440,11 +450,11 @@
                 <button @click="logPractice()" class="w-full py-3.5 sm:py-4 rounded-xl font-bold text-[10px] sm:text-xs uppercase tracking-widest transition-all duration-300 shadow-md border transform hover:scale-[1.02]"
                     :class="practicedToday ? 'bg-emerald-50 text-emerald-700 border-emerald-200 cursor-default shadow-none' : 'bg-slate-900 border-transparent text-white hover:bg-brass'">
                     <span x-show="!practicedToday" class="flex items-center justify-center gap-2">
-                        <span x-show="lang === 'en'">Mark as Practiced</span><span x-show="lang === 'ua'" x-cloak>Я займався сьогодні</span>
+                        <span x-show="lang === 'en'">Mark as Practiced</span><span x-show="lang === 'ua'" x-cloak>Ð¯ Ð·Ð°Ð¹Ð¼Ð°Ð²ÑÑ ÑÑÐ¾Ð³Ð¾Ð´Ð½Ñ</span>
                         <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     </span>
                     <span x-show="practicedToday">
-                        <span x-show="lang === 'en'">Done for today!</span><span x-show="lang === 'ua'" x-cloak>Готово на сьогодні!</span>
+                        <span x-show="lang === 'en'">Done for today!</span><span x-show="lang === 'ua'" x-cloak>ÐÐ¾ÑÐ¾Ð²Ð¾ Ð½Ð° ÑÑÐ¾Ð³Ð¾Ð´Ð½Ñ!</span>
                     </span>
                 </button>
             </div>
@@ -460,11 +470,11 @@
                         <div>
                             <h2 class="font-heading text-lg sm:text-2xl font-bold text-slate-900 tracking-tight">
                                 <span x-show="lang === 'en'">Daily Warm-Ups</span>
-                                <span x-show="lang === 'ua'" x-cloak>Щоденна Розминка</span>
+                                <span x-show="lang === 'ua'" x-cloak>Ð©Ð¾Ð´ÐµÐ½Ð½Ð° Ð Ð¾Ð·Ð¼Ð¸Ð½ÐºÐ°</span>
                             </h2>
                             <p class="text-[10px] sm:text-sm font-medium text-slate-500 mt-0.5">
                                 <span x-show="lang === 'en'">Click any sheet to expand and auto-play.</span>
-                                <span x-show="lang === 'ua'" x-cloak>Натисніть на ноти для розгортання та авто-плеєра.</span>
+                                <span x-show="lang === 'ua'" x-cloak>ÐÐ°ÑÐ¸ÑÐ½ÑÑÑ Ð½Ð° Ð½Ð¾ÑÐ¸ Ð´Ð»Ñ ÑÐ¾Ð·Ð³Ð¾ÑÑÐ°Ð½Ð½Ñ ÑÐ° Ð°Ð²ÑÐ¾-Ð¿Ð»ÐµÑÑÐ°.</span>
                             </p>
                         </div>
                     </div>
@@ -500,11 +510,11 @@
                         <div>
                             <h2 class="font-heading text-lg sm:text-2xl font-bold text-slate-900 tracking-tight">
                                 <span x-show="lang === 'en'">12 Major Scales</span>
-                                <span x-show="lang === 'ua'" x-cloak>12 Мажорних Гам</span>
+                                <span x-show="lang === 'ua'" x-cloak>12 ÐÐ°Ð¶Ð¾ÑÐ½Ð¸Ñ ÐÐ°Ð¼</span>
                             </h2>
                             <p class="text-[10px] sm:text-sm font-medium text-slate-500 mt-0.5">
                                 <span x-show="lang === 'en'">Circle of Fifths. Click to view full screen.</span>
-                                <span x-show="lang === 'ua'" x-cloak>Кварто-квінтове коло. Натисніть для перегляду.</span>
+                                <span x-show="lang === 'ua'" x-cloak>ÐÐ²Ð°ÑÑÐ¾-ÐºÐ²ÑÐ½ÑÐ¾Ð²Ðµ ÐºÐ¾Ð»Ð¾. ÐÐ°ÑÐ¸ÑÐ½ÑÑÑ Ð´Ð»Ñ Ð¿ÐµÑÐµÐ³Ð»ÑÐ´Ñ.</span>
                             </p>
                         </div>
                     </div>
@@ -533,10 +543,10 @@
                         <svg class="w-5 h-5 sm:w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
                     </div>
                     <h2 class="font-heading text-lg sm:text-2xl font-bold text-slate-900 tracking-tight">
-                        <span x-show="lang === 'en'">Current Repertoire</span><span x-show="lang === 'ua'" x-cloak>Поточний Репертуар</span>
+                        <span x-show="lang === 'en'">Current Repertoire</span><span x-show="lang === 'ua'" x-cloak>ÐÐ¾ÑÐ¾ÑÐ½Ð¸Ð¹ Ð ÐµÐ¿ÐµÑÑÑÐ°Ñ</span>
                     </h2>
                 </div>
-                <span class="text-[9px] sm:text-xs font-bold bg-white border border-slate-200 text-slate-500 shadow-sm px-2 sm:px-4 py-1.5 rounded-full uppercase tracking-widest whitespace-nowrap" x-text="schoolSongs.length + (lang === 'en' ? ' Songs' : ' Пісень')"></span>
+                <span class="text-[9px] sm:text-xs font-bold bg-white border border-slate-200 text-slate-500 shadow-sm px-2 sm:px-4 py-1.5 rounded-full uppercase tracking-widest whitespace-nowrap" x-text="schoolSongs.length + (lang === 'en' ? ' Songs' : ' ÐÑÑÐµÐ½Ñ')"></span>
             </div>
             
             <div x-show="schoolSongs.length === 0" class="p-12 text-center text-slate-400 text-sm animate-pulse font-medium">Connecting to music database...</div>
@@ -545,13 +555,13 @@
                 <template x-for="song in schoolSongs" :key="song.title">
                     <div class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm hover:shadow-xl hover:border-brass/50 transition-all duration-300 transform hover:-translate-y-2 flex flex-col group relative overflow-hidden">
                         <div class="absolute top-0 right-0 w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-bl from-brass/10 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 relative z-10"><span x-show="lang === 'en'">Sheet Music</span><span x-show="lang === 'ua'" x-cloak>Ноти</span></div>
+                        <div class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 relative z-10"><span x-show="lang === 'en'">Sheet Music</span><span x-show="lang === 'ua'" x-cloak>ÐÐ¾ÑÐ¸</span></div>
                         <h3 class="font-heading text-base sm:text-lg font-bold text-slate-900 mb-2 group-hover:text-brass transition-colors leading-snug relative z-10" x-text="song.title"></h3>
                         <p class="text-slate-500 text-[10px] sm:text-xs font-medium mb-5 sm:mb-6 flex-grow relative z-10" x-text="lang === 'en' ? song.desc_en : song.desc_ua"></p>
                         
                         <a :href="song.link" target="_blank" class="mt-auto text-[10px] sm:text-xs font-bold text-slate-700 bg-slate-50 hover:bg-brass hover:text-white border border-slate-200 hover:border-brass px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all relative z-10 group/btn shadow-sm">
                             <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                            <span x-show="lang === 'en'">Open Music</span><span x-show="lang === 'ua'" x-cloak>Відкрити</span>
+                            <span x-show="lang === 'en'">Open Music</span><span x-show="lang === 'ua'" x-cloak>ÐÑÐ´ÐºÑÐ¸ÑÐ¸</span>
                         </a>
                     </div>
                 </template>
@@ -562,23 +572,23 @@
             <div class="absolute top-0 right-0 p-32 bg-brass/10 blur-[100px] rounded-full pointer-events-none"></div>
             <div class="absolute bottom-0 left-0 p-32 bg-blue-500/10 blur-[100px] rounded-full pointer-events-none"></div>
             
-            <div x-show="submitStatus === 'success'" class="absolute inset-0 z-20 bg-gradient-to-br from-emerald-500 to-emerald-700 flex flex-col items-center justify-center text-center p-6 backdrop-blur-md" x-transition><svg class="w-16 sm:w-20 h-16 sm:h-20 text-white mb-4 drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><h3 class="text-2xl sm:text-3xl font-bold text-white tracking-tight drop-shadow-sm"><span x-show="lang === 'en'">Submitted Successfully!</span><span x-show="lang === 'ua'" x-cloak>Успішно надіслано!</span></h3></div>
+            <div x-show="submitStatus === 'success'" class="absolute inset-0 z-20 bg-gradient-to-br from-emerald-500 to-emerald-700 flex flex-col items-center justify-center text-center p-6 backdrop-blur-md" x-transition><svg class="w-16 sm:w-20 h-16 sm:h-20 text-white mb-4 drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><h3 class="text-2xl sm:text-3xl font-bold text-white tracking-tight drop-shadow-sm"><span x-show="lang === 'en'">Submitted Successfully!</span><span x-show="lang === 'ua'" x-cloak>Ð£ÑÐ¿ÑÑÐ½Ð¾ Ð½Ð°Ð´ÑÑÐ»Ð°Ð½Ð¾!</span></h3></div>
             
             <div class="p-6 sm:p-12 relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-16 items-center">
                 <div>
                     <span class="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 bg-rose-500/20 border border-rose-500/30 text-rose-400 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded-full mb-4 sm:mb-6 shadow-sm"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg> Conductor Feedback (BETA)</span>
-                    <h3 class="font-heading text-2xl sm:text-4xl font-bold text-white mb-3 sm:mb-4 tracking-tight leading-tight"><span x-show="lang === 'en'">Playing Test Submissions</span><span x-show="lang === 'ua'" x-cloak>Здача Партій</span></h3>
-                    <p class="text-slate-400 text-xs sm:text-sm leading-relaxed mb-6 font-medium"><span x-show="lang === 'en'">Please do not use this feature unless specifically directed by the conductor. When assigned, record your piece and upload it directly for feedback.</span><span x-show="lang === 'ua'" x-cloak>Будь ласка, не використовуйте цю функцію, якщо немає завдання від диригента.</span></p>
+                    <h3 class="font-heading text-2xl sm:text-4xl font-bold text-white mb-3 sm:mb-4 tracking-tight leading-tight"><span x-show="lang === 'en'">Playing Test Submissions</span><span x-show="lang === 'ua'" x-cloak>ÐÐ´Ð°ÑÐ° ÐÐ°ÑÑÑÐ¹</span></h3>
+                    <p class="text-slate-400 text-xs sm:text-sm leading-relaxed mb-6 font-medium"><span x-show="lang === 'en'">Please do not use this feature unless specifically directed by the conductor. When assigned, record your piece and upload it directly for feedback.</span><span x-show="lang === 'ua'" x-cloak>ÐÑÐ´Ñ Ð»Ð°ÑÐºÐ°, Ð½Ðµ Ð²Ð¸ÐºÐ¾ÑÐ¸ÑÑÐ¾Ð²ÑÐ¹ÑÐµ ÑÑ ÑÑÐ½ÐºÑÑÑ, ÑÐºÑÐ¾ Ð½ÐµÐ¼Ð°Ñ Ð·Ð°Ð²Ð´Ð°Ð½Ð½Ñ Ð²ÑÐ´ Ð´Ð¸ÑÐ¸Ð³ÐµÐ½ÑÐ°.</span></p>
                 </div>
                 
                 <form x-ref="testForm" @submit.prevent="submitTest" name="playing_test" method="POST" data-netlify="true" enctype="multipart/form-data" class="bg-white/5 backdrop-blur-md border border-white/10 p-5 sm:p-8 rounded-3xl space-y-4 sm:space-y-5 shadow-2xl">
                     <input type="hidden" name="form-name" value="playing_test" />
-                    <input type="text" name="name" required :placeholder="lang === 'en' ? 'First & Last Name' : 'Ім\'я та Прізвище'" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-3.5 sm:px-5 sm:py-4 text-xs sm:text-sm text-white placeholder-slate-500 focus:ring-2 focus:ring-brass focus:border-transparent outline-none transition-all shadow-inner">
-                    <input type="text" name="song" required :placeholder="lang === 'en' ? 'Song / Scale Name' : 'Назва твору / гамми'" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-3.5 sm:px-5 sm:py-4 text-xs sm:text-sm text-white placeholder-slate-500 focus:ring-2 focus:ring-brass focus:border-transparent outline-none transition-all shadow-inner">
+                    <input type="text" name="name" required :placeholder="lang === 'en' ? 'First & Last Name' : 'ÐÐ¼\'Ñ ÑÐ° ÐÑÑÐ·Ð²Ð¸ÑÐµ'" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-3.5 sm:px-5 sm:py-4 text-xs sm:text-sm text-white placeholder-slate-500 focus:ring-2 focus:ring-brass focus:border-transparent outline-none transition-all shadow-inner">
+                    <input type="text" name="song" required :placeholder="lang === 'en' ? 'Song / Scale Name' : 'ÐÐ°Ð·Ð²Ð° ÑÐ²Ð¾ÑÑ / Ð³Ð°Ð¼Ð¼Ð¸'" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-3.5 sm:px-5 sm:py-4 text-xs sm:text-sm text-white placeholder-slate-500 focus:ring-2 focus:ring-brass focus:border-transparent outline-none transition-all shadow-inner">
                     <div class="relative w-full">
                         <input type="file" name="recording" accept="audio/*,video/*" required class="block w-full text-xs sm:text-sm text-slate-400 file:mr-3 sm:file:mr-4 file:py-2.5 sm:file:py-3 file:px-4 sm:file:px-5 file:rounded-xl file:border-0 file:text-[10px] sm:file:text-xs file:font-bold file:uppercase file:tracking-widest file:bg-slate-700 file:text-white hover:file:bg-slate-600 focus:outline-none cursor-pointer bg-slate-900/80 border border-slate-700 rounded-xl pr-4 shadow-inner transition-all">
                     </div>
-                    <button type="submit" class="w-full bg-gradient-to-r from-brass to-brassLight hover:from-yellow-500 hover:to-brass text-white font-bold text-[10px] sm:text-xs uppercase tracking-widest py-3.5 sm:py-4 rounded-xl transition-all shadow-[0_8px_20px_rgba(180,83,9,0.4)] hover:shadow-[0_8px_25px_rgba(180,83,9,0.6)] transform hover:-translate-y-0.5 disabled:opacity-50 mt-2" :disabled="submitStatus === 'submitting'"><span x-show="submitStatus === 'idle'"><span x-show="lang === 'en'">Upload Recording</span><span x-show="lang === 'ua'" x-cloak>Завантажити Запис</span></span><span x-show="submitStatus === 'submitting'">Uploading...</span></button>
+                    <button type="submit" class="w-full bg-gradient-to-r from-brass to-brassLight hover:from-yellow-500 hover:to-brass text-white font-bold text-[10px] sm:text-xs uppercase tracking-widest py-3.5 sm:py-4 rounded-xl transition-all shadow-[0_8px_20px_rgba(180,83,9,0.4)] hover:shadow-[0_8px_25px_rgba(180,83,9,0.6)] transform hover:-translate-y-0.5 disabled:opacity-50 mt-2" :disabled="submitStatus === 'submitting'"><span x-show="submitStatus === 'idle'"><span x-show="lang === 'en'">Upload Recording</span><span x-show="lang === 'ua'" x-cloak>ÐÐ°Ð²Ð°Ð½ÑÐ°Ð¶Ð¸ÑÐ¸ ÐÐ°Ð¿Ð¸Ñ</span></span><span x-show="submitStatus === 'submitting'">Uploading...</span></button>
                 </form>
             </div>
         </section>
@@ -587,7 +597,7 @@
             <div class="px-2 py-4 sm:py-6 border-b border-slate-200 mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <h2 class="font-heading text-xl sm:text-3xl font-bold text-slate-900 tracking-tight">
                     <span x-show="lang === 'en'">Tools & Resources</span>
-                    <span x-show="lang === 'ua'" x-cloak>Інструменти та Матеріали</span>
+                    <span x-show="lang === 'ua'" x-cloak>ÐÐ½ÑÑÑÑÐ¼ÐµÐ½ÑÐ¸ ÑÐ° ÐÐ°ÑÐµÑÑÐ°Ð»Ð¸</span>
                 </h2>
             </div>
             
@@ -599,14 +609,14 @@
                         <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4 relative z-10">
                             <div class="flex items-center gap-2">
                                 <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
-                                <span class="text-[10px] sm:text-xs font-bold text-slate-300 uppercase tracking-widest"><span x-show="lang === 'en'">Live Tuner</span><span x-show="lang === 'ua'" x-cloak>Тюнер</span></span>
+                                <span class="text-[10px] sm:text-xs font-bold text-slate-300 uppercase tracking-widest"><span x-show="lang === 'en'">Live Tuner</span><span x-show="lang === 'ua'" x-cloak>Ð¢ÑÐ½ÐµÑ</span></span>
                             </div>
-                            <button @click="toggleTuner()" class="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest px-3 sm:px-4 py-1.5 rounded-full border transition-all focus:outline-none" :class="tunerActive ? 'bg-rose-500/20 text-rose-400 border-rose-500/50 shadow-[0_0_15px_rgba(244,63,94,0.3)]' : 'bg-transparent text-brass border-brass hover:bg-brass hover:text-white hover:shadow-[0_0_15px_rgba(180,83,9,0.4)]'" x-text="tunerActive ? (lang === 'en' ? 'Stop' : 'Вимк') : (lang === 'en' ? 'Mic Access' : 'Мікрофон')"></button>
+                            <button @click="toggleTuner()" class="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest px-3 sm:px-4 py-1.5 rounded-full border transition-all focus:outline-none" :class="tunerActive ? 'bg-rose-500/20 text-rose-400 border-rose-500/50 shadow-[0_0_15px_rgba(244,63,94,0.3)]' : 'bg-transparent text-brass border-brass hover:bg-brass hover:text-white hover:shadow-[0_0_15px_rgba(180,83,9,0.4)]'" x-text="tunerActive ? (lang === 'en' ? 'Stop' : 'ÐÐ¸Ð¼Ðº') : (lang === 'en' ? 'Mic Access' : 'ÐÑÐºÑÐ¾ÑÐ¾Ð½')"></button>
                         </div>
                         
                         <div class="flex flex-col items-center justify-center flex-grow min-h-[140px] sm:min-h-[160px] relative z-10">
                             <div x-show="!tunerActive" class="text-center text-slate-500 text-xs sm:text-sm font-medium">
-                                <span x-show="lang === 'en'">Click "Mic Access" to enable live tuner.</span><span x-show="lang === 'ua'" x-cloak>Натисніть "Мікрофон" для активації.</span>
+                                <span x-show="lang === 'en'">Click "Mic Access" to enable live tuner.</span><span x-show="lang === 'ua'" x-cloak>ÐÐ°ÑÐ¸ÑÐ½ÑÑÑ "ÐÑÐºÑÐ¾ÑÐ¾Ð½" Ð´Ð»Ñ Ð°ÐºÑÐ¸Ð²Ð°ÑÑÑ.</span>
                             </div>
                             <div x-show="tunerActive" class="flex flex-col items-center w-full" x-cloak>
                                 <div class="text-5xl sm:text-6xl font-bold text-white mb-2 drop-shadow-md" x-text="tunerNote">--</div>
@@ -625,7 +635,7 @@
                         <div class="flex justify-between items-center mb-6 sm:mb-8 border-b border-slate-100 pb-4">
                             <div class="flex items-center gap-2">
                                 <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                <span class="text-[10px] sm:text-xs font-bold text-slate-900 uppercase tracking-widest"><span x-show="lang === 'en'">Metronome</span><span x-show="lang === 'ua'" x-cloak>Метроном</span></span>
+                                <span class="text-[10px] sm:text-xs font-bold text-slate-900 uppercase tracking-widest"><span x-show="lang === 'en'">Metronome</span><span x-show="lang === 'ua'" x-cloak>ÐÐµÑÑÐ¾Ð½Ð¾Ð¼</span></span>
                             </div>
                             <div class="flex items-center gap-2 bg-slate-50 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl shadow-inner border border-slate-200">
                                 <div class="h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full bg-slate-300 transition-colors duration-75" :class="isMetronomePlaying ? 'bg-rose-500 scale-110 shadow-[0_0_12px_rgba(244,63,94,0.6)]' : ''"></div>
@@ -636,11 +646,11 @@
                         <input type="range" min="40" max="240" x-model="bpm" @input="updateMetronomeSpeed()" class="w-full mb-6 sm:mb-8">
                         <div class="grid grid-cols-2 gap-3 sm:gap-4">
                             <button @click="toggleMetronome()" class="py-3 sm:py-4 rounded-2xl font-bold transition-all duration-300 text-[10px] sm:text-xs uppercase tracking-widest shadow-md border transform hover:-translate-y-1" :class="isMetronomePlaying ? 'bg-white border-slate-200 text-slate-900 hover:bg-slate-50' : 'bg-slate-900 border-transparent text-white hover:bg-brass hover:shadow-[0_8px_20px_rgba(180,83,9,0.3)]'">
-                                <span x-show="!isMetronomePlaying" x-text="lang === 'en' ? 'Start' : 'Старт'"></span>
-                                <span x-show="isMetronomePlaying" x-text="lang === 'en' ? 'Stop' : 'Стоп'" x-cloak></span>
+                                <span x-show="!isMetronomePlaying" x-text="lang === 'en' ? 'Start' : 'Ð¡ÑÐ°ÑÑ'"></span>
+                                <span x-show="isMetronomePlaying" x-text="lang === 'en' ? 'Stop' : 'Ð¡ÑÐ¾Ð¿'" x-cloak></span>
                             </button>
                             <button @click="tapTempo()" class="py-3 sm:py-4 rounded-2xl font-bold transition-all duration-300 text-[10px] sm:text-xs uppercase tracking-widest bg-slate-50 text-slate-600 border border-slate-200 hover:border-brass hover:bg-brass/5 hover:text-brass transform hover:-translate-y-1 shadow-sm">
-                                <span x-show="lang === 'en'">Tap Tempo</span><span x-show="lang === 'ua'" x-cloak>Тап Темп</span>
+                                <span x-show="lang === 'en'">Tap Tempo</span><span x-show="lang === 'ua'" x-cloak>Ð¢Ð°Ð¿ Ð¢ÐµÐ¼Ð¿</span>
                             </button>
                         </div>
                     </div>
@@ -650,20 +660,20 @@
                             <div class="flex items-center gap-2 mb-1">
                                 <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
                                 <h3 class="font-heading text-[10px] sm:text-xs font-bold text-slate-900 uppercase tracking-widest">
-                                    <span x-show="lang === 'en'">Blank Sheet Music</span><span x-show="lang === 'ua'" x-cloak>Чисті Ноти</span>
+                                    <span x-show="lang === 'en'">Blank Sheet Music</span><span x-show="lang === 'ua'" x-cloak>Ð§Ð¸ÑÑÑ ÐÐ¾ÑÐ¸</span>
                                 </h3>
                             </div>
                             <p class="text-[9px] sm:text-[10px] text-slate-500 font-bold mt-2">
-                                <span x-show="lang === 'en'">Print staff paper directly from your browser.</span><span x-show="lang === 'ua'" x-cloak>Друкуйте прямо з браузера.</span>
+                                <span x-show="lang === 'en'">Print staff paper directly from your browser.</span><span x-show="lang === 'ua'" x-cloak>ÐÑÑÐºÑÐ¹ÑÐµ Ð¿ÑÑÐ¼Ð¾ Ð· Ð±ÑÐ°ÑÐ·ÐµÑÐ°.</span>
                             </p>
                         </div>
                         <div class="space-y-3 flex-grow">
                             <button @click="printStaves(10)" class="w-full flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200 hover:border-brass hover:bg-brass/5 transition-all duration-200 group">
-                                <span class="font-bold text-[10px] sm:text-xs text-slate-700 group-hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Print 10 Staves</span><span x-show="lang === 'ua'" x-cloak>Друк 10 рядків</span></span>
+                                <span class="font-bold text-[10px] sm:text-xs text-slate-700 group-hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Print 10 Staves</span><span x-show="lang === 'ua'" x-cloak>ÐÑÑÐº 10 ÑÑÐ´ÐºÑÐ²</span></span>
                                 <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 group-hover:text-brass transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
                             </button>
                             <button @click="printStaves(12)" class="w-full flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200 hover:border-brass hover:bg-brass/5 transition-all duration-200 group">
-                                <span class="font-bold text-[10px] sm:text-xs text-slate-700 group-hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Print 12 Staves</span><span x-show="lang === 'ua'" x-cloak>Друк 12 рядків</span></span>
+                                <span class="font-bold text-[10px] sm:text-xs text-slate-700 group-hover:text-brass transition-colors uppercase tracking-widest"><span x-show="lang === 'en'">Print 12 Staves</span><span x-show="lang === 'ua'" x-cloak>ÐÑÑÐº 12 ÑÑÐ´ÐºÑÐ²</span></span>
                                 <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 group-hover:text-brass transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
                             </button>
                         </div>
@@ -678,11 +688,11 @@
                             <div class="flex items-center gap-2 mb-1">
                                 <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
                                 <h3 class="font-heading text-[10px] sm:text-xs font-bold text-slate-900 uppercase tracking-widest">
-                                    <span x-show="lang === 'en'">Interactive Fingering Chart</span><span x-show="lang === 'ua'" x-cloak>Інтерактивна Аплікатура</span>
+                                    <span x-show="lang === 'en'">Interactive Fingering Chart</span><span x-show="lang === 'ua'" x-cloak>ÐÐ½ÑÐµÑÐ°ÐºÑÐ¸Ð²Ð½Ð° ÐÐ¿Ð»ÑÐºÐ°ÑÑÑÐ°</span>
                                 </h3>
                             </div>
                             <p class="text-[9px] sm:text-[10px] text-slate-500 font-bold mt-1 sm:mt-2">
-                                <span x-show="lang === 'en'">Click 'Play Pitch' to hear the correct tone.</span><span x-show="lang === 'ua'" x-cloak>Натисніть для прослуховування.</span>
+                                <span x-show="lang === 'en'">Click 'Play Pitch' to hear the correct tone.</span><span x-show="lang === 'ua'" x-cloak>ÐÐ°ÑÐ¸ÑÐ½ÑÑÑ Ð´Ð»Ñ Ð¿ÑÐ¾ÑÐ»ÑÑÐ¾Ð²ÑÐ²Ð°Ð½Ð½Ñ.</span>
                             </p>
                         </div>
                         <div class="text-[10px] sm:text-xs font-bold text-brass uppercase tracking-widest bg-brass/10 border border-brass/20 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl shadow-sm" x-text="globalInstrument"></div>
@@ -694,7 +704,7 @@
                                 <button @click="interactiveChart.selectedRange = r; interactiveChart.selectedNote = 0; stopFingeringAudio();"
                                         class="px-3 sm:px-6 py-2 sm:py-2.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest rounded-xl transition-all duration-300 flex-1 sm:flex-none text-center"
                                         :class="interactiveChart.selectedRange === r ? 'bg-slate-900 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'"
-                                        x-text="lang === 'en' ? r : (r === 'Low' ? 'Низька' : (r === 'Mid' ? 'Середня' : 'Висока'))"></button>
+                                        x-text="lang === 'en' ? r : (r === 'Low' ? 'ÐÐ¸Ð·ÑÐºÐ°' : (r === 'Mid' ? 'Ð¡ÐµÑÐµÐ´Ð½Ñ' : 'ÐÐ¸ÑÐ¾ÐºÐ°'))"></button>
                             </template>
                         </div>
                         
@@ -712,7 +722,7 @@
                             
                             <button @click="playFingeringAudio()" class="absolute top-3 sm:top-5 right-3 sm:right-5 bg-slate-50 border border-slate-200 hover:border-brass hover:bg-brass hover:text-white text-slate-500 rounded-xl sm:rounded-2xl p-2 sm:p-3 shadow-sm flex items-center gap-2 transition-all duration-300 z-10 focus:outline-none group-hover/viz:scale-105" :class="isFingeringPlaying ? 'text-white border-brass bg-brass shadow-[0_0_20px_rgba(180,83,9,0.5)]' : ''">
                                 <svg class="w-3.5 h-3.5 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest hidden sm:block"><span x-show="lang === 'en'">Play Pitch</span><span x-show="lang === 'ua'" x-cloak>Звук</span></span>
+                                <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest hidden sm:block"><span x-show="lang === 'en'">Play Pitch</span><span x-show="lang === 'ua'" x-cloak>ÐÐ²ÑÐº</span></span>
                             </button>
 
                             <template x-if="interactiveChart.data[interactiveChart.instrument]?.type === 'valves'">
@@ -731,7 +741,7 @@
                                 <div class="flex flex-col items-center w-full max-w-lg mt-4 sm:mt-0">
                                     <span class="text-4xl sm:text-8xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-brass to-yellow-500 mb-1 sm:mb-2 transition-all duration-300 drop-shadow-md" x-text="interactiveChart.data[interactiveChart.instrument].notes[interactiveChart.selectedRange][interactiveChart.selectedNote].pos"></span>
                                     <span class="text-[9px] sm:text-xs font-bold text-slate-300 uppercase tracking-[0.3em] mb-6 sm:mb-10">
-                                        <span x-show="lang === 'en'">Position</span><span x-show="lang === 'ua'" x-cloak>Позиція</span>
+                                        <span x-show="lang === 'en'">Position</span><span x-show="lang === 'ua'" x-cloak>ÐÐ¾Ð·Ð¸ÑÑÑ</span>
                                     </span>
                                     
                                     <div class="w-full h-4 sm:h-6 bg-slate-100 rounded-full relative flex items-center mt-2 mb-3 sm:mb-4 shadow-inner border border-slate-200">
@@ -793,42 +803,42 @@
                 </div>
                 <div>
                     <h3 class="font-heading text-base sm:text-xl font-bold text-slate-900 tracking-tight">
-                        <span x-show="lang === 'en'">Musicianship Tips</span><span x-show="lang === 'ua'" x-cloak>Поради Музиканту</span>
+                        <span x-show="lang === 'en'">Musicianship Tips</span><span x-show="lang === 'ua'" x-cloak>ÐÐ¾ÑÐ°Ð´Ð¸ ÐÑÐ·Ð¸ÐºÐ°Ð½ÑÑ</span>
                     </h3>
                     <p class="text-[9px] sm:text-[10px] font-bold text-slate-500 mt-0.5 uppercase tracking-widest">
-                        <span x-show="lang === 'en'">Preparing for the main band</span><span x-show="lang === 'ua'" x-cloak>Підготовка до гри в оркестрі</span>
+                        <span x-show="lang === 'en'">Preparing for the main band</span><span x-show="lang === 'ua'" x-cloak>ÐÑÐ´Ð³Ð¾ÑÐ¾Ð²ÐºÐ° Ð´Ð¾ Ð³ÑÐ¸ Ð² Ð¾ÑÐºÐµÑÑÑÑ</span>
                     </p>
                 </div>
             </div>
             <div class="p-4 sm:p-8 space-y-4 sm:space-y-6 flex-grow bg-white/80">
                 <details class="group bg-slate-50 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-slate-100 open:border-brass/30 open:shadow-md transition-all">
                     <summary class="font-bold text-xs sm:text-sm text-slate-800 cursor-pointer hover:text-brass transition-colors list-none flex justify-between items-center outline-none">
-                        <span x-show="lang === 'en'">1. Posture & Air Support</span><span x-show="lang === 'ua'" x-cloak>1. Постава та Дихання</span>
+                        <span x-show="lang === 'en'">1. Posture & Air Support</span><span x-show="lang === 'ua'" x-cloak>1. ÐÐ¾ÑÑÐ°Ð²Ð° ÑÐ° ÐÐ¸ÑÐ°Ð½Ð½Ñ</span>
                         <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white flex items-center justify-center border border-slate-200 group-open:bg-brass group-open:text-white group-open:border-brass transition-all"><svg class="w-3 h-3 sm:w-4 sm:h-4 transform group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg></span>
                     </summary>
                     <p class="text-[10px] sm:text-xs text-slate-600 mt-3 sm:mt-4 leading-relaxed font-medium pt-3 sm:pt-4 border-t border-slate-200/60">
                         <span x-show="lang === 'en'">Sit on the front half of your chair with feet flat. Good tone comes from deep, relaxed breathing from the diaphragm, not your chest.</span>
-                        <span x-show="lang === 'ua'" x-cloak>Сидіть на передній половині стільця. Хороший звук вимагає глибокого, розслабленого дихання діафрагмою.</span>
+                        <span x-show="lang === 'ua'" x-cloak>Ð¡Ð¸Ð´ÑÑÑ Ð½Ð° Ð¿ÐµÑÐµÐ´Ð½ÑÐ¹ Ð¿Ð¾Ð»Ð¾Ð²Ð¸Ð½Ñ ÑÑÑÐ»ÑÑÑ. Ð¥Ð¾ÑÐ¾ÑÐ¸Ð¹ Ð·Ð²ÑÐº Ð²Ð¸Ð¼Ð°Ð³Ð°Ñ Ð³Ð»Ð¸Ð±Ð¾ÐºÐ¾Ð³Ð¾, ÑÐ¾Ð·ÑÐ»Ð°Ð±Ð»ÐµÐ½Ð¾Ð³Ð¾ Ð´Ð¸ÑÐ°Ð½Ð½Ñ Ð´ÑÐ°ÑÑÐ°Ð³Ð¼Ð¾Ñ.</span>
                     </p>
                 </details>
                 <details class="group bg-slate-50 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-slate-100 open:border-brass/30 open:shadow-md transition-all">
                     <summary class="font-bold text-xs sm:text-sm text-slate-800 cursor-pointer hover:text-brass transition-colors list-none flex justify-between items-center outline-none">
-                        <span x-show="lang === 'en'">2. Watching the Conductor</span><span x-show="lang === 'ua'" x-cloak>2. Увага на Диригента</span>
+                        <span x-show="lang === 'en'">2. Watching the Conductor</span><span x-show="lang === 'ua'" x-cloak>2. Ð£Ð²Ð°Ð³Ð° Ð½Ð° ÐÐ¸ÑÐ¸Ð³ÐµÐ½ÑÐ°</span>
                         <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white flex items-center justify-center border border-slate-200 group-open:bg-brass group-open:text-white group-open:border-brass transition-all"><svg class="w-3 h-3 sm:w-4 sm:h-4 transform group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg></span>
                     </summary>
                     <p class="text-[10px] sm:text-xs text-slate-600 mt-3 sm:mt-4 leading-relaxed font-medium pt-3 sm:pt-4 border-t border-slate-200/60">
                         <span x-show="lang === 'en'">Adjust your music stand so you can see your sheet music AND the conductor out of your peripheral vision without moving your head.</span>
-                        <span x-show="lang === 'ua'" x-cloak>Налаштуйте пульт так, щоб бачити ноти та диригента периферійним зором, не піднімаючи голови.</span>
+                        <span x-show="lang === 'ua'" x-cloak>ÐÐ°Ð»Ð°ÑÑÑÐ¹ÑÐµ Ð¿ÑÐ»ÑÑ ÑÐ°Ðº, ÑÐ¾Ð± Ð±Ð°ÑÐ¸ÑÐ¸ Ð½Ð¾ÑÐ¸ ÑÐ° Ð´Ð¸ÑÐ¸Ð³ÐµÐ½ÑÐ° Ð¿ÐµÑÐ¸ÑÐµÑÑÐ¹Ð½Ð¸Ð¼ Ð·Ð¾ÑÐ¾Ð¼, Ð½Ðµ Ð¿ÑÐ´Ð½ÑÐ¼Ð°ÑÑÐ¸ Ð³Ð¾Ð»Ð¾Ð²Ð¸.</span>
                     </p>
                 </details>
                 <details class="group bg-slate-50 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-slate-100 open:border-brass/30 open:shadow-md transition-all">
                     <summary class="font-bold text-xs sm:text-sm text-slate-800 cursor-pointer hover:text-brass transition-colors list-none flex justify-between items-center outline-none">
-                        <span x-show="lang === 'en'">3. Intonation (Tuning)</span><span x-show="lang === 'ua'" x-cloak>3. Інтонація (Строй)</span>
+                        <span x-show="lang === 'en'">3. Intonation (Tuning)</span><span x-show="lang === 'ua'" x-cloak>3. ÐÐ½ÑÐ¾Ð½Ð°ÑÑÑ (Ð¡ÑÑÐ¾Ð¹)</span>
                         <span class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-white flex items-center justify-center border border-slate-200 group-open:bg-brass group-open:text-white group-open:border-brass transition-all"><svg class="w-3 h-3 sm:w-4 sm:h-4 transform group-open:rotate-180 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg></span>
                     </summary>
                     <p class="text-[10px] sm:text-xs text-slate-600 mt-3 sm:mt-4 leading-relaxed font-medium pt-3 sm:pt-4 border-t border-slate-200/60">
                         <span x-show="lang === 'en'">Listen to the players around you. If you hear "waves" or "beats" in the sound, you are out of tune. Adjust your tuning slide/mouthpiece until the sound is smooth.</span>
-                        <span x-show="lang === 'ua'" x-cloak>Слухайте інших. Якщо ви чуєте "хвилі" або вібрації в звуці, ви не строїте. Налаштуйте інструмент, поки звук не стане рівним.</span>
+                        <span x-show="lang === 'ua'" x-cloak>Ð¡Ð»ÑÑÐ°Ð¹ÑÐµ ÑÐ½ÑÐ¸Ñ. Ð¯ÐºÑÐ¾ Ð²Ð¸ ÑÑÑÑÐµ "ÑÐ²Ð¸Ð»Ñ" Ð°Ð±Ð¾ Ð²ÑÐ±ÑÐ°ÑÑÑ Ð² Ð·Ð²ÑÑÑ, Ð²Ð¸ Ð½Ðµ ÑÑÑÐ¾ÑÑÐµ. ÐÐ°Ð»Ð°ÑÑÑÐ¹ÑÐµ ÑÐ½ÑÑÑÑÐ¼ÐµÐ½Ñ, Ð¿Ð¾ÐºÐ¸ Ð·Ð²ÑÐº Ð½Ðµ ÑÑÐ°Ð½Ðµ ÑÑÐ²Ð½Ð¸Ð¼.</span>
                     </p>
                 </details>
             </div>
@@ -901,7 +911,6 @@
                 },
 
                 async handleAuth() {
-                    // 1. Clean up inputs to strip accidental trailing spaces
                     let cleanName = this.authForm.name.trim();
                     let cleanPin = this.authForm.pin.trim();
 
@@ -917,7 +926,6 @@
                             return alert("Invalid Access Code"); 
                         }
                         
-                        // 2. Use 'ilike' for a case-insensitive duplicate check
                         const { data: existing } = await this.supabase.from('students').select('*').ilike('name', cleanName);
                         if(existing && existing.length > 0) { 
                             this.authLoading = false; 
@@ -933,7 +941,6 @@
                         this.loadUserDataLocally(); 
                         this.fetchLeaderboard();
                     } else {
-                        // 3. Use 'ilike' for case-insensitive login, and .limit(1) instead of .single() to prevent crashes
                         const { data, error } = await this.supabase.from('students')
                             .select('*')
                             .ilike('name', cleanName)
@@ -943,7 +950,7 @@
                         if (error || !data || data.length === 0) { 
                             alert("Incorrect Name or PIN. Or account does not exist."); 
                         } else { 
-                            this.currentUser = data[0]; // Select the first matched user
+                            this.currentUser = data[0];
                             localStorage.setItem('fubc_cloud_user', JSON.stringify(this.currentUser)); 
                             this.loadUserDataLocally(); 
                         }
@@ -975,7 +982,7 @@
                 isEditingName: false,
                 totalMinutes: parseInt(localStorage.getItem('fubc_total_minutes')) || 0,
                 openProfile() { this.profileModalOpen = true; },
-                getRankName() { let hrs = (this.currentUser ? this.currentUser.total_minutes : this.totalMinutes) / 60; if(hrs < 1) return this.lang === 'en' ? 'Beginner' : 'Початківець'; if(hrs < 5) return this.lang === 'en' ? 'Apprentice' : 'Учень'; if(hrs < 20) return this.lang === 'en' ? 'Musician' : 'Музикант'; if(hrs < 50) return this.lang === 'en' ? 'Section Leader' : 'Лідер групи'; return this.lang === 'en' ? 'Maestro' : 'Маестро'; },
+                getRankName() { let hrs = (this.currentUser ? this.currentUser.total_minutes : this.totalMinutes) / 60; if(hrs < 1) return this.lang === 'en' ? 'Beginner' : 'ÐÐ¾ÑÐ°ÑÐºÑÐ²ÐµÑÑ'; if(hrs < 5) return this.lang === 'en' ? 'Apprentice' : 'Ð£ÑÐµÐ½Ñ'; if(hrs < 20) return this.lang === 'en' ? 'Musician' : 'ÐÑÐ·Ð¸ÐºÐ°Ð½Ñ'; if(hrs < 50) return this.lang === 'en' ? 'Section Leader' : 'ÐÑÐ´ÐµÑ Ð³ÑÑÐ¿Ð¸'; return this.lang === 'en' ? 'Maestro' : 'ÐÐ°ÐµÑÑÑÐ¾'; },
                 getRankColor() { let hrs = (this.currentUser ? this.currentUser.total_minutes : this.totalMinutes) / 60; if(hrs < 5) return 'text-slate-500'; if(hrs < 20) return 'text-emerald-500'; if(hrs < 50) return 'text-blue-500'; return 'text-brass'; },
 
                 availableInstruments: validInstruments,
@@ -993,33 +1000,33 @@
                 
                 sessionActive: false, sessionTimer: null, sessionPhase: 0, sessionTimeLeft: 300, 
                 untrackedSeconds: 0, 
-                sessionPhases: [ { name_en: 'Warm-Ups', name_ua: 'Розминка', duration: 300 }, { name_en: 'Repertoire', name_ua: 'Репертуар', duration: 1200 }, { name_en: 'Review', name_ua: 'Повторення', duration: 300 } ],
+                sessionPhases: [ { name_en: 'Warm-Ups', name_ua: 'Ð Ð¾Ð·Ð¼Ð¸Ð½ÐºÐ°', duration: 300 }, { name_en: 'Repertoire', name_ua: 'Ð ÐµÐ¿ÐµÑÑÑÐ°Ñ', duration: 1200 }, { name_en: 'Review', name_ua: 'ÐÐ¾Ð²ÑÐ¾ÑÐµÐ½Ð½Ñ', duration: 300 } ],
                 submitStatus: 'idle', synthControl: null, schoolSongs: [],
                 
                 verses: [
-                    { en: 'Make a joyful noise unto the Lord...', ua: 'Викликніть Господу, уся земле...' },
-                    { en: 'Practice makes perfect! 15 mins a day.', ua: 'Практика робить досконалим! 15 хв на день.' },
-                    { en: 'Praise him with the sounding of the trumpet...', ua: 'Хваліть Його звуком трубним...' }
+                    { en: 'Make a joyful noise unto the Lord...', ua: 'ÐÐ¸ÐºÐ»Ð¸ÐºÐ½ÑÑÑ ÐÐ¾ÑÐ¿Ð¾Ð´Ñ, ÑÑÑ Ð·ÐµÐ¼Ð»Ðµ...' },
+                    { en: 'Practice makes perfect! 15 mins a day.', ua: 'ÐÑÐ°ÐºÑÐ¸ÐºÐ° ÑÐ¾Ð±Ð¸ÑÑ Ð´Ð¾ÑÐºÐ¾Ð½Ð°Ð»Ð¸Ð¼! 15 ÑÐ² Ð½Ð° Ð´ÐµÐ½Ñ.' },
+                    { en: 'Praise him with the sounding of the trumpet...', ua: 'Ð¥Ð²Ð°Ð»ÑÑÑ ÐÐ¾Ð³Ð¾ Ð·Ð²ÑÐºÐ¾Ð¼ ÑÑÑÐ±Ð½Ð¸Ð¼...' }
                 ],
                 currentVerse: null,
 
                 exercises: [
-                    { title_en: '1. Long Tones', title_ua: '1. Довгі Ноти', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/4\nB4 c4 | d4 e4 | f4 e4 | d4 c4 | B4 z4 |]','L:1/4\nC4 D4 | E4 F4 | G4 F4 | E4 D4 | C4 z4 |]','L:1/4\nG4 A4 | B4 c4 | d4 c4 | B4 A4 | G4 z4 |]','L:1/4\nF4 G4 | A4 B4 | c4 B4 | A4 G4 | F4 z4 |]','L:1/4\nB,,4 C,4 | D,4 E,4 | F,4 E,4 | D,4 C,4 | B,,4 z4 |]','L:1/4\nB,,,4 C,,4 | D,,4 E,,4 | F,,4 E,,4 | D,,4 C,,4 | B,,,4 z4 |]'] },
-                    { title_en: '2. Flexibility', title_ua: '2. Гнучкість', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\n(b d\' f\' d\' b2) z2|(c\' e\' g\' e\' c\'2) z2|]','L:1/8\n(c e g e c2) z2|(d f a f d2) z2|]','L:1/8\n(g b d\' b g2) z2|(a c\' e\' c\' a2) z2|]','L:1/8\n(f a c\' a f2) z2|(g b d\' b g2) z2|]','L:1/8\n(B, D F D B,2) z2|(C E G E C2) z2|]','L:1/8\n(B,, D, F, D, B,,2) z2|(C, E, G, E, C,2) z2|]'] },
-                    { title_en: '3. Articulation', title_ua: '3. Артикуляція', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\n.b.b .b.b .b.b .b.b|b2 z2 b2 z2|.c\'.c\' .c\'.c\' .c\'.c\' .c\'.c\'|c\'2 z2 c\'2 z2|]','L:1/8\n.c.c .c.c .c.c .c.c|c2 z2 c2 z2|.d.d .d.d .d.d .d.d|d2 z2 d2 z2|]','L:1/8\n.g.g .g.g .g.g .g.g|g2 z2 g2 z2|.a.a .a.a .a.a .a.a|a2 z2 a2 z2|]','L:1/8\n.f.f .f.f .f.f .f.f|f2 z2 f2 z2|.g.g .g.g .g.g .g.g|g2 z2 g2 z2|]','L:1/8\n.B,.B, .B,.B, .B,.B, .B,.B,|B,2 z2 B,2 z2|.C.C .C.C .C.C .C.C|C2 z2 C2 z2|]','L:1/8\n.B,,.B,, .B,,.B,, .B,,.B,, .B,,.B,,|B,,2 z2 B,,2 z2|.C,.C, .C,.C, .C,.C, .C,.C,|C,2 z2 C,2 z2|]'] },
-                    { title_en: '4. Arpeggios', title_ua: '4. Арпеджіо', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\nb d\' f\' b\' b\' f\' d\' b|b8|]','L:1/8\nc e g c\' c\' g e c|c8|]','L:1/8\ng b d\' g\' g\' d\' b g|g8|]','L:1/8\nf a c\' f\' f\' c\' a f|f8|]','L:1/8\nB, D F B B F D B,|B,8|]','L:1/8\nB,, D, F, B, B, F, D, B,,|B,,8|]'] }
+                    { title_en: '1. Long Tones', title_ua: '1. ÐÐ¾Ð²Ð³Ñ ÐÐ¾ÑÐ¸', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/4\nB4 c4 | d4 e4 | f4 e4 | d4 c4 | B4 z4 |]','L:1/4\nC4 D4 | E4 F4 | G4 F4 | E4 D4 | C4 z4 |]','L:1/4\nG4 A4 | B4 c4 | d4 c4 | B4 A4 | G4 z4 |]','L:1/4\nF4 G4 | A4 B4 | c4 B4 | A4 G4 | F4 z4 |]','L:1/4\nB,,4 C,4 | D,4 E,4 | F,4 E,4 | D,4 C,4 | B,,4 z4 |]','L:1/4\nB,,,4 C,,4 | D,,4 E,,4 | F,,4 E,,4 | D,,4 C,,4 | B,,,4 z4 |]'] },
+                    { title_en: '2. Flexibility', title_ua: '2. ÐÐ½ÑÑÐºÑÑÑÑ', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\n(b d\' f\' d\' b2) z2|(c\' e\' g\' e\' c\'2) z2|]','L:1/8\n(c e g e c2) z2|(d f a f d2) z2|]','L:1/8\n(g b d\' b g2) z2|(a c\' e\' c\' a2) z2|]','L:1/8\n(f a c\' a f2) z2|(g b d\' b g2) z2|]','L:1/8\n(B, D F D B,2) z2|(C E G E C2) z2|]','L:1/8\n(B,, D, F, D, B,,2) z2|(C, E, G, E, C,2) z2|]'] },
+                    { title_en: '3. Articulation', title_ua: '3. ÐÑÑÐ¸ÐºÑÐ»ÑÑÑÑ', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\n.b.b .b.b .b.b .b.b|b2 z2 b2 z2|.c\'.c\' .c\'.c\' .c\'.c\' .c\'.c\'|c\'2 z2 c\'2 z2|]','L:1/8\n.c.c .c.c .c.c .c.c|c2 z2 c2 z2|.d.d .d.d .d.d .d.d|d2 z2 d2 z2|]','L:1/8\n.g.g .g.g .g.g .g.g|g2 z2 g2 z2|.a.a .a.a .a.a .a.a|a2 z2 a2 z2|]','L:1/8\n.f.f .f.f .f.f .f.f|f2 z2 f2 z2|.g.g .g.g .g.g .g.g|g2 z2 g2 z2|]','L:1/8\n.B,.B, .B,.B, .B,.B, .B,.B,|B,2 z2 B,2 z2|.C.C .C.C .C.C .C.C|C2 z2 C2 z2|]','L:1/8\n.B,,.B,, .B,,.B,, .B,,.B,, .B,,.B,,|B,,2 z2 B,,2 z2|.C,.C, .C,.C, .C,.C, .C,.C,|C,2 z2 C,2 z2|]'] },
+                    { title_en: '4. Arpeggios', title_ua: '4. ÐÑÐ¿ÐµÐ´Ð¶ÑÐ¾', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\nb d\' f\' b\' b\' f\' d\' b|b8|]','L:1/8\nc e g c\' c\' g e c|c8|]','L:1/8\ng b d\' g\' g\' d\' b g|g8|]','L:1/8\nf a c\' f\' f\' c\' a f|f8|]','L:1/8\nB, D F B B F D B,|B,8|]','L:1/8\nB,, D, F, B, B, F, D, B,,|B,,8|]'] }
                 ],
                 scales: [
-                    { title_en: 'Concert C Major', title_ua: 'До мажор (C)', keys: ['C','D','A','G','C','C'], abc: ['L:1/8\nc d e f g a b c\'|c\' b a g f e d c|c8|]','L:1/8\nD E F G A B c d|d c B A G F E D|D8|]','L:1/8\nA B c d e f g a|a g f e d c B A|A8|]','L:1/8\nG A B c d e f g|g f e d c B A G|G8|]','L:1/8\nC, D, E, F, G, A, B, C|C B, A, G, F, E, D, C,|C,8|]','L:1/8\nC,, D,, E,, F,, G,, A,, B,, C,|C, B,, A,, G,, F,, E,, D,, C,,|C,,8|]']},
-                    { title_en: 'Concert F Major', title_ua: 'Фа мажор (F)', keys: ['F','G','D','C','F','F'], abc: ['L:1/8\nf g a b c\' d\' e\' f\'|f\' e\' d\' c\' b a g f|f8|]','L:1/8\nG A B c d e f g|g f e d c B A G|G8|]','L:1/8\nd e f g a b c\' d\'|d\' c\' b a g f e d|d8|]','L:1/8\nc d e f g a b c\'|c\' b a g f e d c|c8|]','L:1/8\nF,, G,, A,, B,, C, D, E, F,|F, E, D, C, B,, A,, G,, F,,|F,,8|]','L:1/8\nF,,, G,,, A,,, B,,, C,, D,, E,, F,,|F,, E,, D,, C,, B,,, A,,, G,,, F,,,|F,,,8|]']},
-                    { title_en: 'Concert Bb Major', title_ua: 'Сі-бемоль мажор (Bb)', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\nb c\' d\' e\' f\' g\' a\' b\'|b\' a\' g\' f\' e\' d\' c\' b|b8|]','L:1/8\nC D E F G A B c|c B A G F E D C|C8|]','L:1/8\nG A B c d e f g|g f e d c B A G|G8|]','L:1/8\nF G A B c d e f|f e d c B A G F|F8|]','L:1/8\nB,, C, D, E, F, G, A, B,|B, A, G, F, E, D, C, B,,|B,,8|]','L:1/8\nB,,, C,, D,, E,, F,, G,, A,, B,,|B,, A,, G,, F,, E,, D,, C,, B,,,|B,,,8|]']},
-                    { title_en: 'Concert Eb Major', title_ua: 'Мі-бемоль мажор (Eb)', keys: ['Eb','F','C','Bb','Eb','Eb'], abc: ['L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\nF G A B c d e f|f e d c B A G F|F8|]','L:1/8\nc d e f g a b c\'|c\' b a g f e d c|c8|]','L:1/8\nB c d e f g a b|b a g f e d c B|B8|]','L:1/8\nE,, F,, G,, A,, B,, C, D, E,|E, D, C, B,, A,, G,, F,, E,,|E,,8|]','L:1/8\nE,,, F,,, G,,, A,,, B,,, C,, D,, E,,|E,, D,, C,, B,,, A,,, G,,, F,,, E,,,|E,,,8|]']},
-                    { title_en: 'Concert Ab Major', title_ua: 'Ля-бемоль мажор (Ab)', keys: ['Ab','Bb','F','Eb','Ab','Ab'], abc: ['L:1/8\na b c\' d\' e\' f\' g\' a\'|a\' g\' f\' e\' d\' c\' b a|a8|]','L:1/8\nB c d e f g a b|b a g f e d c B|B8|]','L:1/8\nf g a b c\' d\' e\' f\'|f\' e\' d\' c\' b a g f|f8|]','L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\nA,, B,, C, D, E, F, G, A,|A, G, F, E, D, C, B,, A,,|A,,8|]','L:1/8\nA,,, B,,, C,, D,, E,, F,, G,, A,,|A,, G,, F,, E,, D,, C,, B,,, A,,,|A,,,8|]']},
-                    { title_en: 'Concert Db Major', title_ua: 'Ре-бемоль мажор (Db)', keys: ['Db','Eb','Bb','Ab','Db','Db'], abc: ['L:1/8\nd e f g a b c\' d\'|d\' c\' b a g f e d|d8|]','L:1/8\nE F G A B c d e|e d c B A G F E|E8|]','L:1/8\nB c d e f g a b|b a g f e d c B|B8|]','L:1/8\nA B c d e f g a|a g f e d c B A|A8|]','L:1/8\nD,, E,, F,, G,, A,, B,, C, D,|D, C, B,, A,, G,, F,, E,, D,,|D,,8|]','L:1/8\nD,,, E,,, F,,, G,,, A,,, B,,, C,, D,,|D,, C,, B,,, A,,, G,,, F,,, E,,, D,,,|D,,,8|]']},
-                    { title_en: 'Concert Gb Major', title_ua: 'Соль-бемоль мажор (Gb)', keys: ['Gb','Ab','Eb','Db','Gb','Gb'], abc: ['L:1/8\ng a b c\' d\' e\' f\' g\'|g\' f\' e\' d\' c\' b a g|g8|]','L:1/8\nA B c d e f g a|a g f e d c B A|A8|]','L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\nd e f g a b c\' d\'|d\' c\' b a g f e d|d8|]','L:1/8\nG,, A,, B,, C, D, E, F, G,|G, F, E, D, C, B,, A,, G,,|G,,8|]','L:1/8\nG,,, A,,, B,,, C,, D,, E,, F,, G,,|G,, F,, E,, D,, C,, B,,, A,,, G,,,|G,,,8|]']},
-                    { title_en: 'Concert B Major', title_ua: 'Сі мажор (B)', keys: ['B','Db','Ab','Gb','B','B'], abc: ['L:1/8\nb c\' d\' e\' f\' g\' a\' b\'|b\' a\' g\' f\' e\' d\' c\' b|b8|]','L:1/8\nD E F G A B c d|d c B A G F E D|D8|]','L:1/8\na b c\' d\' e\' f\' g\' a\'|a\' g\' f\' e\' d\' c\' b a|a8|]','L:1/8\ng a b c\' d\' e\' f\' g\'|g\' f\' e\' d\' c\' b a g|g8|]','L:1/8\nB,, C, D, E, F, G, A, B,|B, A, G, F, E, D, C, B,,|B,,8|]','L:1/8\nB,,, C,, D,, E,, F,, G,, A,, B,,|B,, A,, G,, F,, E,, D,, C,, B,,,|B,,,8|]']},
-                    { title_en: 'Concert E Major', title_ua: 'Мі мажор (E)', keys: ['E','Gb','Db','B','E','E'], abc: ['L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\nG A B c d e f g|g f e d c B A G|G8|]','L:1/8\nd e f g a b c\' d\'|d\' c\' b a g f e d|d8|]','L:1/8\nB c d e f g a b|b a g f e d c B|B8|]','L:1/8\nE,, F,, G,, A,, B,, C, D, E,|E, D, C, B,, A,, G,, F,, E,,|E,,8|]','L:1/8\nE,,, F,,, G,,, A,,, B,,, C,, D,, E,,|E,, D,, C,, B,,, A,,, G,,, F,,, E,,,|E,,,8|]']},
-                    { title_en: 'Concert A Major', title_ua: 'Ля мажор (A)', keys: ['A','B','Gb','E','A','A'], abc: ['L:1/8\na b c\' d\' e\' f\' g\' a\'|a\' g\' f\' e\' d\' c\' b a|a8|]','L:1/8\nB c d e f g a b|b a g f e d c B|B8|]','L:1/8\ng a b c\' d\' e\' f\' g\'|g\' f\' e\' d\' c\' b a g|g8|]','L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\nA,, B,, C, D, E, F, G, A,|A, G, F, E, D, C, B,, A,,|A,,8|]','L:1/8\nA,,, B,,, C,, D,, E,, F,, G,, A,,|A,, G,, F,, E,, D,, C,, B,,, A,,,|A,,,8|]']}
+                    { title_en: 'Concert C Major', title_ua: 'ÐÐ¾ Ð¼Ð°Ð¶Ð¾Ñ (C)', keys: ['C','D','A','G','C','C'], abc: ['L:1/8\nc d e f g a b c\'|c\' b a g f e d c|c8|]','L:1/8\nD E F G A B c d|d c B A G F E D|D8|]','L:1/8\nA B c d e f g a|a g f e d c B A|A8|]','L:1/8\nG A B c d e f g|g f e d c B A G|G8|]','L:1/8\nC, D, E, F, G, A, B, C|C B, A, G, F, E, D, C,|C,8|]','L:1/8\nC,, D,, E,, F,, G,, A,, B,, C,|C, B,, A,, G,, F,, E,, D,, C,,|C,,8|]']},
+                    { title_en: 'Concert F Major', title_ua: 'Ð¤Ð° Ð¼Ð°Ð¶Ð¾Ñ (F)', keys: ['F','G','D','C','F','F'], abc: ['L:1/8\nf g a b c\' d\' e\' f\'|f\' e\' d\' c\' b a g f|f8|]','L:1/8\nG A B c d e f g|g f e d c B A G|G8|]','L:1/8\nd e f g a b c\' d\'|d\' c\' b a g f e d|d8|]','L:1/8\nc d e f g a b c\'|c\' b a g f e d c|c8|]','L:1/8\nF,, G,, A,, B,, C, D, E, F,|F, E, D, C, B,, A,, G,, F,,|F,,8|]','L:1/8\nF,,, G,,, A,,, B,,, C,, D,, E,, F,,|F,, E,, D,, C,, B,,, A,,, G,,, F,,,|F,,,8|]']},
+                    { title_en: 'Concert Bb Major', title_ua: 'Ð¡Ñ-Ð±ÐµÐ¼Ð¾Ð»Ñ Ð¼Ð°Ð¶Ð¾Ñ (Bb)', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\nb c\' d\' e\' f\' g\' a\' b\'|b\' a\' g\' f\' e\' d\' c\' b|b8|]','L:1/8\nC D E F G A B c|c B A G F E D C|C8|]','L:1/8\nG A B c d e f g|g f e d c B A G|G8|]','L:1/8\nF G A B c d e f|f e d c B A G F|F8|]','L:1/8\nB,, C, D, E, F, G, A, B,|B, A, G, F, E, D, C, B,,|B,,8|]','L:1/8\nB,,, C,, D,, E,, F,, G,, A,, B,,|B,, A,, G,, F,, E,, D,, C,, B,,,|B,,,8|]']},
+                    { title_en: 'Concert Eb Major', title_ua: 'ÐÑ-Ð±ÐµÐ¼Ð¾Ð»Ñ Ð¼Ð°Ð¶Ð¾Ñ (Eb)', keys: ['Eb','F','C','Bb','Eb','Eb'], abc: ['L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\nF G A B c d e f|f e d c B A G F|F8|]','L:1/8\nc d e f g a b c\'|c\' b a g f e d c|c8|]','L:1/8\nB c d e f g a b|b a g f e d c B|B8|]','L:1/8\nE,, F,, G,, A,, B,, C, D, E,|E, D, C, B,, A,, G,, F,, E,,|E,,8|]','L:1/8\nE,,, F,,, G,,, A,,, B,,, C,, D,, E,,|E,, D,, C,, B,,, A,,, G,,, F,,, E,,,|E,,,8|]']},
+                    { title_en: 'Concert Ab Major', title_ua: 'ÐÑ-Ð±ÐµÐ¼Ð¾Ð»Ñ Ð¼Ð°Ð¶Ð¾Ñ (Ab)', keys: ['Ab','Bb','F','Eb','Ab','Ab'], abc: ['L:1/8\na b c\' d\' e\' f\' g\' a\'|a\' g\' f\' e\' d\' c\' b a|a8|]','L:1/8\nB c d e f g a b|b a g f e d c B|B8|]','L:1/8\nf g a b c\' d\' e\' f\'|f\' e\' d\' c\' b a g f|f8|]','L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\nA,, B,, C, D, E, F, G, A,|A, G, F, E, D, C, B,, A,,|A,,8|]','L:1/8\nA,,, B,,, C,, D,, E,, F,, G,, A,,|A,, G,, F,, E,, D,, C,, B,,, A,,,|A,,,8|]']},
+                    { title_en: 'Concert Db Major', title_ua: 'Ð Ðµ-Ð±ÐµÐ¼Ð¾Ð»Ñ Ð¼Ð°Ð¶Ð¾Ñ (Db)', keys: ['Db','Eb','Bb','Ab','Db','Db'], abc: ['L:1/8\nd e f g a b c\' d\'|d\' c\' b a g f e d|d8|]','L:1/8\nE F G A B c d e|e d c B A G F E|E8|]','L:1/8\nB c d e f g a b|b a g f e d c B|B8|]','L:1/8\nA B c d e f g a|a g f e d c B A|A8|]','L:1/8\nD,, E,, F,, G,, A,, B,, C, D,|D, C, B,, A,, G,, F,, E,, D,,|D,,8|]','L:1/8\nD,,, E,,, F,,, G,,, A,,, B,,, C,, D,,|D,, C,, B,,, A,,, G,,, F,,, E,,, D,,,|D,,,8|]']},
+                    { title_en: 'Concert Gb Major', title_ua: 'Ð¡Ð¾Ð»Ñ-Ð±ÐµÐ¼Ð¾Ð»Ñ Ð¼Ð°Ð¶Ð¾Ñ (Gb)', keys: ['Gb','Ab','Eb','Db','Gb','Gb'], abc: ['L:1/8\ng a b c\' d\' e\' f\' g\'|g\' f\' e\' d\' c\' b a g|g8|]','L:1/8\nA B c d e f g a|a g f e d c B A|A8|]','L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\nd e f g a b c\' d\'|d\' c\' b a g f e d|d8|]','L:1/8\nG,, A,, B,, C, D, E, F, G,|G, F, E, D, C, B,, A,, G,,|G,,8|]','L:1/8\nG,,, A,,, B,,, C,, D,, E,, F,, G,,|G,, F,, E,, D,, C,, B,,, A,,, G,,,|G,,,8|]']},
+                    { title_en: 'Concert B Major', title_ua: 'Ð¡Ñ Ð¼Ð°Ð¶Ð¾Ñ (B)', keys: ['B','Db','Ab','Gb','B','B'], abc: ['L:1/8\nb c\' d\' e\' f\' g\' a\' b\'|b\' a\' g\' f\' e\' d\' c\' b|b8|]','L:1/8\nD E F G A B c d|d c B A G F E D|D8|]','L:1/8\na b c\' d\' e\' f\' g\' a\'|a\' g\' f\' e\' d\' c\' b a|a8|]','L:1/8\ng a b c\' d\' e\' f\' g\'|g\' f\' e\' d\' c\' b a g|g8|]','L:1/8\nB,, C, D, E, F, G, A, B,|B, A, G, F, E, D, C, B,,|B,,8|]','L:1/8\nB,,, C,, D,, E,, F,, G,, A,, B,,|B,, A,, G,, F,, E,, D,, C,, B,,,|B,,,8|]']},
+                    { title_en: 'Concert E Major', title_ua: 'ÐÑ Ð¼Ð°Ð¶Ð¾Ñ (E)', keys: ['E','Gb','Db','B','E','E'], abc: ['L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\nG A B c d e f g|g f e d c B A G|G8|]','L:1/8\nd e f g a b c\' d\'|d\' c\' b a g f e d|d8|]','L:1/8\nB c d e f g a b|b a g f e d c B|B8|]','L:1/8\nE,, F,, G,, A,, B,, C, D, E,|E, D, C, B,, A,, G,, F,, E,,|E,,8|]','L:1/8\nE,,, F,,, G,,, A,,, B,,, C,, D,, E,,|E,, D,, C,, B,,, A,,, G,,, F,,, E,,,|E,,,8|]']},
+                    { title_en: 'Concert A Major', title_ua: 'ÐÑ Ð¼Ð°Ð¶Ð¾Ñ (A)', keys: ['A','B','Gb','E','A','A'], abc: ['L:1/8\na b c\' d\' e\' f\' g\' a\'|a\' g\' f\' e\' d\' c\' b a|a8|]','L:1/8\nB c d e f g a b|b a g f e d c B|B8|]','L:1/8\ng a b c\' d\' e\' f\' g\'|g\' f\' e\' d\' c\' b a g|g8|]','L:1/8\ne f g a b c\' d\' e\'|e\' d\' c\' b a g f e|e8|]','L:1/8\nA,, B,, C, D, E, F, G, A,|A, G, F, E, D, C, B,, A,,|A,,8|]','L:1/8\nA,,, B,,, C,, D,, E,, F,, G,, A,,|A,, G,, F,, E,, D,, C,, B,,, A,,,|A,,,8|]']}
                 ],
 
                 async init() {
@@ -1088,7 +1095,6 @@
                                 this.sessionTimeLeft--; 
                                 this.untrackedSeconds++;
                                 
-                                // EVERY 60 SECONDS: Add 1 minute to the DB and update leaderboard live!
                                 if (this.untrackedSeconds >= 60) {
                                     this.untrackedSeconds = 0;
                                     if(this.currentUser) { 
@@ -1104,9 +1110,8 @@
                                 this.sessionActive = false;
                                 this.untrackedSeconds = 0;
                                 
-                                // Automatically secure their daily streak if a phase finishes
                                 if (!this.practicedToday) {
-                                    this.logPractice(false); // Pass false so we don't add a flat 30 mins
+                                    this.logPractice(false); 
                                 }
                                 
                                 if (this.sessionPhase < 2) { 
@@ -1120,11 +1125,10 @@
                     }
                 },
 
-toggleSession() {
+                toggleSession() {
                     if (this.sessionActive) {
                         clearInterval(this.sessionTimer); 
                         this.sessionActive = false;
-                        // Timer just pauses, it no longer resets!
                     } else { 
                         this.startSessionPhase(this.sessionPhase); 
                     }
@@ -1140,7 +1144,7 @@ toggleSession() {
                     if (['Flute', 'Oboe'].includes(inst)) groupIdx = 0; else if (['Clarinet', 'Trumpet', 'Baritone'].includes(inst)) groupIdx = 1; else if (['Saxophone', 'Tenor Horn'].includes(inst)) groupIdx = 2; else if (['French Horn'].includes(inst)) groupIdx = 3; else if (['Trombone'].includes(inst)) groupIdx = 4; else if (['Tuba'].includes(inst)) groupIdx = 5;
                     this.selectedGroup = groupIdx;
                     this.$nextTick(() => { this.renderWarmups(); this.renderScales(); });
-                    if(!silent) this.triggerToast(this.lang === 'en' ? `Instrument set to ${inst}` : `Інструмент: ${inst}`);
+                    if(!silent) this.triggerToast(this.lang === 'en' ? `Instrument set to ${inst}` : `ÐÐ½ÑÑÑÑÐ¼ÐµÐ½Ñ: ${inst}`);
                 },
 
                 renderWarmups() {
@@ -1173,7 +1177,7 @@ toggleSession() {
 
                 closeFullScreen() { this.fullScreenModalOpen = false; if(this.synthControl) this.synthControl.pause(); },
 
-logPractice(addFlatTime = true) {
+                logPractice(addFlatTime = true) {
                     if(this.practicedToday) return; 
                     this.practicedToday = true; 
                     const todayStr = new Date().toDateString();
@@ -1183,7 +1187,7 @@ logPractice(addFlatTime = true) {
                         this.currentUser.last_date = todayStr; 
                         if(!this.currentUser.log) this.currentUser.log = []; 
                         if(!this.currentUser.log.includes(todayStr)) this.currentUser.log.push(todayStr); 
-                        if(addFlatTime) this.currentUser.total_minutes += 30; // Only add flat 30 mins if clicked manually
+                        if(addFlatTime) this.currentUser.total_minutes += 30; 
                         this.saveUserToCloud();
                     } else {
                         this.streak++; 
@@ -1216,7 +1220,7 @@ logPractice(addFlatTime = true) {
                 tapTempo() { const now = Date.now(); if (this.lastTap && (now - this.lastTap) < 2000) { this.bpm = Math.min(Math.max(Math.round(60000 / (now - this.lastTap)), 40), 240); this.updateMetronomeSpeed(); } this.lastTap = now; },
 
                 isFingeringPlaying: false, oscillator: null, gainNode: null, filterNode: null, notes: [ { name: 'C', freq: 261.63 }, { name: 'C#', freq: 277.18 }, { name: 'D', freq: 293.66 }, { name: 'Eb', freq: 311.13 }, { name: 'E', freq: 329.63 }, { name: 'F', freq: 349.23 }, { name: 'F#', freq: 369.99 }, { name: 'G', freq: 392.00 }, { name: 'Ab', freq: 415.30 }, { name: 'A', freq: 440.00 }, { name: 'Bb', freq: 466.16 }, { name: 'B', freq: 493.88 } ],
-                playFingeringAudio() { if(this.isFingeringPlaying) { this.stopFingeringAudio(); return; } if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); let noteObj = this.interactiveChart.data[this.interactiveChart.instrument].notes[this.interactiveChart.selectedRange][this.interactiveChart.selectedNote]; let noteName = noteObj.name.split('/')[0].replace('↑', ''); const matchingFreqObj = this.notes.find(n => n.name === noteName); const baseFreq = matchingFreqObj ? matchingFreqObj.freq : 261.63; let pitchOctave = 4; if(this.interactiveChart.selectedRange === 'Low') pitchOctave = 3; if(this.interactiveChart.selectedRange === 'High') pitchOctave = 5; if (['Trombone', 'Baritone', 'Tuba'].includes(this.interactiveChart.instrument)) pitchOctave -= 1; const actualFreq = baseFreq * Math.pow(2, pitchOctave - 4); this.oscillator = this.audioCtx.createOscillator(); this.gainNode = this.audioCtx.createGain(); this.filterNode = this.audioCtx.createBiquadFilter(); const inst = this.interactiveChart.instrument; if (inst === 'Flute') { this.oscillator.type = 'sine'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 2000; } else if (inst === 'Clarinet') { this.oscillator.type = 'square'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 1500; } else if (inst === 'Oboe') { this.oscillator.type = 'sawtooth'; this.filterNode.type = 'bandpass'; this.filterNode.frequency.value = 1200; } else if (['Trumpet', 'Trombone', 'Tenor Horn', 'Baritone', 'Tuba'].includes(inst)) { this.oscillator.type = 'sawtooth'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 2500; } else if (inst === 'French Horn') { this.oscillator.type = 'triangle'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 800; } else { this.oscillator.type = 'sawtooth'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 3000; } this.oscillator.frequency.setValueAtTime(actualFreq, this.audioCtx.currentTime); this.oscillator.connect(this.filterNode); this.filterNode.connect(this.gainNode); this.gainNode.connect(this.audioCtx.destination); this.gainNode.gain.setValueAtTime(0, this.audioCtx.currentTime); this.gainNode.gain.linearRampToValueAtTime(0.5, this.audioCtx.currentTime + 0.1); this.gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioCtx.currentTime + 1.5); this.oscillator.start(); this.isFingeringPlaying = true; setTimeout(() => { this.stopFingeringAudio(); }, 1500); },
+                playFingeringAudio() { if(this.isFingeringPlaying) { this.stopFingeringAudio(); return; } if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); let noteObj = this.interactiveChart.data[this.interactiveChart.instrument].notes[this.interactiveChart.selectedRange][this.interactiveChart.selectedNote]; let noteName = noteObj.name.split('/')[0].replace('â', ''); const matchingFreqObj = this.notes.find(n => n.name === noteName); const baseFreq = matchingFreqObj ? matchingFreqObj.freq : 261.63; let pitchOctave = 4; if(this.interactiveChart.selectedRange === 'Low') pitchOctave = 3; if(this.interactiveChart.selectedRange === 'High') pitchOctave = 5; if (['Trombone', 'Baritone', 'Tuba'].includes(this.interactiveChart.instrument)) pitchOctave -= 1; const actualFreq = baseFreq * Math.pow(2, pitchOctave - 4); this.oscillator = this.audioCtx.createOscillator(); this.gainNode = this.audioCtx.createGain(); this.filterNode = this.audioCtx.createBiquadFilter(); const inst = this.interactiveChart.instrument; if (inst === 'Flute') { this.oscillator.type = 'sine'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 2000; } else if (inst === 'Clarinet') { this.oscillator.type = 'square'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 1500; } else if (inst === 'Oboe') { this.oscillator.type = 'sawtooth'; this.filterNode.type = 'bandpass'; this.filterNode.frequency.value = 1200; } else if (['Trumpet', 'Trombone', 'Tenor Horn', 'Baritone', 'Tuba'].includes(inst)) { this.oscillator.type = 'sawtooth'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 2500; } else if (inst === 'French Horn') { this.oscillator.type = 'triangle'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 800; } else { this.oscillator.type = 'sawtooth'; this.filterNode.type = 'lowpass'; this.filterNode.frequency.value = 3000; } this.oscillator.frequency.setValueAtTime(actualFreq, this.audioCtx.currentTime); this.oscillator.connect(this.filterNode); this.filterNode.connect(this.gainNode); this.gainNode.connect(this.audioCtx.destination); this.gainNode.gain.setValueAtTime(0, this.audioCtx.currentTime); this.gainNode.gain.linearRampToValueAtTime(0.5, this.audioCtx.currentTime + 0.1); this.gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioCtx.currentTime + 1.5); this.oscillator.start(); this.isFingeringPlaying = true; setTimeout(() => { this.stopFingeringAudio(); }, 1500); },
                 stopFingeringAudio() { if (this.oscillator && this.gainNode) { this.gainNode.gain.linearRampToValueAtTime(0, this.audioCtx.currentTime + 0.05); setTimeout(() => { if(this.oscillator) { this.oscillator.stop(); this.oscillator.disconnect(); this.oscillator = null; } }, 50); } this.isFingeringPlaying = false; },
 
                 submitTest(e) { this.submitStatus = 'submitting'; const formData = new FormData(this.$refs.testForm); fetch('/', { method: 'POST', body: formData }).then(() => { this.submitStatus = 'success'; confetti({ particleCount: 150, spread: 70, origin: { y: 0.7 }, colors: ['#b45309', '#d97706', '#ffffff'], zIndex: 1000 }); this.$refs.testForm.reset(); setTimeout(() => { this.submitStatus = 'idle'; }, 5000); }).catch(() => { alert('Upload failed. Check your connection or file size.'); this.submitStatus = 'idle'; }); },
@@ -1227,16 +1231,16 @@ logPractice(addFlatTime = true) {
                     instrument: initInstrument,
                     selectedRange: 'Mid', selectedNote: 0, ranges: ['Low', 'Mid', 'High'],
                     data: {
-                        'Flute':{type:'woodwind',notes:{'Low':[{name:'C',lh:[0,1,1,1],rh:[1,1,1,1]},{name:'D',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,1]},{name:'F',lh:[1,1,1,1],rh:[1,0,0,1]},{name:'G',lh:[1,1,1,1],rh:[0,0,0,1]},{name:'A',lh:[1,1,1,0],rh:[0,0,0,1]},{name:'B',lh:[1,1,0,0],rh:[0,0,0,1]}],'Mid':[{name:'C',lh:[0,1,0,0],rh:[0,0,0,1]},{name:'Db',lh:[0,0,0,0],rh:[0,0,0,1]},{name:'D',lh:[1,0,1,1],rh:[1,1,1,0]},{name:'Eb',lh:[1,0,1,1],rh:[1,1,1,1]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,1]},{name:'F',lh:[1,1,1,1],rh:[1,0,0,1]},{name:'Gb',lh:[1,1,1,1],rh:[0,0,1,1]},{name:'G',lh:[1,1,1,1],rh:[0,0,0,1]},{name:'Ab',lh:[1,1,1,1],rh:[0,0,0,1]},{name:'A',lh:[1,1,1,0],rh:[0,0,0,1]},{name:'Bb',lh:[1,1,0,0],rh:[1,0,0,1]},{name:'B',lh:[1,1,0,0],rh:[0,0,0,1]},{name:'C↑',lh:[0,1,0,0],rh:[0,0,0,1]}],'High':[{name:'C',lh:[0,1,0,0],rh:[0,0,0,1]},{name:'D',lh:[1,0,1,1],rh:[0,0,0,0]},{name:'E',lh:[1,1,1,0],rh:[1,1,0,1]},{name:'F',lh:[1,1,0,1],rh:[1,0,0,1]},{name:'G',lh:[1,0,1,1],rh:[0,0,0,1]},{name:'A',lh:[1,0,1,0],rh:[1,0,0,1]},{name:'B',lh:[1,0,0,0],rh:[0,0,0,1]}]}},
-                        'Oboe':{type:'woodwind',notes:{'Low':[{name:'C',lh:[0,1,1,1],rh:[1,1,1,1]},{name:'D',lh:[0,1,1,1],rh:[1,1,1,0]},{name:'E',lh:[0,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[0,1,1,1],rh:[1,0,0,0]},{name:'G',lh:[0,1,1,1],rh:[0,0,0,0]},{name:'A',lh:[0,1,1,0],rh:[0,0,0,0]},{name:'B',lh:[0,1,0,0],rh:[0,0,0,0]}],'Mid':[{name:'C',lh:[0,0,1,0],rh:[0,0,0,0]},{name:'Db',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'D',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'Eb',lh:[1,1,1,1],rh:[1,1,1,1]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[1,1,1,1],rh:[1,0,0,0]},{name:'Gb',lh:[1,1,1,1],rh:[0,1,0,0]},{name:'G',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'Ab',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'A',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'Bb',lh:[1,1,0,0],rh:[1,0,0,0]},{name:'B',lh:[1,1,0,0],rh:[0,0,0,0]},{name:'C↑',lh:[1,0,1,0],rh:[0,0,0,0]}],'High':[{name:'C',lh:[1,0,1,0],rh:[0,0,0,0]},{name:'D',lh:[1,0,1,1],rh:[0,0,0,0]},{name:'E',lh:[1,0,1,0],rh:[1,0,0,0]},{name:'F',lh:[1,0,1,0],rh:[0,1,0,0]},{name:'G',lh:[1,0,1,0],rh:[0,0,0,0]},{name:'A',lh:[1,0,1,1],rh:[0,0,0,0]},{name:'B',lh:[1,0,0,0],rh:[0,0,0,0]}]}},
-                        'Clarinet':{type:'woodwind',notes:{'Low':[{name:'E',lh:[1,1,1,1],rh:[1,1,1,1]},{name:'F',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'G',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'A',lh:[1,1,1,1],rh:[1,0,0,0]},{name:'B',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'C',lh:[1,1,1,0],rh:[0,0,0,0]}],'Mid':[{name:'C',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'Db',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'D',lh:[1,1,0,0],rh:[0,0,0,0]},{name:'Eb',lh:[1,1,0,0],rh:[0,0,0,0]},{name:'E',lh:[1,0,0,0],rh:[0,0,0,0]},{name:'F',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'Gb',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'G',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'Ab',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'A',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'Bb',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'B',lh:[1,1,1,1],rh:[1,1,1,1]},{name:'C↑',lh:[1,1,1,1],rh:[1,1,1,0]}],'High':[{name:'C',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'D',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'E',lh:[1,1,1,1],rh:[1,0,0,0]},{name:'F',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'G',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'A',lh:[1,1,0,0],rh:[0,0,0,0]}]}},
-                        'Saxophone':{type:'woodwind',notes:{'Low':[{name:'Bb',lh:[0,1,1,1],rh:[1,1,1,1]},{name:'C',lh:[0,1,1,1],rh:[1,1,1,0]},{name:'D',lh:[0,1,1,1],rh:[1,1,1,0]},{name:'E',lh:[0,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[0,1,1,1],rh:[1,0,0,0]}],'Mid':[{name:'G',lh:[0,1,1,1],rh:[0,0,0,0]},{name:'Ab',lh:[0,1,1,1],rh:[0,0,0,0]},{name:'A',lh:[0,1,1,0],rh:[0,0,0,0]},{name:'Bb',lh:[0,1,1,0],rh:[1,0,0,0]},{name:'B',lh:[0,1,0,0],rh:[0,0,0,0]},{name:'C',lh:[0,0,1,0],rh:[0,0,0,0]},{name:'Db',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'D',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'Eb',lh:[1,1,1,1],rh:[1,1,1,1]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[1,1,1,1],rh:[1,0,0,0]},{name:'Gb',lh:[1,1,1,1],rh:[0,1,0,0]},{name:'G↑',lh:[1,1,1,1],rh:[0,0,0,0]}],'High':[{name:'G',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'A',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'B',lh:[1,1,0,0],rh:[0,0,0,0]},{name:'C',lh:[1,0,1,0],rh:[0,0,0,0]},{name:'D',lh:[1,0,0,0],rh:[0,0,0,0]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[1,1,0,1],rh:[1,0,0,0]}]}},
-                        'Trumpet':{type:'valves',notes:{'Low':[{name:'F#',val:[1,1,1]},{name:'G',val:[1,0,1]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'C',val:[0,0,0]}],'Mid':[{name:'C',val:[0,0,0]},{name:'C#/Db',val:[1,1,1]},{name:'D',val:[1,0,1]},{name:'Eb',val:[0,1,1]},{name:'E',val:[1,1,0]},{name:'F',val:[1,0,0]},{name:'F#/Gb',val:[0,1,0]},{name:'G',val:[0,0,0]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}],'High':[{name:'C',val:[0,0,0]},{name:'D',val:[1,0,0]},{name:'E',val:[0,0,0]},{name:'F',val:[1,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[1,1,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}]}},
-                        'French Horn':{type:'valves',notes:{'Low':[{name:'C',val:[0,0,0]},{name:'D',val:[1,0,1]},{name:'E',val:[0,1,0]},{name:'F',val:[0,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[1,1,0]},{name:'B',val:[0,1,0]}],'Mid':[{name:'C',val:[0,0,0]},{name:'Db',val:[1,1,0]},{name:'D',val:[1,0,0]},{name:'Eb',val:[0,1,0]},{name:'E',val:[0,0,0]},{name:'F',val:[1,0,0]},{name:'Gb',val:[0,1,0]},{name:'G',val:[0,0,0]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}],'High':[{name:'C',val:[0,0,0]},{name:'D',val:[1,0,0]},{name:'E',val:[0,0,0]},{name:'F',val:[1,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[1,1,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}]}},
-                        'Tenor Horn':{type:'valves',notes:{'Low':[{name:'F#',val:[1,1,1]},{name:'G',val:[1,0,1]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'C',val:[0,0,0]}],'Mid':[{name:'C',val:[0,0,0]},{name:'C#/Db',val:[1,1,1]},{name:'D',val:[1,0,1]},{name:'Eb',val:[0,1,1]},{name:'E',val:[1,1,0]},{name:'F',val:[1,0,0]},{name:'F#/Gb',val:[0,1,0]},{name:'G',val:[0,0,0]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}],'High':[{name:'C',val:[0,0,0]},{name:'D',val:[1,0,0]},{name:'E',val:[0,0,0]},{name:'F',val:[1,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[1,1,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}]}},
-                        'Baritone':{type:'valves',notes:{'Low':[{name:'F#',val:[1,1,1]},{name:'G',val:[1,0,1]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'C',val:[0,0,0]}],'Mid':[{name:'C',val:[0,0,0]},{name:'C#/Db',val:[1,1,1]},{name:'D',val:[1,0,1]},{name:'Eb',val:[0,1,1]},{name:'E',val:[1,1,0]},{name:'F',val:[1,0,0]},{name:'F#/Gb',val:[0,1,0]},{name:'G',val:[0,0,0]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}],'High':[{name:'C',val:[0,0,0]},{name:'D',val:[1,0,0]},{name:'E',val:[0,0,0]},{name:'F',val:[1,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[1,1,0]},{name:'B',val:[0,1,0]},{name:'C↑',val:[0,0,0]}]}},
-                        'Trombone':{type:'slide',notes:{'Low':[{name:'E',pos:7},{name:'F',pos:6},{name:'G',pos:4},{name:'Ab',pos:3},{name:'A',pos:2},{name:'Bb',pos:1}],'Mid':[{name:'Bb',pos:1},{name:'B',pos:7},{name:'C',pos:6},{name:'Db',pos:5},{name:'D',pos:4},{name:'Eb',pos:3},{name:'E',pos:2},{name:'F',pos:1},{name:'Gb',pos:5},{name:'G',pos:4},{name:'Ab',pos:3},{name:'A',pos:2},{name:'Bb↑',pos:1}],'High':[{name:'Bb',pos:1},{name:'C',pos:3},{name:'D',pos:1},{name:'Eb',pos:3},{name:'F',pos:1},{name:'G',pos:2},{name:'Ab',pos:3},{name:'Bb↑',pos:1}]}},
-                        'Tuba':{type:'valves',notes:{'Low':[{name:'E',val:[1,1,1]},{name:'F',val:[1,0,1]},{name:'G',val:[1,1,0]},{name:'Ab',val:[1,0,0]},{name:'A',val:[0,1,0]},{name:'Bb',val:[0,0,0]}],'Mid':[{name:'Bb',val:[0,0,0]},{name:'B',val:[1,1,1]},{name:'C',val:[1,0,1]},{name:'Db',val:[0,1,1]},{name:'D',val:[1,1,0]},{name:'Eb',val:[1,0,0]},{name:'E',val:[0,1,0]},{name:'F',val:[0,0,0]},{name:'Gb',val:[0,1,1]},{name:'G',val:[1,1,0]},{name:'Ab',val:[1,0,0]},{name:'A',val:[0,1,0]},{name:'Bb↑',val:[0,0,0]}],'High':[{name:'Bb',val:[0,0,0]},{name:'C',val:[1,0,0]},{name:'D',val:[1,1,0]},{name:'Eb',val:[1,0,0]},{name:'F',val:[0,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[0,1,0]},{name:'Bb↑',val:[0,0,0]}]}}
+                        'Flute':{type:'woodwind',notes:{'Low':[{name:'C',lh:[0,1,1,1],rh:[1,1,1,1]},{name:'D',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,1]},{name:'F',lh:[1,1,1,1],rh:[1,0,0,1]},{name:'G',lh:[1,1,1,1],rh:[0,0,0,1]},{name:'A',lh:[1,1,1,0],rh:[0,0,0,1]},{name:'B',lh:[1,1,0,0],rh:[0,0,0,1]}],'Mid':[{name:'C',lh:[0,1,0,0],rh:[0,0,0,1]},{name:'Db',lh:[0,0,0,0],rh:[0,0,0,1]},{name:'D',lh:[1,0,1,1],rh:[1,1,1,0]},{name:'Eb',lh:[1,0,1,1],rh:[1,1,1,1]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,1]},{name:'F',lh:[1,1,1,1],rh:[1,0,0,1]},{name:'Gb',lh:[1,1,1,1],rh:[0,0,1,1]},{name:'G',lh:[1,1,1,1],rh:[0,0,0,1]},{name:'Ab',lh:[1,1,1,1],rh:[0,0,0,1]},{name:'A',lh:[1,1,1,0],rh:[0,0,0,1]},{name:'Bb',lh:[1,1,0,0],rh:[1,0,0,1]},{name:'B',lh:[1,1,0,0],rh:[0,0,0,1]},{name:'Câ',lh:[0,1,0,0],rh:[0,0,0,1]}],'High':[{name:'C',lh:[0,1,0,0],rh:[0,0,0,1]},{name:'D',lh:[1,0,1,1],rh:[0,0,0,0]},{name:'E',lh:[1,1,1,0],rh:[1,1,0,1]},{name:'F',lh:[1,1,0,1],rh:[1,0,0,1]},{name:'G',lh:[1,0,1,1],rh:[0,0,0,1]},{name:'A',lh:[1,0,1,0],rh:[1,0,0,1]},{name:'B',lh:[1,0,0,0],rh:[0,0,0,1]}]}},
+                        'Oboe':{type:'woodwind',notes:{'Low':[{name:'C',lh:[0,1,1,1],rh:[1,1,1,1]},{name:'D',lh:[0,1,1,1],rh:[1,1,1,0]},{name:'E',lh:[0,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[0,1,1,1],rh:[1,0,0,0]},{name:'G',lh:[0,1,1,1],rh:[0,0,0,0]},{name:'A',lh:[0,1,1,0],rh:[0,0,0,0]},{name:'B',lh:[0,1,0,0],rh:[0,0,0,0]}],'Mid':[{name:'C',lh:[0,0,1,0],rh:[0,0,0,0]},{name:'Db',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'D',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'Eb',lh:[1,1,1,1],rh:[1,1,1,1]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[1,1,1,1],rh:[1,0,0,0]},{name:'Gb',lh:[1,1,1,1],rh:[0,1,0,0]},{name:'G',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'Ab',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'A',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'Bb',lh:[1,1,0,0],rh:[1,0,0,0]},{name:'B',lh:[1,1,0,0],rh:[0,0,0,0]},{name:'Câ',lh:[1,0,1,0],rh:[0,0,0,0]}],'High':[{name:'C',lh:[1,0,1,0],rh:[0,0,0,0]},{name:'D',lh:[1,0,1,1],rh:[0,0,0,0]},{name:'E',lh:[1,0,1,0],rh:[1,0,0,0]},{name:'F',lh:[1,0,1,0],rh:[0,1,0,0]},{name:'G',lh:[1,0,1,0],rh:[0,0,0,0]},{name:'A',lh:[1,0,1,1],rh:[0,0,0,0]},{name:'B',lh:[1,0,0,0],rh:[0,0,0,0]}]}},
+                        'Clarinet':{type:'woodwind',notes:{'Low':[{name:'E',lh:[1,1,1,1],rh:[1,1,1,1]},{name:'F',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'G',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'A',lh:[1,1,1,1],rh:[1,0,0,0]},{name:'B',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'C',lh:[1,1,1,0],rh:[0,0,0,0]}],'Mid':[{name:'C',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'Db',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'D',lh:[1,1,0,0],rh:[0,0,0,0]},{name:'Eb',lh:[1,1,0,0],rh:[0,0,0,0]},{name:'E',lh:[1,0,0,0],rh:[0,0,0,0]},{name:'F',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'Gb',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'G',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'Ab',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'A',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'Bb',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'B',lh:[1,1,1,1],rh:[1,1,1,1]},{name:'Câ',lh:[1,1,1,1],rh:[1,1,1,0]}],'High':[{name:'C',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'D',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'E',lh:[1,1,1,1],rh:[1,0,0,0]},{name:'F',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'G',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'A',lh:[1,1,0,0],rh:[0,0,0,0]}]}},
+                        'Saxophone':{type:'woodwind',notes:{'Low':[{name:'Bb',lh:[0,1,1,1],rh:[1,1,1,1]},{name:'C',lh:[0,1,1,1],rh:[1,1,1,0]},{name:'D',lh:[0,1,1,1],rh:[1,1,1,0]},{name:'E',lh:[0,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[0,1,1,1],rh:[1,0,0,0]}],'Mid':[{name:'G',lh:[0,1,1,1],rh:[0,0,0,0]},{name:'Ab',lh:[0,1,1,1],rh:[0,0,0,0]},{name:'A',lh:[0,1,1,0],rh:[0,0,0,0]},{name:'Bb',lh:[0,1,1,0],rh:[1,0,0,0]},{name:'B',lh:[0,1,0,0],rh:[0,0,0,0]},{name:'C',lh:[0,0,1,0],rh:[0,0,0,0]},{name:'Db',lh:[0,0,0,0],rh:[0,0,0,0]},{name:'D',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'Eb',lh:[1,1,1,1],rh:[1,1,1,1]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[1,1,1,1],rh:[1,0,0,0]},{name:'Gb',lh:[1,1,1,1],rh:[0,1,0,0]},{name:'Gâ',lh:[1,1,1,1],rh:[0,0,0,0]}],'High':[{name:'G',lh:[1,1,1,1],rh:[0,0,0,0]},{name:'A',lh:[1,1,1,0],rh:[0,0,0,0]},{name:'B',lh:[1,1,0,0],rh:[0,0,0,0]},{name:'C',lh:[1,0,1,0],rh:[0,0,0,0]},{name:'D',lh:[1,0,0,0],rh:[0,0,0,0]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,0]},{name:'F',lh:[1,1,0,1],rh:[1,0,0,0]}]}},
+                        'Trumpet':{type:'valves',notes:{'Low':[{name:'F#',val:[1,1,1]},{name:'G',val:[1,0,1]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'C',val:[0,0,0]}],'Mid':[{name:'C',val:[0,0,0]},{name:'C#/Db',val:[1,1,1]},{name:'D',val:[1,0,1]},{name:'Eb',val:[0,1,1]},{name:'E',val:[1,1,0]},{name:'F',val:[1,0,0]},{name:'F#/Gb',val:[0,1,0]},{name:'G',val:[0,0,0]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'Câ',val:[0,0,0]}],'High':[{name:'C',val:[0,0,0]},{name:'D',val:[1,0,0]},{name:'E',val:[0,0,0]},{name:'F',val:[1,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[1,1,0]},{name:'B',val:[0,1,0]},{name:'Câ',val:[0,0,0]}]}},
+                        'French Horn':{type:'valves',notes:{'Low':[{name:'C',val:[0,0,0]},{name:'D',val:[1,0,1]},{name:'E',val:[0,1,0]},{name:'F',val:[0,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[1,1,0]},{name:'B',val:[0,1,0]}],'Mid':[{name:'C',val:[0,0,0]},{name:'Db',val:[1,1,0]},{name:'D',val:[1,0,0]},{name:'Eb',val:[0,1,0]},{name:'E',val:[0,0,0]},{name:'F',val:[1,0,0]},{name:'Gb',val:[0,1,0]},{name:'G',val:[0,0,0]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'Câ',val:[0,0,0]}],'High':[{name:'C',val:[0,0,0]},{name:'D',val:[1,0,0]},{name:'E',val:[0,0,0]},{name:'F',val:[1,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[1,1,0]},{name:'B',val:[0,1,0]},{name:'Câ',val:[0,0,0]}]}},
+                        'Tenor Horn':{type:'valves',notes:{'Low':[{name:'F#',val:[1,1,1]},{name:'G',val:[1,0,1]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'C',val:[0,0,0]}],'Mid':[{name:'C',val:[0,0,0]},{name:'C#/Db',val:[1,1,1]},{name:'D',val:[1,0,1]},{name:'Eb',val:[0,1,1]},{name:'E',val:[1,1,0]},{name:'F',val:[1,0,0]},{name:'F#/Gb',val:[0,1,0]},{name:'G',val:[0,0,0]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'Câ',val:[0,0,0]}],'High':[{name:'C',val:[0,0,0]},{name:'D',val:[1,0,0]},{name:'E',val:[0,0,0]},{name:'F',val:[1,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[1,1,0]},{name:'B',val:[0,1,0]},{name:'Câ',val:[0,0,0]}]}},
+                        'Baritone':{type:'valves',notes:{'Low':[{name:'F#',val:[1,1,1]},{name:'G',val:[1,0,1]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'C',val:[0,0,0]}],'Mid':[{name:'C',val:[0,0,0]},{name:'C#/Db',val:[1,1,1]},{name:'D',val:[1,0,1]},{name:'Eb',val:[0,1,1]},{name:'E',val:[1,1,0]},{name:'F',val:[1,0,0]},{name:'F#/Gb',val:[0,1,0]},{name:'G',val:[0,0,0]},{name:'Ab',val:[0,1,1]},{name:'A',val:[1,1,0]},{name:'Bb',val:[1,0,0]},{name:'B',val:[0,1,0]},{name:'Câ',val:[0,0,0]}],'High':[{name:'C',val:[0,0,0]},{name:'D',val:[1,0,0]},{name:'E',val:[0,0,0]},{name:'F',val:[1,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[1,1,0]},{name:'B',val:[0,1,0]},{name:'Câ',val:[0,0,0]}]}},
+                        'Trombone':{type:'slide',notes:{'Low':[{name:'E',pos:7},{name:'F',pos:6},{name:'G',pos:4},{name:'Ab',pos:3},{name:'A',pos:2},{name:'Bb',pos:1}],'Mid':[{name:'Bb',pos:1},{name:'B',pos:7},{name:'C',pos:6},{name:'Db',pos:5},{name:'D',pos:4},{name:'Eb',pos:3},{name:'E',pos:2},{name:'F',pos:1},{name:'Gb',pos:5},{name:'G',pos:4},{name:'Ab',pos:3},{name:'A',pos:2},{name:'Bbâ',pos:1}],'High':[{name:'Bb',pos:1},{name:'C',pos:3},{name:'D',pos:1},{name:'Eb',pos:3},{name:'F',pos:1},{name:'G',pos:2},{name:'Ab',pos:3},{name:'Bbâ',pos:1}]}},
+                        'Tuba':{type:'valves',notes:{'Low':[{name:'E',val:[1,1,1]},{name:'F',val:[1,0,1]},{name:'G',val:[1,1,0]},{name:'Ab',val:[1,0,0]},{name:'A',val:[0,1,0]},{name:'Bb',val:[0,0,0]}],'Mid':[{name:'Bb',val:[0,0,0]},{name:'B',val:[1,1,1]},{name:'C',val:[1,0,1]},{name:'Db',val:[0,1,1]},{name:'D',val:[1,1,0]},{name:'Eb',val:[1,0,0]},{name:'E',val:[0,1,0]},{name:'F',val:[0,0,0]},{name:'Gb',val:[0,1,1]},{name:'G',val:[1,1,0]},{name:'Ab',val:[1,0,0]},{name:'A',val:[0,1,0]},{name:'Bbâ',val:[0,0,0]}],'High':[{name:'Bb',val:[0,0,0]},{name:'C',val:[1,0,0]},{name:'D',val:[1,1,0]},{name:'Eb',val:[1,0,0]},{name:'F',val:[0,0,0]},{name:'G',val:[0,0,0]},{name:'A',val:[0,1,0]},{name:'Bbâ',val:[0,0,0]}]}}
                     }
                 }
             }));
