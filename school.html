@@ -29,9 +29,12 @@
                     colors: { pageBg: '#f8fafc', textMain: '#0f172a', textMuted: '#64748b', brass: '#b45309', brassLight: '#d97706', surface: '#ffffff' },
                     animation: { 
                         'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'marquee-mobile': 'marquee 25s linear infinite',
+                        'marquee-desktop': 'marquee 45s linear infinite',
                     },
                     keyframes: {
-                        fadeInUp: { '0%': { opacity: '0', transform: 'translateY(30px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } }
+                        fadeInUp: { '0%': { opacity: '0', transform: 'translateY(30px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        marquee: { '0%': { transform: 'translateX(0%)' }, '100%': { transform: 'translateX(-100%)' } }
                     }
                 }
             }
@@ -61,7 +64,13 @@
     </style>
 </head>
 
-<body class="text-textMain antialiased bg-pageBg overflow-x-hidden" x-data="schoolApp" @scroll.window="scrollY = window.pageYOffset; scrollProgress = (window.pageYOffset / (document.documentElement.scrollHeight - window.innerHeight)) * 100">
+<body class="text-textMain antialiased bg-transparent overflow-x-hidden" x-data="schoolApp" @scroll.window="scrollY = window.pageYOffset; scrollProgress = (window.pageYOffset / (document.documentElement.scrollHeight - window.innerHeight)) * 100">
+
+    <div class="fixed inset-0 z-[-1] bg-[#f8fafc]">
+        <div class="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:24px_24px] opacity-50"></div>
+        <div class="absolute top-0 right-0 w-96 h-96 bg-brass/10 blur-[100px] rounded-full pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 w-[30rem] h-[30rem] bg-blue-500/5 blur-[120px] rounded-full pointer-events-none"></div>
+    </div>
 
     <div x-show="showToast" x-transition.opacity.duration.300ms class="fixed bottom-6 right-6 bg-slate-900 text-white px-5 py-3.5 rounded-xl shadow-2xl flex items-center gap-3 z-[200]" x-cloak>
         <svg class="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
@@ -69,6 +78,22 @@
     </div>
 
     <div class="fixed top-0 left-0 h-1.5 bg-gradient-to-r from-brass to-brassLight z-[100] shadow-[0_0_10px_rgba(180,83,9,0.5)] transition-all duration-150 ease-linear" :style="'width: ' + scrollProgress + '%'"></div>
+    
+    <div class="bg-slate-900 text-white py-2.5 overflow-hidden relative z-[90] border-b border-brass/20 flex mt-1.5">
+        <div class="whitespace-nowrap animate-marquee-mobile md:animate-marquee-desktop flex items-center min-w-full shrink-0">
+            <span class="px-8 flex items-center"><span class="text-brassLight font-bold uppercase tracking-wider mr-2">Reminder:</span><span>Daily Practice Builds Champions!</span></span>
+            <span class="px-8 text-slate-400 italic font-serif text-lg" x-text="lang === 'en' ? currentVerse.en : currentVerse.ua"></span>
+            <span class="px-8 flex items-center"><span class="text-brassLight font-bold uppercase tracking-wider mr-2">Goal:</span><span>30 Minutes Today</span></span>
+            <span class="px-8 text-slate-400 italic font-serif text-lg" x-text="lang === 'en' ? currentVerse.en : currentVerse.ua"></span>
+        </div>
+        <div class="whitespace-nowrap animate-marquee-mobile md:animate-marquee-desktop flex items-center min-w-full shrink-0">
+            <span class="px-8 flex items-center"><span class="text-brassLight font-bold uppercase tracking-wider mr-2">Reminder:</span><span>Daily Practice Builds Champions!</span></span>
+            <span class="px-8 text-slate-400 italic font-serif text-lg" x-text="lang === 'en' ? currentVerse.en : currentVerse.ua"></span>
+            <span class="px-8 flex items-center"><span class="text-brassLight font-bold uppercase tracking-wider mr-2">Goal:</span><span>30 Minutes Today</span></span>
+            <span class="px-8 text-slate-400 italic font-serif text-lg" x-text="lang === 'en' ? currentVerse.en : currentVerse.ua"></span>
+        </div>
+    </div>
+
     <div id="print-staves"></div>
 
     <div x-show="profileModalOpen" x-transition.opacity class="fixed inset-0 z-[120] flex items-center justify-center bg-slate-900/80 backdrop-blur-md p-4 w-full h-full" x-cloak>
@@ -172,12 +197,12 @@
         </div>
     </div>
 
-    <nav class="sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-slate-200/80 shadow-sm transition-colors duration-300 w-full max-w-[100vw]" :class="mobileMenuOpen ? 'bg-white border-transparent' : ''">
+    <nav class="sticky top-[44px] z-40 bg-white/90 backdrop-blur-xl border-b border-slate-200/80 shadow-sm transition-colors duration-300 w-full max-w-[100vw]" :class="mobileMenuOpen ? 'bg-white border-transparent' : ''">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative w-full">
             <div class="flex justify-between items-center h-16 w-full">
-                <a href="#" @click.prevent="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex items-center gap-2 hover:opacity-80 transition-opacity group z-50 relative shrink-0">
-                    <div class="font-heading font-black text-lg sm:text-2xl tracking-[0.1em] text-slate-900 leading-none">
-                        FUBC <span class="text-brass block text-[9px] sm:text-[11px] font-bold tracking-[0.3em] mt-0.5 uppercase group-hover:text-brassLight transition-colors">Music School</span>
+                <a href="#" @click.prevent="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex items-center gap-3 hover:opacity-80 transition-opacity group z-50 relative shrink-0">
+                    <div class="font-heading font-bold text-xl sm:text-2xl tracking-[0.15em] text-slate-900 leading-none">
+                        FUBC <span class="text-brass block text-[10px] sm:text-xs font-semibold tracking-[0.35em] mt-0.5 group-hover:text-brassLight transition-colors uppercase">Music School</span>
                     </div>
                 </a>
                 
@@ -231,9 +256,10 @@
         </div>
     </nav>
 
-    <div class="relative w-full h-[400px] sm:h-[500px] overflow-hidden bg-slate-900">
+    <div class="relative w-full h-[400px] sm:h-[500px] overflow-hidden bg-slate-900 mt-0">
         <img src="/fubc-school.jpg" class="absolute inset-0 w-full h-full object-cover opacity-40 will-change-transform" :style="'transform: translateY(' + (scrollY * 0.4) + 'px)'" alt="Music School">
-        <div class="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/40 to-pageBg"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/40 to-transparent"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-pageBg/90 via-transparent to-transparent"></div>
         <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-4 pt-10 z-10 animate-fade-in-up">
             <h1 class="font-heading text-2xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight mb-6 drop-shadow-2xl max-w-4xl mx-auto leading-snug">
                 <span x-show="lang === 'en'">“Praise him with trumpet sound; praise him with lute and harp!”<br><span class="text-base sm:text-2xl font-medium mt-4 block text-brassLight tracking-wider">– Psalm 150:3</span></span>
@@ -242,7 +268,7 @@
             <p class="text-slate-300 text-sm sm:text-lg max-w-2xl font-light tracking-wide uppercase"><span x-show="lang === 'en'">Instrumental Music School</span><span x-show="lang === 'ua'" x-cloak>Інструментальна Школа</span></p>
         </div>
         <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-[0] z-20 pointer-events-none">
-            <svg class="relative block w-full h-[40px] sm:h-[100px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M985.66,92.83C906.67,72,823.78,31,743.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z" class="fill-[#f8fafc]"></path></svg>
+            <svg class="relative block w-full h-[40px] sm:h-[100px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M985.66,92.83C906.67,72,823.78,31,743.84,14.19c-82.26-17.34-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z" class="fill-[#f8fafc]" fill-opacity="0.9"></path></svg>
         </div>
     </div>
 
@@ -276,8 +302,8 @@
             </div>
         </div>
 
-        <section id="leaderboard" class="bg-gradient-to-br from-white to-slate-50 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden relative transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] animate-fade-in-up">
-            <div class="px-5 sm:px-8 py-5 sm:py-8 border-b border-slate-100 flex items-center gap-3 sm:gap-4 bg-white relative z-10">
+        <section id="leaderboard" class="bg-gradient-to-br from-white to-slate-50/50 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden relative transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] animate-fade-in-up">
+            <div class="px-5 sm:px-8 py-5 sm:py-8 border-b border-slate-100 flex items-center gap-3 sm:gap-4 bg-white/80 backdrop-blur-sm relative z-10">
                 <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-yellow-400 to-brass rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg text-white shrink-0">
                     <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
                 </div>
@@ -297,20 +323,20 @@
             </div>
 
             <div x-show="leaderboard.length > 0" class="p-5 sm:p-8 grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-12 relative z-10" x-cloak>
-                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 sm:p-6 relative overflow-hidden">
-                    <div class="absolute -right-4 -top-4 w-20 h-20 sm:w-24 sm:h-24 bg-blue-50 rounded-full blur-2xl pointer-events-none"></div>
+                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 sm:p-6 relative overflow-hidden group hover:border-blue-100 transition-colors">
+                    <div class="absolute -right-4 -top-4 w-20 h-20 sm:w-24 sm:h-24 bg-blue-50 rounded-full blur-2xl pointer-events-none group-hover:bg-blue-100 transition-colors"></div>
                     <h3 class="font-bold text-xs sm:text-sm uppercase tracking-widest text-slate-400 mb-4 sm:mb-6 flex items-center gap-2">
                         <svg class="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                         <span x-show="lang === 'en'">Most Minutes</span><span x-show="lang === 'ua'" x-cloak>Топ За Часом</span>
                     </h3>
                     <div class="space-y-3 sm:space-y-4">
                         <template x-for="(student, idx) in topTime" :key="idx">
-                            <div class="flex items-center justify-between group">
+                            <div class="flex items-center justify-between group/item">
                                 <div class="flex items-center gap-3 sm:gap-4">
                                     <div class="w-6 sm:w-8 text-center font-bold text-base sm:text-lg" :class="idx === 0 ? 'text-yellow-400 drop-shadow-sm' : (idx === 1 ? 'text-slate-300' : (idx === 2 ? 'text-amber-600' : 'text-slate-200'))" x-text="idx + 1"></div>
-                                    <div class="font-bold text-xs sm:text-sm text-slate-700 group-hover:text-slate-900 transition-colors" x-text="student.name"></div>
+                                    <div class="font-bold text-xs sm:text-sm text-slate-700 group-hover/item:text-slate-900 transition-colors" x-text="student.name"></div>
                                 </div>
-                                <div class="font-mono font-bold text-[10px] sm:text-xs text-slate-500 bg-slate-50 px-2 sm:px-3 py-1 rounded-lg border border-slate-100 group-hover:bg-blue-50 group-hover:text-blue-600 group-hover:border-blue-100 transition-colors">
+                                <div class="font-mono font-bold text-[10px] sm:text-xs text-slate-500 bg-slate-50 px-2 sm:px-3 py-1 rounded-lg border border-slate-100 group-hover/item:bg-blue-50 group-hover/item:text-blue-600 group-hover/item:border-blue-100 transition-colors">
                                     <span x-text="Math.floor(student.total_minutes / 60)"></span>h <span x-text="student.total_minutes % 60"></span>m
                                 </div>
                             </div>
@@ -318,20 +344,20 @@
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 sm:p-6 relative overflow-hidden">
-                    <div class="absolute -right-4 -top-4 w-20 h-20 sm:w-24 sm:h-24 bg-orange-50 rounded-full blur-2xl pointer-events-none"></div>
+                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 sm:p-6 relative overflow-hidden group hover:border-orange-100 transition-colors">
+                    <div class="absolute -right-4 -top-4 w-20 h-20 sm:w-24 sm:h-24 bg-orange-50 rounded-full blur-2xl pointer-events-none group-hover:bg-orange-100 transition-colors"></div>
                     <h3 class="font-bold text-xs sm:text-sm uppercase tracking-widest text-slate-400 mb-4 sm:mb-6 flex items-center gap-2">
                         <svg class="w-4 h-4 text-orange-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd" /></svg>
                         <span x-show="lang === 'en'">Longest Streaks</span><span x-show="lang === 'ua'" x-cloak>Найдовші Серії</span>
                     </h3>
                     <div class="space-y-3 sm:space-y-4">
                         <template x-for="(student, idx) in topStreak" :key="idx">
-                            <div class="flex items-center justify-between group">
+                            <div class="flex items-center justify-between group/item">
                                 <div class="flex items-center gap-3 sm:gap-4">
                                     <div class="w-6 sm:w-8 text-center font-bold text-base sm:text-lg" :class="idx === 0 ? 'text-yellow-400 drop-shadow-sm' : (idx === 1 ? 'text-slate-300' : (idx === 2 ? 'text-amber-600' : 'text-slate-200'))" x-text="idx + 1"></div>
-                                    <div class="font-bold text-xs sm:text-sm text-slate-700 group-hover:text-slate-900 transition-colors" x-text="student.name"></div>
+                                    <div class="font-bold text-xs sm:text-sm text-slate-700 group-hover/item:text-slate-900 transition-colors" x-text="student.name"></div>
                                 </div>
-                                <div class="font-mono font-bold text-[10px] sm:text-xs text-slate-500 bg-slate-50 px-2 sm:px-3 py-1 rounded-lg border border-slate-100 group-hover:bg-orange-50 group-hover:text-orange-600 group-hover:border-orange-100 transition-colors">
+                                <div class="font-mono font-bold text-[10px] sm:text-xs text-slate-500 bg-slate-50 px-2 sm:px-3 py-1 rounded-lg border border-slate-100 group-hover/item:bg-orange-50 group-hover/item:text-orange-600 group-hover/item:border-orange-100 transition-colors">
                                     <span x-text="student.streak"></span> <span class="text-[9px] uppercase tracking-wider hidden sm:inline">Days</span><span class="sm:hidden">d</span>
                                 </div>
                             </div>
@@ -380,7 +406,7 @@
                 </div>
             </div>
 
-            <div class="lg:col-span-2 bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 p-5 sm:p-8 flex flex-col justify-between relative overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+            <div class="lg:col-span-2 bg-white/90 backdrop-blur-sm rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 p-5 sm:p-8 flex flex-col justify-between relative overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
                 <div class="flex justify-between items-start mb-6">
                     <div>
                         <h3 class="font-heading font-bold text-slate-900 text-lg sm:text-xl tracking-tight">
@@ -425,7 +451,7 @@
         </div>
 
         <div class="space-y-10 sm:space-y-12">
-            <section id="warmups" class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden scroll-mt-24 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+            <section id="warmups" class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden scroll-mt-24 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
                 <div class="px-5 sm:px-8 py-5 sm:py-8 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50">
                     <div class="flex items-center gap-3 sm:gap-4">
                         <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl sm:rounded-2xl flex items-center justify-center shadow-sm border border-slate-200 text-brass shrink-0">
@@ -444,7 +470,7 @@
                     </div>
                 </div>
                 
-                <div class="p-5 sm:p-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 bg-white">
+                <div class="p-5 sm:p-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 bg-white/80">
                     <template x-for="(ex, index) in exercises" :key="index">
                         <div @click="openFullScreen(index, 'exercises')" class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm transform transition-all duration-300 hover:-translate-y-1.5 hover:border-brass/50 hover:shadow-[0_10px_20px_rgba(180,83,9,0.1)] cursor-pointer group relative flex flex-col overflow-hidden">
                             <div class="absolute inset-0 bg-gradient-to-br from-slate-50 to-white opacity-0 group-hover:opacity-100 transition-opacity z-0"></div>
@@ -465,7 +491,7 @@
                 </div>
             </section>
 
-            <section id="scales" class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden scroll-mt-24 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+            <section id="scales" class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden scroll-mt-24 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
                 <div class="px-5 sm:px-8 py-5 sm:py-8 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50">
                     <div class="flex items-center gap-3 sm:gap-4">
                         <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl sm:rounded-2xl flex items-center justify-center shadow-sm border border-slate-200 text-brass shrink-0">
@@ -484,7 +510,7 @@
                     </div>
                 </div>
                 
-                <div class="p-5 sm:p-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4 bg-white">
+                <div class="p-5 sm:p-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4 bg-white/80">
                     <template x-for="(sc, index) in scales" :key="'sc'+index">
                         <div @click="openFullScreen(index, 'scales')" class="bg-white rounded-xl border border-slate-200 p-3 sm:p-4 shadow-sm transform transition-all duration-200 hover:-translate-y-1 hover:border-brass/50 hover:shadow-md cursor-pointer group flex flex-col text-center">
                             <h3 class="font-heading text-[11px] sm:text-xs font-bold text-slate-800 group-hover:text-brass transition-colors mb-2 truncate">
@@ -500,7 +526,7 @@
             </section>
         </div>
 
-        <section id="setlist" class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden scroll-mt-24 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+        <section id="setlist" class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden scroll-mt-24 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
             <div class="px-5 sm:px-8 py-5 sm:py-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                 <div class="flex items-center gap-3 sm:gap-4">
                     <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl sm:rounded-2xl flex items-center justify-center shadow-sm border border-slate-200 text-brass shrink-0">
@@ -515,7 +541,7 @@
             
             <div x-show="schoolSongs.length === 0" class="p-12 text-center text-slate-400 text-sm animate-pulse font-medium">Connecting to music database...</div>
 
-            <div x-show="schoolSongs.length > 0" class="p-5 sm:p-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 bg-white">
+            <div x-show="schoolSongs.length > 0" class="p-5 sm:p-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 bg-white/80">
                 <template x-for="song in schoolSongs" :key="song.title">
                     <div class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm hover:shadow-xl hover:border-brass/50 transition-all duration-300 transform hover:-translate-y-2 flex flex-col group relative overflow-hidden">
                         <div class="absolute top-0 right-0 w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-bl from-brass/10 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -595,7 +621,7 @@
                         </div>
                     </div>
 
-                    <div class="bg-white p-5 sm:p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 relative overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+                    <div class="bg-white/90 backdrop-blur-sm p-5 sm:p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 relative overflow-hidden transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
                         <div class="flex justify-between items-center mb-6 sm:mb-8 border-b border-slate-100 pb-4">
                             <div class="flex items-center gap-2">
                                 <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -619,7 +645,7 @@
                         </div>
                     </div>
 
-                    <div class="bg-white p-5 sm:p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 flex flex-col transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+                    <div class="bg-white/90 backdrop-blur-sm p-5 sm:p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 flex flex-col transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
                         <div class="mb-4 sm:mb-5 border-b border-slate-100 pb-4">
                             <div class="flex items-center gap-2 mb-1">
                                 <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
@@ -644,10 +670,10 @@
                     </div>
                 </div>
 
-                <div class="lg:col-span-2 bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 flex flex-col transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] overflow-hidden w-full relative">
-                    <div class="absolute top-0 right-0 w-48 h-48 sm:w-64 sm:h-64 bg-gradient-to-bl from-slate-100 to-transparent rounded-bl-[100px] pointer-events-none"></div>
+                <div class="lg:col-span-2 bg-white/90 backdrop-blur-sm rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 flex flex-col transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] overflow-hidden w-full relative">
+                    <div class="absolute top-0 right-0 w-48 h-48 sm:w-64 sm:h-64 bg-gradient-to-bl from-slate-100/50 to-transparent rounded-bl-[100px] pointer-events-none"></div>
                     
-                    <div class="p-5 sm:p-8 border-b border-slate-100 bg-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 relative z-10">
+                    <div class="p-5 sm:p-8 border-b border-slate-100 bg-white/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 relative z-10">
                         <div class="text-left">
                             <div class="flex items-center gap-2 mb-1">
                                 <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
@@ -662,7 +688,7 @@
                         <div class="text-[10px] sm:text-xs font-bold text-brass uppercase tracking-widest bg-brass/10 border border-brass/20 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl shadow-sm" x-text="globalInstrument"></div>
                     </div>
                     
-                    <div class="p-4 sm:p-10 flex flex-col items-center flex-grow bg-slate-50/50 w-full relative z-10">
+                    <div class="p-4 sm:p-10 flex flex-col items-center flex-grow bg-slate-50/30 w-full relative z-10">
                         <div class="flex justify-center gap-1.5 sm:gap-2 mb-6 sm:mb-8 bg-white p-1.5 sm:p-2 rounded-2xl shadow-sm border border-slate-200 max-w-full overflow-x-auto w-full">
                             <template x-for="r in interactiveChart.ranges">
                                 <button @click="interactiveChart.selectedRange = r; interactiveChart.selectedNote = 0; stopFingeringAudio();"
@@ -760,7 +786,7 @@
             </div>
         </section>
 
-        <section class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden flex flex-col transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] mt-8 sm:mt-12">
+        <section class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden flex flex-col transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] mt-8 sm:mt-12">
             <div class="p-5 sm:p-8 border-b border-slate-100 bg-slate-50 flex items-center gap-3 sm:gap-4">
                 <div class="w-8 h-8 sm:w-10 sm:h-10 bg-white border border-slate-200 rounded-lg sm:rounded-xl flex items-center justify-center shadow-sm text-brass shrink-0">
                     <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -774,7 +800,7 @@
                     </p>
                 </div>
             </div>
-            <div class="p-4 sm:p-8 space-y-4 sm:space-y-6 flex-grow bg-white">
+            <div class="p-4 sm:p-8 space-y-4 sm:space-y-6 flex-grow bg-white/80">
                 <details class="group bg-slate-50 rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-slate-100 open:border-brass/30 open:shadow-md transition-all">
                     <summary class="font-bold text-xs sm:text-sm text-slate-800 cursor-pointer hover:text-brass transition-colors list-none flex justify-between items-center outline-none">
                         <span x-show="lang === 'en'">1. Posture & Air Support</span><span x-show="lang === 'ua'" x-cloak>1. Постава та Дихання</span>
@@ -810,7 +836,7 @@
 
     </main>
 
-    <footer class="bg-white border-t border-slate-200 py-12 sm:py-16 text-center mt-auto">
+    <footer class="bg-white border-t border-slate-200 py-12 sm:py-16 text-center mt-auto relative z-30">
         <div class="max-w-7xl mx-auto px-4 space-y-4 sm:space-y-6">
             <div class="font-bold text-slate-900 tracking-tight text-lg sm:text-xl font-heading">FUBC <span class="text-brass">MUSIC SCHOOL</span></div>
             <p class="text-xs sm:text-sm font-medium text-slate-500">&copy; 2026 First Ukrainian Baptist Church Band.</p>
@@ -825,18 +851,16 @@
     <script>
         document.addEventListener('alpine:init', () => {
 
-            // FIX 1: The "Random Flute" on Initial Load (Safe Cache Validation)
             const validInstruments = ['Flute', 'Oboe', 'Clarinet', 'Saxophone', 'Trumpet', 'French Horn', 'Tenor Horn', 'Baritone', 'Trombone', 'Tuba'];
             let initInstrument = localStorage.getItem('fubc_school_instrument');
             if (!validInstruments.includes(initInstrument)) {
                 if (initInstrument === 'Alto Saxophone') { 
-                    initInstrument = 'Saxophone'; // Auto-heals the broken cache from my previous code 
+                    initInstrument = 'Saxophone'; 
                 } else {
-                    initInstrument = 'Flute'; // Default safe instrument
+                    initInstrument = 'Flute'; 
                 }
             }
 
-            // Sync the group as well to prevent any load-time mismatch
             let initGroup = 0;
             if (['Flute', 'Oboe'].includes(initInstrument)) initGroup = 0; 
             else if (['Clarinet', 'Trumpet', 'Baritone'].includes(initInstrument)) initGroup = 1; 
@@ -845,7 +869,6 @@
             else if (['Trombone'].includes(initInstrument)) initGroup = 4; 
             else if (['Tuba'].includes(initInstrument)) initGroup = 5;
 
-            // Safe parsing for logs to prevent any other cache crashes
             let initialLog = [];
             try {
                 const logStr = localStorage.getItem('fubc_school_weekly_log');
@@ -926,14 +949,14 @@
                 getRankColor() { let hrs = (this.currentUser ? this.currentUser.total_minutes : this.totalMinutes) / 60; if(hrs < 5) return 'text-slate-500'; if(hrs < 20) return 'text-emerald-500'; if(hrs < 50) return 'text-blue-500'; return 'text-brass'; },
 
                 availableInstruments: validInstruments,
-                globalInstrument: initInstrument, // Applied FIX 1
+                globalInstrument: initInstrument, 
                 selectedGroup: initGroup,
                 instrumentGroups: [ { clef: 'treble' }, { clef: 'treble' }, { clef: 'treble' }, { clef: 'treble' }, { clef: 'bass' }, { clef: 'bass' } ],
 
                 streak: parseInt(localStorage.getItem('fubc_school_streak')) || 0,
                 lastPractice: localStorage.getItem('fubc_school_last_date') || '',
                 practicedToday: false,
-                practicedLog: initialLog, // Applied safe JSON check
+                practicedLog: initialLog, 
                 weekDays: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
                 get currentDayOfWeek() { return new Date().getDay(); },
                 hasPracticedOnDay(dayIndex) { const logToCheck = this.currentUser ? this.currentUser.log : this.practicedLog; if (!logToCheck) return false; const today = new Date(); const dayDiff = today.getDay() - dayIndex; const targetDate = new Date(today); targetDate.setDate(today.getDate() - dayDiff); return logToCheck.includes(targetDate.toDateString()); },
@@ -941,13 +964,19 @@
                 sessionActive: false, sessionTimer: null, sessionPhase: 0, sessionTimeLeft: 300, 
                 sessionPhases: [ { name_en: 'Warm-Ups', name_ua: 'Розминка', duration: 300 }, { name_en: 'Repertoire', name_ua: 'Репертуар', duration: 1200 }, { name_en: 'Review', name_ua: 'Повторення', duration: 300 } ],
                 submitStatus: 'idle', synthControl: null, schoolSongs: [],
+                
+                verses: [
+                    { en: 'Make a joyful noise unto the Lord...', ua: 'Викликніть Господу, уся земле...' },
+                    { en: 'Practice makes perfect! 15 mins a day.', ua: 'Практика робить досконалим! 15 хв на день.' },
+                    { en: 'Praise him with the sounding of the trumpet...', ua: 'Хваліть Його звуком трубним...' }
+                ],
+                currentVerse: null,
 
-                // FIX 3: Adjusted to be more beginner-friendly. Flutes moved up, Brass/Clarinet/Sax octaves tightened.
                 exercises: [
-                    { title_en: '1. Long Tones', title_ua: '1. Довгі Ноти', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/4\nc\' b a g|f e d c|c4 z4|]','L:1/4\nd\' c\' b a|g f e d|d4 z4|]','L:1/4\na g f e|d c B A|A4 z4|]','L:1/4\ng f e d|c B A G|G4 z4|]','L:1/4\nc B A G|F E D C|C4 z4|]','L:1/4\nC B, A, G,|F, E, D, C,|C,4 z4|]'] },
-                    { title_en: '2. Flexibility', title_ua: '2. Гнучкість', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\n(f c\' f c\' f2) z2|(g d\' g d\' g2) z2|(a e\' a e\' a2) z2|(b f\' b f\' b2) z2|]','L:1/8\n(G d G d G2) z2|(A e A e A2) z2|(B f B f B2) z2|(c g c g c2) z2|]','L:1/8\n(d A d A d2) z2|(e B e B e2) z2|(f c f c f2) z2|(g d g d g2) z2|]','L:1/8\n(c G c G c2) z2|(d A d A d2) z2|(e B e B e2) z2|(f c f c f2) z2|]','L:1/8\n(F C F C F2) z2|(G D G D G2) z2|(A E A E A2) z2|(B F B F B2) z2|]','L:1/8\n(F, C, F, C, F,2) z2|(G, D, G, D, G,2) z2|(A, E, A, E, A,2) z2|(B, F, B, F, B,2) z2|]'] },
-                    { title_en: '3. Articulation', title_ua: '3. Артикуляція', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\n.f.f .f.f .f.f .f.f|f2 z2 f2 z2|.b.b .b.b .b.b .b.b|b2 z2 b2 z2|]','L:1/8\n.G.G .G.G .G.G .G.G|G2 z2 G2 z2|.c.c .c.c .c.c .c.c|c2 z2 c2 z2|]','L:1/8\n.d.d .d.d .d.d .d.d|d2 z2 d2 z2|.g.g .g.g .g.g .g.g|g2 z2 g2 z2|]','L:1/8\n.c.c .c.c .c.c .c.c|c2 z2 c2 z2|.f.f .f.f .f.f .f.f|f2 z2 f2 z2|]','L:1/8\n.F.F .F.F .F.F .F.F|F2 z2 F2 z2|.B.B .B.B .B.B .B.B|B2 z2 B2 z2|]','L:1/8\n.F,.F, .F,.F, .F,.F, .F,.F,|F,2 z2 F,2 z2|.B,.B, .B,.B, .B,.B, .B,.B,|B,2 z2 B,2 z2|]'] },
-                    { title_en: '4. Arpeggios', title_ua: '4. Арпеджіо', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\nf a c\' f\' f\' c\' a f|f8|b d\' f\' b\' b\' f\' d\' b|b8|]','L:1/8\nG B d g g d B G|G8|c e g c\' c\' g e c|c8|]','L:1/8\nd f a d\' d\' a f d|d8|g b d\' g\' g\' d\' b g|g8|]','L:1/8\nc e g c\' c\' g e c|c8|f a c\' f\' f\' c\' a f|f8|]','L:1/8\nF A c f f c A F|F8|B d f b b f d B|B8|]','L:1/8\nF, A, C F F C A, F,|F,8|B, D F B B F D B,|B,8|]'] }
+                    { title_en: '1. Long Tones', title_ua: '1. Довгі Ноти', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/4\nf\' e\' d\' c\'|b a g f|b4 z4|]','L:1/4\ng f e d|c B A G|c4 z4|]','L:1/4\nd\' c\' b a|g f e d|g4 z4|]','L:1/4\nc\' b a g|f e d c|f4 z4|]','L:1/4\nf e d c|B A G F|B,4 z4|]','L:1/4\nF, E, D, C,|B,, A,, G,, F,,|B,,4 z4|]'] },
+                    { title_en: '2. Flexibility', title_ua: '2. Гнучкість', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\n(b d\' f\' d\' b2) z2|(c\' e\' g\' e\' c\'2) z2|]','L:1/8\n(c e g e c2) z2|(d f a f d2) z2|]','L:1/8\n(g b d\' b g2) z2|(a c\' e\' c\' a2) z2|]','L:1/8\n(f a c\' a f2) z2|(g b d\' b g2) z2|]','L:1/8\n(B, D F D B,2) z2|(C E G E C2) z2|]','L:1/8\n(B,, D, F, D, B,,2) z2|(C, E, G, E, C,2) z2|]'] },
+                    { title_en: '3. Articulation', title_ua: '3. Артикуляція', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\n.b.b .b.b .b.b .b.b|b2 z2 b2 z2|.c\'.c\' .c\'.c\' .c\'.c\' .c\'.c\'|c\'2 z2 c\'2 z2|]','L:1/8\n.c.c .c.c .c.c .c.c|c2 z2 c2 z2|.d.d .d.d .d.d .d.d|d2 z2 d2 z2|]','L:1/8\n.g.g .g.g .g.g .g.g|g2 z2 g2 z2|.a.a .a.a .a.a .a.a|a2 z2 a2 z2|]','L:1/8\n.f.f .f.f .f.f .f.f|f2 z2 f2 z2|.g.g .g.g .g.g .g.g|g2 z2 g2 z2|]','L:1/8\n.B,.B, .B,.B, .B,.B, .B,.B,|B,2 z2 B,2 z2|.C.C .C.C .C.C .C.C|C2 z2 C2 z2|]','L:1/8\n.B,,.B,, .B,,.B,, .B,,.B,, .B,,.B,,|B,,2 z2 B,,2 z2|.C,.C, .C,.C, .C,.C, .C,.C,|C,2 z2 C,2 z2|]'] },
+                    { title_en: '4. Arpeggios', title_ua: '4. Арпеджіо', keys: ['Bb','C','G','F','Bb','Bb'], abc: ['L:1/8\nb d\' f\' b\' b\' f\' d\' b|b8|]','L:1/8\nc e g c\' c\' g e c|c8|]','L:1/8\ng b d\' g\' g\' d\' b g|g8|]','L:1/8\nf a c\' f\' f\' c\' a f|f8|]','L:1/8\nB, D F B B F D B,|B,8|]','L:1/8\nB,, D, F, B, B, F, D, B,,|B,,8|]'] }
                 ],
                 scales: [
                     { title_en: 'Concert C Major', title_ua: 'До мажор (C)', keys: ['C','D','A','G','C','C'], abc: ['L:1/8\nc d e f g a b c\'|c\' b a g f e d c|c8|]','L:1/8\nD E F G A B c d|d c B A G F E D|D8|]','L:1/8\nA B c d e f g a|a g f e d c B A|A8|]','L:1/8\nG A B c d e f g|g f e d c B A G|G8|]','L:1/8\nC, D, E, F, G, A, B, C|C B, A, G, F, E, D, C,|C,8|]','L:1/8\nC,, D,, E,, F,, G,, A,, B,, C,|C, B,, A,, G,, F,, E,, D,, C,,|C,,8|]']},
@@ -963,6 +992,7 @@
                 ],
 
                 async init() {
+                    this.currentVerse = this.verses[Math.floor(Math.random() * this.verses.length)];
                     this.updateGlobalInstrument(this.globalInstrument, true);
                     
                     const supabaseUrl = 'https://levtwocaqocalknouepf.supabase.co';
@@ -1041,11 +1071,10 @@
                     }
                 },
 
-                // FIX 2: Added the interactiveChart resets below to prevent the chart from crashing
                 updateGlobalInstrument(inst, silent=false) {
                     this.globalInstrument = inst; localStorage.setItem('fubc_school_instrument', inst);
                     this.interactiveChart.instrument = inst; 
-                    this.interactiveChart.selectedRange = 'Mid'; // Added to prevent out-of-bounds crash
+                    this.interactiveChart.selectedRange = 'Mid'; 
                     this.interactiveChart.selectedNote = 0; 
                     this.stopFingeringAudio();
                     let groupIdx = 0;
@@ -1103,7 +1132,6 @@
                 updatePitch() { if (!this.tunerActive) return; const buffer = new Float32Array(this.analyser.fftSize); this.analyser.getFloatTimeDomainData(buffer); const acFreq = this.autoCorrelate(buffer, this.audioContext.sampleRate); if (acFreq !== -1) { const noteNum = 12 * (Math.log(acFreq / 440) / Math.log(2)); const noteIndex = Math.round(noteNum) + 69; const notes = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B']; this.tunerNote = notes[noteIndex % 12]; const expectedFreq = 440 * Math.pow(2, (noteIndex - 69) / 12); this.tunerCents = Math.floor(1200 * Math.log2(acFreq / expectedFreq)); } this.animationId = requestAnimationFrame(() => this.updatePitch()); },
                 autoCorrelate(buf, sampleRate) { let SIZE = buf.length; let rms = 0; for (let i=0;i<SIZE;i++) rms += buf[i]*buf[i]; rms = Math.sqrt(rms/SIZE); if (rms<0.01) return -1; let r1=0, r2=SIZE-1, thres=0.2; for(let i=0; i<SIZE/2; i++) if (Math.abs(buf[i])<thres) { r1=i; break; } for(let i=1; i<SIZE/2; i++) if (Math.abs(buf[SIZE-i])<thres) { r2=SIZE-i; break; } buf = buf.slice(r1,r2); SIZE = buf.length; let c = new Array(SIZE).fill(0); for (let i=0; i<SIZE; i++) { for (let j=0; j<SIZE-i; j++) { c[i] = c[i] + buf[j]*buf[j+i]; } } let d=0; while (c[d]>c[d+1]) d++; let maxval=-1, maxpos=-1; for (let i=d; i<SIZE; i++) { if (c[i] > maxval) { maxval = c[i]; maxpos = i; } } let T0 = maxpos; let x1=c[T0-1], x2=c[T0], x3=c[T0+1]; let a = (x1 + x3 - 2*x2)/2; let b = (x3 - x1)/2; if (a) T0 = T0 - b/(2*a); return sampleRate/T0; },
 
-                // FIX 4: The Metronome variables perfectly matching the HTML elements
                 bpm: 100, isMetronomePlaying: false, timer: null, audioCtx: null, lastTap: 0,
                 playClick() { if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); const osc = this.audioCtx.createOscillator(); const gain = this.audioCtx.createGain(); osc.connect(gain); gain.connect(this.audioCtx.destination); osc.frequency.value = 1000; gain.gain.value = 1; osc.start(); gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.1); osc.stop(this.audioCtx.currentTime + 0.1); }, 
                 toggleMetronome() { if (this.isMetronomePlaying) { clearInterval(this.timer); this.isMetronomePlaying = false; } else { this.isMetronomePlaying = true; this.playClick(); this.timer = setInterval(() => this.playClick(), (60 / this.bpm) * 1000); } }, 
@@ -1119,7 +1147,7 @@
                 printStaves(count) { const container = document.getElementById('print-staves'); container.innerHTML = ''; for(let i=0; i<count; i++) { container.innerHTML += `<div class='stave-group'><div class='stave'></div><div class='stave'></div><div class='stave'></div><div class='stave'></div><div class='stave'></div></div>`; } window.print(); },
 
                 interactiveChart: {
-                    instrument: initInstrument, // Applied FIX 1
+                    instrument: initInstrument,
                     selectedRange: 'Mid', selectedNote: 0, ranges: ['Low', 'Mid', 'High'],
                     data: {
                         'Flute':{type:'woodwind',notes:{'Low':[{name:'C',lh:[0,1,1,1],rh:[1,1,1,1]},{name:'D',lh:[1,1,1,1],rh:[1,1,1,0]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,1]},{name:'F',lh:[1,1,1,1],rh:[1,0,0,1]},{name:'G',lh:[1,1,1,1],rh:[0,0,0,1]},{name:'A',lh:[1,1,1,0],rh:[0,0,0,1]},{name:'B',lh:[1,1,0,0],rh:[0,0,0,1]}],'Mid':[{name:'C',lh:[0,1,0,0],rh:[0,0,0,1]},{name:'Db',lh:[0,0,0,0],rh:[0,0,0,1]},{name:'D',lh:[1,0,1,1],rh:[1,1,1,0]},{name:'Eb',lh:[1,0,1,1],rh:[1,1,1,1]},{name:'E',lh:[1,1,1,1],rh:[1,1,0,1]},{name:'F',lh:[1,1,1,1],rh:[1,0,0,1]},{name:'Gb',lh:[1,1,1,1],rh:[0,0,1,1]},{name:'G',lh:[1,1,1,1],rh:[0,0,0,1]},{name:'Ab',lh:[1,1,1,1],rh:[0,0,0,1]},{name:'A',lh:[1,1,1,0],rh:[0,0,0,1]},{name:'Bb',lh:[1,1,0,0],rh:[1,0,0,1]},{name:'B',lh:[1,1,0,0],rh:[0,0,0,1]},{name:'C↑',lh:[0,1,0,0],rh:[0,0,0,1]}],'High':[{name:'C',lh:[0,1,0,0],rh:[0,0,0,1]},{name:'D',lh:[1,0,1,1],rh:[0,0,0,0]},{name:'E',lh:[1,1,1,0],rh:[1,1,0,1]},{name:'F',lh:[1,1,0,1],rh:[1,0,0,1]},{name:'G',lh:[1,0,1,1],rh:[0,0,0,1]},{name:'A',lh:[1,0,1,0],rh:[1,0,0,1]},{name:'B',lh:[1,0,0,0],rh:[0,0,0,1]}]}},
